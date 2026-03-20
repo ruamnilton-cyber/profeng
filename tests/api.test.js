@@ -1,0 +1,124 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('fs/promises');
+const os = require('os');
+const path = require('path');
+
+const tempDir = path.join(os.tmpdir(), `profeng-tests-${process.pid}-${Date.now()}`);
+process.env.NODE_ENV = 'test';
+process.env.APP_DATA_FILE = path.join(tempDir, 'app-data.json');
+process.env.ALLOWED_ORIGIN = '';
+delete process.env.OPENAI_API_KEY;
+delete process.env.GOOGLE_CLIENT_ID;
+
+const { createApp } = require('../src/app');
+
+let server;
+let baseUrl;
+
+async function requestJson(route, options = {}) {
+  const response = await fetch(`${baseUrl}${route}`, options);
+  const text = await response.text();
+  const json = text ? JSON.parse(text) : null;
+  return { response, json };
+}
+
+test.before(async () => {
+  await fs.mkdir(tempDir, { recursive: true });
+  const app = createApp();
+
+  await new Promise((resolve) => {
+    server = app.listen(0, '127.0.0.1', resolve);
+  });
+
+  const address = server.address();
+  baseUrl = `http://127.0.0.1:${address.port}`;
+});
+
+test.after(async () => {
+  if (server) {
+    await new Promise((resolve, reject) => {
+      server.close((error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+      });
+    });
+  }
+
+  await fs.rm(tempDir, { recursive: true, force: true });
+});
+
+test('health and meta endpoints expose available features', async () => {
+  const { response: healthResponse, json: health } = await requestJson('/health');
+  assert.equal(healthResponse.status, 200);
+  assert.equal(health.status, 'ok');
+  assert.equal(health.services.auth, true);
+  assert.equal(health.services.openai, false);
+
+  const { response: metaResponse, json: meta } = await requestJson('/meta/options');
+  assert.equal(metaResponse.status, 200);
+  assert.ok(Array.isArray(meta.levels));
+  assert.ok(meta.levels.some((level) => level.id === 'A1'));
+  assert.ok(meta.levels.some((level) => level.id === 'C2'));
+  assert.deepEqual(meta.auth, { email: true, googleConfigured: false });
+});
+
+test('email auth flow creates a user, returns a token and exposes profile stats', async () => {
+  const registerPayload = {
+    email: 'aluna@profeng.dev',
+    password: 'Senha1234',
+    name: 'Aluna Teste',
+    level: 'A2',
+  };
+
+  const { response: registerResponse, json: register } = await requestJson('/auth/register', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(registerPayload),
+  });
+
+  assert.equal(registerResponse.status, 200);
+  assert.equal(register.user.email, registerPayload.email);
+  assert.equal(register.user.level, 'A2');
+  assert.ok(register.token);
+
+  const { response: loginResponse, json: login } = await requestJson('/auth/login', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      email: registerPayload.email,
+      password: registerPayload.password,
+    }),
+  });
+
+  assert.equal(loginResponse.status, 200);
+  assert.ok(login.token);
+
+  const { response: meResponse, json: me } = await requestJson('/auth/me', {
+    headers: {
+      Authorization: `Bearer ${login.token}`,
+    },
+  });
+
+  assert.equal(meResponse.status, 200);
+  assert.equal(me.user.name, 'Aluna Teste');
+  assert.equal(me.stats.exerciseAttempts, 0);
+  assert.equal(me.stats.voiceSessions, 0);
+});
+
+test('chat route fails gracefully when OpenAI is not configured', async () => {
+  const { response, json } = await requestJson('/chat', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      level: 'B1',
+      messages: [{ role: 'user', content: 'Hello there' }],
+    }),
+  });
+
+  assert.equal(response.status, 503);
+  assert.match(json.error, /OPENAI_API_KEY/i);
+});

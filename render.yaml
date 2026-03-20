@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: profeng-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: SESSION_COOKIE_NAME
+        value: profeng_session
+      - key: SESSION_TTL_DAYS
+        value: 30
+      - key: OPENAI_TEXT_MODEL
+        value: gpt-4o-mini
+      - key: OPENAI_TRANSCRIBE_MODEL
+        value: gpt-4o-mini-transcribe
+      - key: OPENAI_TTS_MODEL
+        value: gpt-4o-mini-tts
+      - key: OPENAI_TTS_VOICE
+        value: alloy

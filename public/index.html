@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ProfEng Playground</title>
+    <style>
+      :root {
+        --bg: #f4efe6;
+        --card: #fffaf2;
+        --text: #18222f;
+        --muted: #5c6a78;
+        --accent: #d56a1d;
+        --accent-dark: #9f4610;
+        --border: #e4d6c3;
+        --ok: #237b4b;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        background:
+          radial-gradient(circle at top, rgba(213, 106, 29, 0.12), transparent 38%),
+          linear-gradient(180deg, #f8f3ec 0%, var(--bg) 100%);
+        color: var(--text);
+      }
+
+      .page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 32px 18px 60px;
+      }
+
+      .hero {
+        margin-bottom: 24px;
+        padding: 24px;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        background: linear-gradient(135deg, rgba(255, 250, 242, 0.98), rgba(255, 244, 229, 0.92));
+        box-shadow: 0 14px 40px rgba(68, 42, 18, 0.08);
+      }
+
+      .hero h1 {
+        margin: 0 0 10px;
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        line-height: 0.96;
+      }
+
+      .hero p {
+        margin: 0;
+        max-width: 760px;
+        color: var(--muted);
+        font-size: 1rem;
+      }
+
+      .status {
+        margin-top: 16px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: rgba(35, 123, 75, 0.08);
+        color: var(--ok);
+        font-size: 0.95rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        padding: 18px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        box-shadow: 0 10px 28px rgba(58, 39, 19, 0.05);
+      }
+
+      .card h2 {
+        margin: 0 0 14px;
+        font-size: 1.2rem;
+      }
+
+      .stack {
+        display: grid;
+        gap: 10px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        font-size: 0.92rem;
+      }
+
+      input, select, textarea, button {
+        font: inherit;
+      }
+
+      input, select, textarea {
+        width: 100%;
+        padding: 11px 12px;
+        border: 1px solid #cfbca5;
+        border-radius: 12px;
+        background: #fff;
+        color: var(--text);
+      }
+
+      textarea {
+        min-height: 96px;
+        resize: vertical;
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 11px 16px;
+        background: var(--accent);
+        color: white;
+        cursor: pointer;
+        transition: transform 0.15s ease, background 0.15s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        background: var(--accent-dark);
+      }
+
+      button.secondary {
+        background: #e8ddce;
+        color: var(--text);
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .row > * {
+        flex: 1 1 140px;
+      }
+
+      .output {
+        margin-top: 12px;
+        padding: 14px;
+        border-radius: 14px;
+        background: #fff;
+        border: 1px dashed #d7c7b1;
+        white-space: pre-wrap;
+        word-break: break-word;
+        min-height: 56px;
+        font-size: 0.95rem;
+      }
+
+      .chat-log {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 12px;
+        max-height: 260px;
+        overflow: auto;
+      }
+
+      .bubble {
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: #fff;
+        border: 1px solid #e1d2bd;
+      }
+
+      .bubble.me {
+        background: #fff2e3;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      audio {
+        width: 100%;
+        margin-top: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <section class="hero">
+        <h1>ProfEng Playground</h1>
+        <p>
+          Esta pagina serve para testar a API online mesmo sem o app original. Voce pode criar conta,
+          conversar com o tutor, gerar exercicios, avaliar nivel e experimentar a rota de voz.
+        </p>
+        <div id="globalStatus" class="status">Carregando configuracoes...</div>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Conta</h2>
+          <div class="stack">
+            <div class="row">
+              <label>
+                Nome
+                <input id="authName" placeholder="Seu nome" />
+              </label>
+              <label>
+                Nivel
+                <select id="authLevel"></select>
+              </label>
+            </div>
+            <label>
+              Email
+              <input id="authEmail" type="email" placeholder="voce@email.com" />
+            </label>
+            <label>
+              Senha
+              <input id="authPassword" type="password" placeholder="minimo 8 caracteres" />
+            </label>
+            <div class="row">
+              <button id="registerButton">Criar conta</button>
+              <button id="loginButton" class="secondary">Entrar</button>
+              <button id="meButton" class="secondary">Minha sessao</button>
+            </div>
+            <div class="muted">Para Google login, o frontend original ainda precisa gerar o idToken.</div>
+            <div id="authOutput" class="output"></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Chat</h2>
+          <div class="stack">
+            <div id="chatLog" class="chat-log"></div>
+            <div class="row">
+              <label>
+                Nivel
+                <select id="chatLevel"></select>
+              </label>
+              <label>
+                Modo
+                <select id="chatMode"></select>
+              </label>
+            </div>
+            <label>
+              Topico
+              <input id="chatTopic" placeholder="job interviews, travel, daily routine..." />
+            </label>
+            <label>
+              Sua mensagem
+              <textarea id="chatMessage" placeholder="Escreva em ingles ou portugues."></textarea>
+            </label>
+            <div class="row">
+              <button id="chatButton">Enviar</button>
+              <button id="clearChatButton" class="secondary">Limpar conversa</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Exercicios</h2>
+          <div class="stack">
+            <div class="row">
+              <label>
+                Nivel
+                <select id="exerciseLevel"></select>
+              </label>
+              <label>
+                Skill
+                <select id="exerciseSkill"></select>
+              </label>
+            </div>
+            <label>
+              Topico
+              <input id="exerciseTopic" placeholder="present perfect, airport, food..." />
+            </label>
+            <button id="exerciseButton">Gerar exercicios</button>
+            <div id="exerciseOutput" class="output"></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Avaliar nivel</h2>
+          <div class="stack">
+            <label>
+              Texto do aluno
+              <textarea id="levelSample" placeholder="Escreva um texto em ingles para a API estimar o nivel."></textarea>
+            </label>
+            <button id="assessButton">Avaliar</button>
+            <div id="levelOutput" class="output"></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Voz</h2>
+          <div class="stack">
+            <div class="row">
+              <label>
+                Nivel
+                <select id="voiceLevel"></select>
+              </label>
+              <label>
+                Voz
+                <select id="voiceName">
+                  <option value="alloy">alloy</option>
+                  <option value="verse">verse</option>
+                  <option value="sage">sage</option>
+                  <option value="ash">ash</option>
+                  <option value="coral">coral</option>
+                </select>
+              </label>
+            </div>
+            <div class="row">
+              <button id="recordButton">Gravar</button>
+              <button id="stopButton" class="secondary">Parar</button>
+            </div>
+            <div class="muted" id="voiceHint">Seu navegador precisa suportar MediaRecorder.</div>
+            <div id="voiceOutput" class="output"></div>
+            <audio id="voicePlayer" controls></audio>
+          </div>
+        </article>
+      </section>
+    </div>
+
+    <script src="/playground/playground.js"></script>
+  </body>
+  </html>
