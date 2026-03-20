@@ -9,11 +9,14 @@ const state = {
 
 const elements = {
   globalStatus: document.getElementById('globalStatus'),
+  signedUser: document.getElementById('signedUser'),
   authName: document.getElementById('authName'),
   authLevel: document.getElementById('authLevel'),
   authEmail: document.getElementById('authEmail'),
   authPassword: document.getElementById('authPassword'),
   authOutput: document.getElementById('authOutput'),
+  googleSlot: document.getElementById('googleSlot'),
+  googleHint: document.getElementById('googleHint'),
   chatLevel: document.getElementById('chatLevel'),
   chatMode: document.getElementById('chatMode'),
   chatTopic: document.getElementById('chatTopic'),
@@ -30,6 +33,7 @@ const elements = {
   voiceOutput: document.getElementById('voiceOutput'),
   voicePlayer: document.getElementById('voicePlayer'),
   voiceHint: document.getElementById('voiceHint'),
+  protectedCards: Array.from(document.querySelectorAll('.grid .card')),
 };
 
 function setToken(token) {
@@ -76,6 +80,40 @@ function showOutput(element, data) {
   element.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
 }
 
+function syncProtectedCards() {
+  elements.protectedCards.forEach((card) => {
+    if (state.user) {
+      card.classList.remove('locked');
+    } else {
+      card.classList.add('locked');
+    }
+  });
+}
+
+function syncSignedUser() {
+  if (!state.user) {
+    elements.signedUser.style.display = 'none';
+    return;
+  }
+
+  elements.signedUser.style.display = 'block';
+  elements.signedUser.textContent = `Sessao ativa: ${state.user.name || state.user.email} | nivel ${state.user.level}`;
+}
+
+function syncStatus() {
+  const openAiReady = state.options && state.options.auth && state.options.auth.openAiConfigured;
+  if (!state.user) {
+    elements.globalStatus.textContent = openAiReady
+      ? 'Entre com email/senha ou Google para começar.'
+      : 'Entre com email/senha ou Google. A parte de IA ainda depende da chave OpenAI no servidor.';
+    return;
+  }
+
+  elements.globalStatus.textContent = openAiReady
+    ? `Tudo certo, ${state.user.name || state.user.email}. Sua conta está pronta para usar chat, voz e exercícios.`
+    : `Sua conta entrou, ${state.user.name || state.user.email}. Agora falta ativar a OpenAI no servidor para chat, voz e exercícios funcionarem.`;
+}
+
 function renderChat() {
   elements.chatLog.innerHTML = '';
   if (state.chatHistory.length === 0) {
@@ -94,6 +132,69 @@ function renderChat() {
   });
 }
 
+function syncUi() {
+  syncProtectedCards();
+  syncSignedUser();
+  syncStatus();
+}
+
+async function handleGoogleCredentialResponse(response) {
+  try {
+    const data = await api('/auth/google', {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({
+        idToken: response.credential,
+        level: elements.authLevel.value,
+        name: elements.authName.value,
+      }),
+    });
+    setToken(data.token);
+    state.user = data.user;
+    showOutput(elements.authOutput, data);
+    syncUi();
+  } catch (error) {
+    elements.authOutput.textContent = error.message;
+  }
+}
+
+function setupGoogleLogin(retryCount = 0) {
+  if (!state.options || !state.options.auth) {
+    return;
+  }
+
+  if (!state.options.auth.googleConfigured || !state.options.auth.googleClientId) {
+    elements.googleHint.textContent = 'Login Google ainda não está configurado no servidor.';
+    return;
+  }
+
+  if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+    if (retryCount < 12) {
+      elements.googleHint.textContent = 'Preparando login Google...';
+      window.setTimeout(() => setupGoogleLogin(retryCount + 1), 500);
+      return;
+    }
+
+    elements.googleHint.textContent = 'O script do Google não carregou. Recarregue a página.';
+    return;
+  }
+
+  window.google.accounts.id.initialize({
+    client_id: state.options.auth.googleClientId,
+    callback: handleGoogleCredentialResponse,
+  });
+
+  elements.googleSlot.innerHTML = '';
+  window.google.accounts.id.renderButton(elements.googleSlot, {
+    theme: 'outline',
+    size: 'large',
+    shape: 'pill',
+    width: 320,
+    text: 'continue_with',
+  });
+  elements.googleHint.textContent = 'Você também pode entrar com Google.';
+}
+
 async function loadOptions() {
   const options = await api('/meta/options');
   state.options = options;
@@ -109,13 +210,15 @@ async function loadOptions() {
   elements.chatLevel.value = 'B1';
   elements.exerciseLevel.value = 'B1';
   elements.voiceLevel.value = 'A2';
-
-  elements.globalStatus.textContent = 'Playground pronto. Se a chave OpenAI estiver configurada no servidor, chat, voz e exercicios vao funcionar.';
+  syncUi();
+  setupGoogleLogin();
 }
 
 async function refreshSession() {
   if (!state.token) {
-    elements.authOutput.textContent = 'Sem sessao salva ainda.';
+    elements.authOutput.textContent = 'Entre para começar.';
+    state.user = null;
+    syncUi();
     return;
   }
 
@@ -125,9 +228,12 @@ async function refreshSession() {
     });
     state.user = data.user;
     showOutput(elements.authOutput, data);
+    syncUi();
   } catch (error) {
     setToken('');
+    state.user = null;
     elements.authOutput.textContent = error.message;
+    syncUi();
   }
 }
 
@@ -146,6 +252,7 @@ document.getElementById('registerButton').addEventListener('click', async () => 
     setToken(data.token);
     state.user = data.user;
     showOutput(elements.authOutput, data);
+    syncUi();
   } catch (error) {
     elements.authOutput.textContent = error.message;
   }
@@ -164,12 +271,29 @@ document.getElementById('loginButton').addEventListener('click', async () => {
     setToken(data.token);
     state.user = data.user;
     showOutput(elements.authOutput, data);
+    syncUi();
   } catch (error) {
     elements.authOutput.textContent = error.message;
   }
 });
 
-document.getElementById('meButton').addEventListener('click', refreshSession);
+document.getElementById('logoutButton').addEventListener('click', async () => {
+  try {
+    await api('/auth/logout', {
+      method: 'POST',
+      headers: headers(),
+    });
+  } catch (_error) {
+    // Ignore logout failures and clear local state anyway.
+  }
+
+  setToken('');
+  state.user = null;
+  state.chatHistory = [];
+  renderChat();
+  elements.authOutput.textContent = 'Sessão encerrada.';
+  syncUi();
+});
 
 document.getElementById('chatButton').addEventListener('click', async () => {
   const userMessage = elements.chatMessage.value.trim();

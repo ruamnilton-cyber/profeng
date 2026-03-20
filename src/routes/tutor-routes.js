@@ -60,6 +60,8 @@ tutorRouter.get(
       auth: {
         email: true,
         googleConfigured: Boolean(ENV.googleClientId),
+        googleClientId: ENV.googleClientId || null,
+        openAiConfigured: Boolean(ENV.openAiApiKey),
       },
     });
   }),

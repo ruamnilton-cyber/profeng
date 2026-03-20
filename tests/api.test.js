@@ -63,7 +63,12 @@ test('health and meta endpoints expose available features', async () => {
   assert.ok(Array.isArray(meta.levels));
   assert.ok(meta.levels.some((level) => level.id === 'A1'));
   assert.ok(meta.levels.some((level) => level.id === 'C2'));
-  assert.deepEqual(meta.auth, { email: true, googleConfigured: false });
+  assert.deepEqual(meta.auth, {
+    email: true,
+    googleConfigured: false,
+    googleClientId: null,
+    openAiConfigured: false,
+  });
 });
 
 test('email auth flow creates a user, returns a token and exposes profile stats', async () => {

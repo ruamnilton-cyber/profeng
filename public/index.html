@@ -73,6 +73,7 @@
       }
 
       .card {
+        position: relative;
         padding: 18px;
         border-radius: 20px;
         border: 1px solid var(--border);
@@ -180,9 +181,95 @@
         font-size: 0.9rem;
       }
 
+      .auth-shell {
+        display: grid;
+        grid-template-columns: minmax(320px, 430px) 1fr;
+        gap: 18px;
+        align-items: start;
+      }
+
+      .welcome-card {
+        min-height: 100%;
+        display: grid;
+        gap: 12px;
+        align-content: start;
+      }
+
+      .welcome-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        border-radius: 999px;
+        padding: 8px 12px;
+        background: rgba(24, 34, 47, 0.06);
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .welcome-card h2 {
+        font-size: clamp(1.8rem, 3vw, 2.6rem);
+        line-height: 0.95;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(213, 106, 29, 0.12);
+        color: var(--accent-dark);
+        font-size: 0.85rem;
+      }
+
+      .google-slot {
+        min-height: 44px;
+      }
+
+      .locked {
+        overflow: hidden;
+      }
+
+      .locked .lock-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(255, 250, 242, 0.78);
+        backdrop-filter: blur(2px);
+        text-align: center;
+        color: var(--text);
+        font-size: 0.98rem;
+        border-radius: 20px;
+      }
+
+      .locked .stack,
+      .locked .chat-log {
+        pointer-events: none;
+        filter: blur(1.4px);
+      }
+
+      .signed-user {
+        display: none;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: rgba(35, 123, 75, 0.09);
+        color: var(--ok);
+        font-size: 0.92rem;
+      }
+
       audio {
         width: 100%;
         margin-top: 12px;
+      }
+
+      @media (max-width: 880px) {
+        .auth-shell {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
@@ -197,7 +284,22 @@
         <div id="globalStatus" class="status">Carregando configuracoes...</div>
       </section>
 
-      <section class="grid">
+      <section class="auth-shell">
+        <article class="card welcome-card">
+          <div class="welcome-badge">Fluxo de entrada do app</div>
+          <h2>Entre e depois use o ProfEng</h2>
+          <p class="muted">
+            A ideia aqui passa a ser a mesma que você descreveu: primeiro criar conta ou entrar,
+            depois liberar chat, exercícios, nível e voz.
+          </p>
+          <div class="row">
+            <span class="pill">Email + senha</span>
+            <span class="pill">Google</span>
+            <span class="pill">Sessão salva</span>
+          </div>
+          <div id="signedUser" class="signed-user"></div>
+        </article>
+
         <article class="card">
           <h2>Conta</h2>
           <div class="stack">
@@ -222,15 +324,19 @@
             <div class="row">
               <button id="registerButton">Criar conta</button>
               <button id="loginButton" class="secondary">Entrar</button>
-              <button id="meButton" class="secondary">Minha sessao</button>
+              <button id="logoutButton" class="secondary">Sair</button>
             </div>
-            <div class="muted">Para Google login, o frontend original ainda precisa gerar o idToken.</div>
+            <div class="google-slot" id="googleSlot"></div>
+            <div id="googleHint" class="muted">Carregando login Google...</div>
             <div id="authOutput" class="output"></div>
           </div>
         </article>
+      </section>
 
+      <section class="grid">
         <article class="card">
           <h2>Chat</h2>
+          <div class="lock-overlay">Entre com sua conta para liberar o chat.</div>
           <div class="stack">
             <div id="chatLog" class="chat-log"></div>
             <div class="row">
@@ -260,6 +366,7 @@
 
         <article class="card">
           <h2>Exercicios</h2>
+          <div class="lock-overlay">Entre com sua conta para gerar exercicios.</div>
           <div class="stack">
             <div class="row">
               <label>
@@ -282,6 +389,7 @@
 
         <article class="card">
           <h2>Avaliar nivel</h2>
+          <div class="lock-overlay">Entre com sua conta para avaliar e salvar o nivel.</div>
           <div class="stack">
             <label>
               Texto do aluno
@@ -294,6 +402,7 @@
 
         <article class="card">
           <h2>Voz</h2>
+          <div class="lock-overlay">Entre com sua conta para testar a voz.</div>
           <div class="stack">
             <div class="row">
               <label>
@@ -323,6 +432,7 @@
       </section>
     </div>
 
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="/playground/playground.js"></script>
   </body>
   </html>
