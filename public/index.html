@@ -3,436 +3,304 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ProfEng Playground</title>
+    <title>ProfEng</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      :root {
-        --bg: #f4efe6;
-        --card: #fffaf2;
-        --text: #18222f;
-        --muted: #5c6a78;
-        --accent: #d56a1d;
-        --accent-dark: #9f4610;
-        --border: #e4d6c3;
-        --ok: #237b4b;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        font-family: Georgia, "Times New Roman", serif;
-        background:
-          radial-gradient(circle at top, rgba(213, 106, 29, 0.12), transparent 38%),
-          linear-gradient(180deg, #f8f3ec 0%, var(--bg) 100%);
-        color: var(--text);
-      }
-
-      .page {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 32px 18px 60px;
-      }
-
-      .hero {
-        margin-bottom: 24px;
-        padding: 24px;
-        border: 1px solid var(--border);
-        border-radius: 24px;
-        background: linear-gradient(135deg, rgba(255, 250, 242, 0.98), rgba(255, 244, 229, 0.92));
-        box-shadow: 0 14px 40px rgba(68, 42, 18, 0.08);
-      }
-
-      .hero h1 {
-        margin: 0 0 10px;
-        font-size: clamp(2rem, 4vw, 3.5rem);
-        line-height: 0.96;
-      }
-
-      .hero p {
-        margin: 0;
-        max-width: 760px;
-        color: var(--muted);
-        font-size: 1rem;
-      }
-
-      .status {
-        margin-top: 16px;
-        padding: 12px 14px;
-        border-radius: 14px;
-        background: rgba(35, 123, 75, 0.08);
-        color: var(--ok);
-        font-size: 0.95rem;
-      }
-
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 18px;
-      }
-
-      .card {
-        position: relative;
-        padding: 18px;
-        border-radius: 20px;
-        border: 1px solid var(--border);
-        background: var(--card);
-        box-shadow: 0 10px 28px rgba(58, 39, 19, 0.05);
-      }
-
-      .card h2 {
-        margin: 0 0 14px;
-        font-size: 1.2rem;
-      }
-
-      .stack {
-        display: grid;
-        gap: 10px;
-      }
-
-      label {
-        display: grid;
-        gap: 6px;
-        font-size: 0.92rem;
-      }
-
-      input, select, textarea, button {
-        font: inherit;
-      }
-
-      input, select, textarea {
-        width: 100%;
-        padding: 11px 12px;
-        border: 1px solid #cfbca5;
-        border-radius: 12px;
-        background: #fff;
-        color: var(--text);
-      }
-
-      textarea {
-        min-height: 96px;
-        resize: vertical;
-      }
-
-      button {
-        border: 0;
-        border-radius: 999px;
-        padding: 11px 16px;
-        background: var(--accent);
-        color: white;
-        cursor: pointer;
-        transition: transform 0.15s ease, background 0.15s ease;
-      }
-
-      button:hover {
-        transform: translateY(-1px);
-        background: var(--accent-dark);
-      }
-
-      button.secondary {
-        background: #e8ddce;
-        color: var(--text);
-      }
-
-      .row {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-
-      .row > * {
-        flex: 1 1 140px;
-      }
-
-      .output {
-        margin-top: 12px;
-        padding: 14px;
-        border-radius: 14px;
-        background: #fff;
-        border: 1px dashed #d7c7b1;
-        white-space: pre-wrap;
-        word-break: break-word;
-        min-height: 56px;
-        font-size: 0.95rem;
-      }
-
-      .chat-log {
-        display: grid;
-        gap: 8px;
-        margin-bottom: 12px;
-        max-height: 260px;
-        overflow: auto;
-      }
-
-      .bubble {
-        padding: 12px 14px;
-        border-radius: 16px;
-        background: #fff;
-        border: 1px solid #e1d2bd;
-      }
-
-      .bubble.me {
-        background: #fff2e3;
-      }
-
-      .muted {
-        color: var(--muted);
-        font-size: 0.9rem;
-      }
-
-      .auth-shell {
-        display: grid;
-        grid-template-columns: minmax(320px, 430px) 1fr;
-        gap: 18px;
-        align-items: start;
-      }
-
-      .welcome-card {
-        min-height: 100%;
-        display: grid;
-        gap: 12px;
-        align-content: start;
-      }
-
-      .welcome-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        width: fit-content;
-        border-radius: 999px;
-        padding: 8px 12px;
-        background: rgba(24, 34, 47, 0.06);
-        color: var(--muted);
-        font-size: 0.88rem;
-      }
-
-      .welcome-card h2 {
-        font-size: clamp(1.8rem, 3vw, 2.6rem);
-        line-height: 0.95;
-      }
-
-      .pill {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 8px 12px;
-        border-radius: 999px;
-        background: rgba(213, 106, 29, 0.12);
-        color: var(--accent-dark);
-        font-size: 0.85rem;
-      }
-
-      .google-slot {
-        min-height: 44px;
-      }
-
-      .locked {
-        overflow: hidden;
-      }
-
-      .locked .lock-overlay {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        background: rgba(255, 250, 242, 0.78);
-        backdrop-filter: blur(2px);
-        text-align: center;
-        color: var(--text);
-        font-size: 0.98rem;
-        border-radius: 20px;
-      }
-
-      .locked .stack,
-      .locked .chat-log {
-        pointer-events: none;
-        filter: blur(1.4px);
-      }
-
-      .signed-user {
-        display: none;
-        padding: 12px 14px;
-        border-radius: 14px;
-        background: rgba(35, 123, 75, 0.09);
-        color: var(--ok);
-        font-size: 0.92rem;
-      }
-
-      audio {
-        width: 100%;
-        margin-top: 12px;
-      }
-
-      @media (max-width: 880px) {
-        .auth-shell {
-          grid-template-columns: 1fr;
-        }
-      }
+      :root { --bg:#f6efe5; --panel:rgba(255,250,244,.84); --line:rgba(115,84,50,.18); --text:#1b2430; --muted:#6f6b66; --accent:#c4651a; --accent-deep:#8b410f; --accent-soft:#fff0e0; --success:#1e6b4f; --success-soft:rgba(30,107,79,.1); --danger:#a4422a; --danger-soft:rgba(164,66,42,.1); --shadow:0 28px 70px rgba(61,37,12,.12); }
+      * { box-sizing:border-box; }
+      body { margin:0; min-height:100vh; font-family:"Manrope","Segoe UI",sans-serif; color:var(--text); background:radial-gradient(circle at top left, rgba(196,101,26,.22), transparent 34%), radial-gradient(circle at bottom right, rgba(44,84,105,.14), transparent 26%), linear-gradient(180deg, #fbf7f1 0%, var(--bg) 46%, #f3e8d8 100%); }
+      button,input,select,textarea { font:inherit; }
+      button { border:0; cursor:pointer; }
+      .shell { max-width:1400px; margin:0 auto; padding:24px; display:grid; grid-template-columns:310px minmax(0,1fr); gap:22px; }
+      .sidebar { position:sticky; top:24px; display:grid; gap:16px; align-self:start; }
+      .card,.screen,.panel { border:1px solid var(--line); border-radius:28px; background:var(--panel); box-shadow:var(--shadow); backdrop-filter:blur(14px); }
+      .card,.screen,.panel { padding:22px; }
+      .eyebrow,.badge,.step { display:inline-flex; align-items:center; gap:8px; width:fit-content; padding:8px 12px; border-radius:999px; font-size:.8rem; letter-spacing:.04em; text-transform:uppercase; background:rgba(27,36,48,.06); color:var(--muted); }
+      .eyebrow.accent,.step.active { background:var(--accent-soft); color:var(--accent-deep); }
+      .step.done { background:var(--success-soft); color:var(--success); }
+      h1,h2,h3 { margin:0; font-family:"Fraunces",Georgia,serif; letter-spacing:-.04em; }
+      h1 { margin-top:14px; font-size:clamp(2.5rem,4vw,3.5rem); line-height:.9; }
+      .muted,.subtitle,.helper,.meta { color:var(--muted); line-height:1.65; }
+      .status { padding:14px 16px; border-radius:18px; background:var(--success-soft); color:var(--success); line-height:1.5; }
+      .stack,.grid,.features,.actions,.stats,.highlights,.voice-grid { display:grid; gap:14px; }
+      .steps,.badges,.meta-row,.button-row { display:flex; flex-wrap:wrap; gap:10px; }
+      .nav { display:grid; gap:12px; }
+      .nav-button { display:flex; align-items:center; gap:12px; width:100%; padding:14px 16px; border-radius:18px; background:rgba(255,255,255,.48); text-align:left; color:var(--text); }
+      .nav-button.is-active { background:var(--accent-soft); color:var(--accent-deep); }
+      .nav-button[disabled] { opacity:.55; cursor:not-allowed; }
+      .nav-order { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:999px; background:rgba(27,36,48,.08); font-size:.78rem; font-weight:800; }
+      .avatar { display:inline-flex; align-items:center; justify-content:center; width:56px; height:56px; border-radius:18px; background:linear-gradient(135deg,var(--accent),#efb15d); color:#fff; font-weight:800; }
+      .profile-top { display:flex; gap:14px; align-items:center; }
+      .profile-title { font-weight:800; }
+      .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .stat { padding:14px; border-radius:18px; background:rgba(255,255,255,.7); }
+      .stat strong { display:block; font-size:1.2rem; font-weight:800; }
+      .content { display:grid; }
+      .screen { display:none; animation:fade .24s ease; }
+      .screen.is-active { display:block; }
+      @keyframes fade { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+      .screen-head { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; margin-bottom:24px; }
+      .screen-head h2 { margin-top:12px; font-size:clamp(2rem,3vw,3rem); line-height:.95; }
+      .split,.modules,.features { display:grid; gap:18px; }
+      .split { grid-template-columns:minmax(0,1.05fr) minmax(340px,.95fr); }
+      .modules { grid-template-columns:minmax(280px,.95fr) minmax(0,1.05fr); }
+      .features { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .hero { min-height:100%; padding:28px; border-radius:30px; background:linear-gradient(145deg, rgba(255,250,244,.97), rgba(255,239,220,.9)); border:1px solid rgba(115,84,50,.12); }
+      .hero h2 { margin-top:14px; font-size:clamp(2.2rem,4vw,3.8rem); line-height:.9; }
+      .highlight { padding:16px 18px; border-radius:20px; background:rgba(255,255,255,.74); }
+      .panel-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; margin-bottom:18px; }
+      .auth-toggle { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; padding:8px; border-radius:20px; background:rgba(255,255,255,.68); }
+      .auth-mode { min-height:44px; border-radius:14px; background:transparent; color:var(--muted); font-weight:800; }
+      .auth-mode.is-active { background:#fffaf4; color:var(--accent-deep); box-shadow:0 10px 20px rgba(61,37,12,.08); }
+      .two-col { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+      label { display:grid; gap:8px; font-size:.94rem; font-weight:700; }
+      input,select,textarea { width:100%; padding:14px 16px; border:1px solid rgba(115,84,50,.18); border-radius:18px; background:rgba(255,255,255,.88); color:var(--text); }
+      textarea { min-height:140px; resize:vertical; }
+      .button,.secondary,.ghost { display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:12px 18px; border-radius:999px; font-weight:800; }
+      .button { background:linear-gradient(135deg,var(--accent),#e88a35); color:#fff; box-shadow:0 14px 24px rgba(196,101,26,.24); }
+      .secondary { background:rgba(255,255,255,.78); color:var(--text); border:1px solid rgba(115,84,50,.14); }
+      .ghost { background:transparent; color:var(--text); border:1px dashed rgba(115,84,50,.25); }
+      .button[disabled],.secondary[disabled],.ghost[disabled] { opacity:.56; cursor:not-allowed; box-shadow:none; }
+      .feedback { padding:16px 18px; border-radius:20px; line-height:1.65; background:rgba(255,255,255,.78); }
+      .feedback.success { background:var(--success-soft); color:var(--success); }
+      .feedback.error { background:var(--danger-soft); color:var(--danger); }
+      .thread { display:grid; gap:12px; min-height:280px; max-height:460px; overflow:auto; padding:8px; border-radius:24px; background:rgba(255,255,255,.54); }
+      .bubble { max-width:min(100%,720px); padding:16px 18px; border-radius:22px; line-height:1.65; white-space:pre-wrap; background:rgba(255,255,255,.88); }
+      .bubble.me { margin-left:auto; background:rgba(255,240,224,.92); }
+      .bubble-role { display:block; margin-bottom:8px; color:var(--accent-deep); font-size:.78rem; font-weight:800; text-transform:uppercase; }
+      .empty { display:grid; place-items:center; min-height:220px; padding:24px; border-radius:24px; border:1px dashed rgba(115,84,50,.24); background:rgba(255,255,255,.46); text-align:center; color:var(--muted); line-height:1.7; }
+      .feature-card,.exercise-card { border-radius:24px; background:rgba(255,255,255,.86); padding:20px; }
+      .feature-card p,.exercise-card p { color:var(--muted); line-height:1.65; }
+      .feature-card h3 { margin-top:14px; font-size:1.75rem; }
+      .exercise-list { display:grid; gap:14px; }
+      .exercise-type,.metric { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.7); font-size:.84rem; }
+      .exercise-type { background:rgba(196,101,26,.12); color:var(--accent-deep); font-weight:800; text-transform:uppercase; letter-spacing:.04em; }
+      .exercise-extra { margin-top:14px; padding-top:14px; border-top:1px dashed rgba(115,84,50,.18); }
+      .choices,.bullets { margin:10px 0 0; padding-left:18px; line-height:1.65; }
+      .toggle { display:flex; align-items:center; gap:10px; }
+      .toggle input { width:auto; margin:0; }
+      audio { width:100%; }
+      .hidden { display:none !important; }
+      @media (max-width:1180px) { .shell { grid-template-columns:1fr; } .sidebar { position:static; } .split,.modules,.features { grid-template-columns:1fr; } }
+      @media (max-width:720px) { .shell { padding:14px; } .card,.screen,.panel { padding:18px; border-radius:22px; } .two-col { grid-template-columns:1fr; } .screen-head { flex-direction:column; } }
     </style>
   </head>
   <body>
-    <div class="page">
-      <section class="hero">
-        <h1>ProfEng Playground</h1>
-        <p>
-          Esta pagina serve para testar a API online mesmo sem o app original. Voce pode criar conta,
-          conversar com o tutor, gerar exercicios, avaliar nivel e experimentar a rota de voz.
-        </p>
-        <div id="globalStatus" class="status">Carregando configuracoes...</div>
-      </section>
-
-      <section class="auth-shell">
-        <article class="card welcome-card">
-          <div class="welcome-badge">Fluxo de entrada do app</div>
-          <h2>Entre e depois use o ProfEng</h2>
-          <p class="muted">
-            A ideia aqui passa a ser a mesma que você descreveu: primeiro criar conta ou entrar,
-            depois liberar chat, exercícios, nível e voz.
-          </p>
-          <div class="row">
-            <span class="pill">Email + senha</span>
-            <span class="pill">Google</span>
-            <span class="pill">Sessão salva</span>
+    <div class="shell">
+      <aside class="sidebar">
+        <section class="card">
+          <span class="eyebrow accent">ProfEng beta</span>
+          <h1>Aprenda em etapas curtas e claras.</h1>
+          <p class="subtitle">Primeiro voce entra. Depois escolhe o que praticar. Cada funcao abre numa tela propria para o fluxo ficar mais leve.</p>
+        </section>
+        <section class="card stack">
+          <strong>Estado do app</strong>
+          <div id="globalStatus" class="status">Carregando configuracoes...</div>
+          <div class="steps">
+            <span id="stepAuth" class="step active">1. Entrar</span>
+            <span id="stepHub" class="step">2. Escolher</span>
+            <span id="stepPractice" class="step">3. Praticar</span>
           </div>
-          <div id="signedUser" class="signed-user"></div>
-        </article>
-
-        <article class="card">
-          <h2>Conta</h2>
-          <div class="stack">
-            <div class="row">
-              <label>
-                Nome
-                <input id="authName" placeholder="Seu nome" />
-              </label>
-              <label>
-                Nivel
-                <select id="authLevel"></select>
-              </label>
-            </div>
-            <label>
-              Email
-              <input id="authEmail" type="email" placeholder="voce@email.com" />
-            </label>
-            <label>
-              Senha
-              <input id="authPassword" type="password" placeholder="minimo 8 caracteres" />
-            </label>
-            <div class="row">
-              <button id="registerButton">Criar conta</button>
-              <button id="loginButton" class="secondary">Entrar</button>
-              <button id="logoutButton" class="secondary">Sair</button>
-            </div>
-            <div class="google-slot" id="googleSlot"></div>
-            <div id="googleHint" class="muted">Carregando login Google...</div>
-            <div id="authOutput" class="output"></div>
-          </div>
-        </article>
-      </section>
-
-      <section class="grid">
-        <article class="card">
-          <h2>Chat</h2>
-          <div class="lock-overlay">Entre com sua conta para liberar o chat.</div>
-          <div class="stack">
-            <div id="chatLog" class="chat-log"></div>
-            <div class="row">
-              <label>
-                Nivel
-                <select id="chatLevel"></select>
-              </label>
-              <label>
-                Modo
-                <select id="chatMode"></select>
-              </label>
-            </div>
-            <label>
-              Topico
-              <input id="chatTopic" placeholder="job interviews, travel, daily routine..." />
-            </label>
-            <label>
-              Sua mensagem
-              <textarea id="chatMessage" placeholder="Escreva em ingles ou portugues."></textarea>
-            </label>
-            <div class="row">
-              <button id="chatButton">Enviar</button>
-              <button id="clearChatButton" class="secondary">Limpar conversa</button>
+        </section>
+        <section class="card nav">
+          <button class="nav-button is-active" data-open-screen="auth"><span class="nav-order">01</span><span>Entrada</span></button>
+          <button class="nav-button" data-open-screen="hub" data-requires-auth="true"><span class="nav-order">02</span><span>Painel</span></button>
+          <button class="nav-button" data-open-screen="chat" data-requires-auth="true"><span class="nav-order">03</span><span>Chat</span></button>
+          <button class="nav-button" data-open-screen="exercises" data-requires-auth="true"><span class="nav-order">04</span><span>Exercicios</span></button>
+          <button class="nav-button" data-open-screen="level" data-requires-auth="true"><span class="nav-order">05</span><span>Avaliar nivel</span></button>
+          <button class="nav-button" data-open-screen="voice" data-requires-auth="true"><span class="nav-order">06</span><span>Voz</span></button>
+        </section>
+        <section class="card stack">
+          <div class="profile-top">
+            <div id="profileAvatar" class="avatar">P</div>
+            <div>
+              <div id="profileName" class="profile-title">Sem sessao ativa</div>
+              <div id="profileMeta" class="profile-meta meta">Entre para liberar todas as funcoes.</div>
             </div>
           </div>
-        </article>
-
-        <article class="card">
-          <h2>Exercicios</h2>
-          <div class="lock-overlay">Entre com sua conta para gerar exercicios.</div>
-          <div class="stack">
-            <div class="row">
-              <label>
-                Nivel
-                <select id="exerciseLevel"></select>
-              </label>
-              <label>
-                Skill
-                <select id="exerciseSkill"></select>
-              </label>
-            </div>
-            <label>
-              Topico
-              <input id="exerciseTopic" placeholder="present perfect, airport, food..." />
-            </label>
-            <button id="exerciseButton">Gerar exercicios</button>
-            <div id="exerciseOutput" class="output"></div>
+          <div id="profileBadges" class="badges"><span class="badge">Email</span><span class="badge">Google</span></div>
+          <div class="stats">
+            <div class="stat"><strong id="statLevel">--</strong><span>Nivel atual</span></div>
+            <div class="stat"><strong id="statExercises">0</strong><span>Exercicios</span></div>
+            <div class="stat"><strong id="statAverage">--</strong><span>Media</span></div>
+            <div class="stat"><strong id="statVoice">0</strong><span>Voz</span></div>
           </div>
-        </article>
+          <button id="logoutSidebarButton" class="secondary hidden">Sair da conta</button>
+        </section>
+      </aside>
 
-        <article class="card">
-          <h2>Avaliar nivel</h2>
-          <div class="lock-overlay">Entre com sua conta para avaliar e salvar o nivel.</div>
-          <div class="stack">
-            <label>
-              Texto do aluno
-              <textarea id="levelSample" placeholder="Escreva um texto em ingles para a API estimar o nivel."></textarea>
-            </label>
-            <button id="assessButton">Avaliar</button>
-            <div id="levelOutput" class="output"></div>
+      <main class="content">
+        <section class="screen is-active" data-screen="auth">
+          <div class="split">
+            <article class="hero">
+              <span class="eyebrow">Passo 1</span>
+              <h2>Entre e deixe o ProfEng te guiar.</h2>
+              <p class="subtitle">A experiencia comeca pela entrada. Depois do login, voce cai num painel com escolhas claras em vez de ver tudo de uma vez.</p>
+              <div class="highlights">
+                <div class="highlight"><strong>Email ou Google</strong><div class="meta">Use o modo que fizer mais sentido para voce.</div></div>
+                <div class="highlight"><strong>Fluxo por telas</strong><div class="meta">Chat, exercicios, voz e nivel abrem em paginas separadas.</div></div>
+                <div class="highlight"><strong>Nivel salvo</strong><div class="meta">O painel mostra sessao, nivel e progresso geral.</div></div>
+              </div>
+            </article>
+            <article class="panel stack">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">Conta</span>
+                  <h3>Acesse sua conta</h3>
+                  <p class="meta">Escolha se voce quer criar cadastro novo ou entrar numa conta existente.</p>
+                </div>
+              </div>
+              <div class="auth-toggle">
+                <button id="modeRegister" class="auth-mode is-active" data-auth-mode="register">Criar conta</button>
+                <button id="modeLogin" class="auth-mode" data-auth-mode="login">Entrar</button>
+              </div>
+              <div class="stack">
+                <div class="two-col">
+                  <label id="authNameField">Nome<input id="authName" placeholder="Como voce quer aparecer no app" /></label>
+                  <label>Nivel inicial<select id="authLevel"></select></label>
+                </div>
+                <label>Email<input id="authEmail" type="email" placeholder="voce@email.com" /></label>
+                <label>Senha<input id="authPassword" type="password" placeholder="minimo 8 caracteres" /></label>
+                <p id="authHelper" class="helper">No primeiro acesso, o seu nivel inicial ajuda o tutor a responder melhor.</p>
+                <div class="button-row">
+                  <button id="authSubmitButton" class="button">Criar conta</button>
+                  <button id="authGoHubButton" class="secondary hidden">Ir para o painel</button>
+                </div>
+                <div id="googleSlot"></div>
+                <div id="googleHint" class="helper">Carregando login Google...</div>
+                <div id="authOutput" class="feedback">Entre para liberar o painel e as funcoes do ProfEng.</div>
+              </div>
+            </article>
           </div>
-        </article>
+        </section>
 
-        <article class="card">
-          <h2>Voz</h2>
-          <div class="lock-overlay">Entre com sua conta para testar a voz.</div>
-          <div class="stack">
-            <div class="row">
-              <label>
-                Nivel
-                <select id="voiceLevel"></select>
-              </label>
-              <label>
-                Voz
-                <select id="voiceName">
-                  <option value="alloy">alloy</option>
-                  <option value="verse">verse</option>
-                  <option value="sage">sage</option>
-                  <option value="ash">ash</option>
-                  <option value="coral">coral</option>
-                </select>
-              </label>
+        <section class="screen" data-screen="hub">
+          <div class="screen-head">
+            <div>
+              <span class="eyebrow">Passo 2</span>
+              <h2 id="hubHeadline">Escolha seu proximo treino.</h2>
+              <p id="hubSubtitle" class="subtitle">Abra uma funcao por vez e siga num fluxo mais limpo.</p>
             </div>
-            <div class="row">
-              <button id="recordButton">Gravar</button>
-              <button id="stopButton" class="secondary">Parar</button>
-            </div>
-            <div class="muted" id="voiceHint">Seu navegador precisa suportar MediaRecorder.</div>
-            <div id="voiceOutput" class="output"></div>
-            <audio id="voicePlayer" controls></audio>
           </div>
-        </article>
-      </section>
+          <div class="features">
+            <article class="feature-card"><span class="eyebrow accent">Conversa</span><h3>Chat com tutor</h3><p>Abra uma conversa dedicada com nivel, modo e topico configurados por voce.</p><div class="meta-row"><span class="metric">Correcao guiada</span><span class="metric">Topicos livres</span></div><button class="button" data-open-screen="chat">Abrir chat</button></article>
+            <article class="feature-card"><span class="eyebrow accent">Pratica</span><h3>Exercicios</h3><p>Gere atividades por skill e topico, depois confira sua resposta no proprio app.</p><div class="meta-row"><span class="metric">Grammar</span><span class="metric">Writing</span></div><button class="button" data-open-screen="exercises">Abrir exercicios</button></article>
+            <article class="feature-card"><span class="eyebrow accent">Diagnostico</span><h3>Avaliar nivel</h3><p>Envie um texto, receba um nivel recomendado e veja onde voce pode melhorar.</p><div class="meta-row"><span class="metric">Forcas</span><span class="metric">Lacunas</span></div><button class="button" data-open-screen="level">Abrir avaliacao</button></article>
+            <article class="feature-card"><span class="eyebrow accent">Audio</span><h3>Treino por voz</h3><p>Grave sua fala, receba transcricao e resposta em audio do tutor.</p><div class="meta-row"><span class="metric">Speech</span><span class="metric">TTS</span></div><button class="button" data-open-screen="voice">Abrir voz</button></article>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="chat">
+          <div class="screen-head">
+            <div><span class="eyebrow">Chat</span><h2>Converse com o tutor.</h2><p class="subtitle">Aqui o foco eh um so: trocar mensagens e manter a conversa viva.</p></div>
+            <button class="secondary" data-open-screen="hub">Voltar ao painel</button>
+          </div>
+          <div class="modules">
+            <article class="panel stack">
+              <div class="panel-head"><div><h3>Ajustes do tutor</h3><p class="meta">Controle nivel, modo e tipo de correcao.</p></div></div>
+              <div class="two-col">
+                <label>Nivel<select id="chatLevel"></select></label>
+                <label>Modo<select id="chatMode"></select></label>
+              </div>
+              <label>Correcao<select id="chatCorrectionMode"></select></label>
+              <label>Topico<input id="chatTopic" placeholder="travel, work, interview, daily life..." /></label>
+              <div id="chatHint" class="feedback">Dica: escreva em ingles. Se quiser, pode pedir ajuda em portugues tambem.</div>
+            </article>
+            <article class="panel stack">
+              <div class="panel-head"><div><h3>Conversa</h3><p class="meta">Seu historico fica aqui enquanto voce pratica.</p></div><button id="clearChatButton" class="ghost">Limpar</button></div>
+              <div id="chatLog" class="thread"></div>
+              <label>Sua mensagem<textarea id="chatMessage" placeholder="Escreva uma mensagem para o tutor e continue a conversa."></textarea></label>
+              <div class="button-row"><button id="chatButton" class="button">Enviar mensagem</button></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="exercises">
+          <div class="screen-head">
+            <div><span class="eyebrow">Exercicios</span><h2>Monte uma pratica sob medida.</h2><p class="subtitle">Gere exercicios por nivel e skill, depois escolha um item para corrigir.</p></div>
+            <button class="secondary" data-open-screen="hub">Voltar ao painel</button>
+          </div>
+          <div class="modules">
+            <article class="panel stack">
+              <div class="panel-head"><div><h3>Configurar lista</h3><p class="meta">Defina o foco antes de gerar a atividade.</p></div></div>
+              <div class="two-col">
+                <label>Nivel<select id="exerciseLevel"></select></label>
+                <label>Skill<select id="exerciseSkill"></select></label>
+              </div>
+              <label>Topico<input id="exerciseTopic" placeholder="present perfect, airport, food..." /></label>
+              <button id="exerciseButton" class="button">Gerar exercicios</button>
+              <div id="exerciseMeta" class="feedback">Gere uma lista para ver instrucoes, aquecimento e atividades na coluna ao lado.</div>
+            </article>
+            <article class="panel stack">
+              <div class="panel-head"><div><h3>Lista gerada</h3><p class="meta">As atividades aparecem aqui uma por uma.</p></div></div>
+              <div id="exerciseOutput" class="empty">Nenhum exercicio foi gerado ainda.</div>
+            </article>
+          </div>
+          <article class="panel stack" style="margin-top:18px">
+            <div class="panel-head"><div><h3>Corrigir resposta</h3><p class="meta">Escolha uma atividade da lista e envie sua resposta para avaliacao.</p></div></div>
+            <div class="two-col">
+              <label>Exercicio<select id="exercisePicker" disabled><option value="">Gere exercicios primeiro</option></select></label>
+              <label>Tipo<input id="exercisePickedType" value="Sem item selecionado" readonly /></label>
+            </div>
+            <label>Sua resposta<textarea id="exerciseAnswer" placeholder="Escreva sua resposta para o exercicio selecionado."></textarea></label>
+            <div class="button-row"><button id="exerciseCheckButton" class="button" disabled>Corrigir resposta</button></div>
+            <div id="exerciseCheckOutput" class="feedback">A correcao aparece aqui com nota, pontos fortes e proximo passo.</div>
+          </article>
+        </section>
+
+        <section class="screen" data-screen="level">
+          <div class="screen-head">
+            <div><span class="eyebrow">Nivel</span><h2>Descubra onde voce realmente esta.</h2><p class="subtitle">Cole um texto em ingles e receba uma leitura mais honesta do seu CEFR.</p></div>
+            <button class="secondary" data-open-screen="hub">Voltar ao painel</button>
+          </div>
+          <div class="modules">
+            <article class="panel stack">
+              <div class="panel-head"><div><h3>Enviar amostra</h3><p class="meta">Uma amostra curta ja ajuda a gerar um diagnostico util.</p></div></div>
+              <label>Nivel atual<select id="levelCurrentLevel"></select></label>
+              <label>Texto do aluno<textarea id="levelSample" placeholder="Write a short text in English about your routine, work, study plans or anything else."></textarea></label>
+              <label class="toggle"><input id="levelApplyRecommendation" type="checkbox" /> Atualizar meu nivel salvo com a recomendacao</label>
+              <button id="assessButton" class="button">Avaliar nivel</button>
+            </article>
+            <article class="panel stack">
+              <div class="panel-head"><div><h3>Leitura do tutor</h3><p class="meta">Pontos fortes, lacunas e um exemplo reescrito aparecem aqui.</p></div></div>
+              <div id="levelOutput" class="empty">Envie um texto para receber a avaliacao.</div>
+            </article>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="voice">
+          <div class="screen-head">
+            <div><span class="eyebrow">Voz</span><h2>Treine com audio.</h2><p class="subtitle">Grave sua fala, veja a transcricao e ouca a resposta do tutor.</p></div>
+            <button class="secondary" data-open-screen="hub">Voltar ao painel</button>
+          </div>
+          <div class="modules">
+            <article class="panel stack">
+              <div class="panel-head"><div><h3>Gravacao</h3><p class="meta">Use um navegador com permissao de microfone para essa parte.</p></div></div>
+              <div class="two-col">
+                <label>Nivel<select id="voiceLevel"></select></label>
+                <label>Voz<select id="voiceName"></select></label>
+              </div>
+              <div class="button-row">
+                <button id="recordButton" class="button">Comecar gravacao</button>
+                <button id="stopButton" class="secondary" disabled>Parar e responder</button>
+              </div>
+              <div id="voiceHint" class="feedback">Seu navegador precisa suportar MediaRecorder para esta funcao.</div>
+            </article>
+            <article class="panel voice-grid">
+              <div><strong>Transcricao</strong><div id="voiceTranscript" class="feedback">Grave algo para ver a transcricao aqui.</div></div>
+              <div><strong>Resposta do tutor</strong><div id="voiceReply" class="feedback">A resposta em texto aparece aqui depois da gravacao.</div></div>
+              <audio id="voicePlayer" controls></audio>
+            </article>
+          </div>
+        </section>
+      </main>
     </div>
-
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="/playground/playground.js"></script>
   </body>
-  </html>
+</html>
