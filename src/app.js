@@ -43,8 +43,13 @@ function createApp() {
   app.use(express.urlencoded({ extended: true, limit: '15mb' }));
   app.use('/playground', express.static(path.join(process.cwd(), 'public')));
 
-  app.get('/', (_req, res) => {
-    res.json({
+  app.get('/', (req, res) => {
+    const accepts = String(req.headers.accept || '');
+    if (accepts.includes('text/html')) {
+      return res.redirect('/playground/');
+    }
+
+    return res.json({
       name: 'ProfEng API',
       status: 'online',
       auth: {
