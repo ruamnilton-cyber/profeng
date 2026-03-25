@@ -67,6 +67,52 @@ function buildOpenAiHeaders(extraHeaders = {}) {
   };
 }
 
+function uniqueCandidates(values = []) {
+  return Array.from(
+    new Set(
+      values
+        .map((value) => (typeof value === 'string' ? value.trim() : ''))
+        .filter(Boolean),
+    ),
+  );
+}
+
+async function readOpenAiErrorMessage(response) {
+  const cloned = response.clone();
+  const data = await response.json().catch(() => null);
+  if (data && data.error && typeof data.error.message === 'string' && data.error.message.trim()) {
+    return data.error.message.trim();
+  }
+
+  const fallbackText = await cloned.text().catch(() => '');
+  return fallbackText || 'OpenAI request failed.';
+}
+
+function isVoiceCompatibilityError(status, message = '') {
+  if (![400, 404].includes(status)) {
+    return false;
+  }
+
+  const text = String(message).toLowerCase();
+  const patterns = [
+    'model',
+    'voice',
+    'audio',
+    'transcribe',
+    'speech',
+    'unsupported',
+    'not found',
+    'not available',
+    'does not support',
+    'invalid voice',
+    'unknown model',
+    'instruction',
+    'compatible',
+  ];
+
+  return patterns.some((pattern) => text.includes(pattern));
+}
+
 async function handleOpenAiResponse(response, { expectJson = true } = {}) {
   if (expectJson) {
     const data = await response.json().catch(() => ({}));
@@ -249,36 +295,63 @@ async function transcribeAudio(options = {}) {
     throw createHttpError(400, 'Audio file is too large. Keep it under 20 MB.');
   }
 
-  const form = new FormData();
+  const modelsToTry = uniqueCandidates([
+    options.model,
+    ENV.openAiTranscribeModel,
+    'gpt-4o-transcribe',
+    'gpt-4o-mini-transcribe',
+    'whisper-1',
+  ]);
+
   const fileName = `voice.${getAudioFileExtension(mimeType)}`;
   const blob = new Blob([new Uint8Array(buffer)], { type: mimeType });
+  const attempts = [];
 
-  form.append('file', blob, fileName);
-  form.append('model', ENV.openAiTranscribeModel);
-  form.append('response_format', 'verbose_json');
+  for (const model of modelsToTry) {
+    const form = new FormData();
+    form.append('file', blob, fileName);
+    form.append('model', model);
+    form.append('response_format', 'verbose_json');
 
-  if (options.language) {
-    form.append('language', options.language);
+    if (options.language) {
+      form.append('language', options.language);
+    }
+
+    if (options.prompt) {
+      form.append('prompt', options.prompt);
+    }
+
+    const response = await fetch(`${ENV.openAiBaseUrl}/audio/transcriptions`, {
+      method: 'POST',
+      headers: buildOpenAiHeaders(),
+      body: form,
+    });
+
+    if (response.ok) {
+      const data = await response.json().catch(() => ({}));
+      return {
+        text: data.text || '',
+        duration: data.duration || null,
+        language: data.language || options.language || null,
+        segments: Array.isArray(data.segments) ? data.segments : [],
+        modelUsed: model,
+      };
+    }
+
+    const message = await readOpenAiErrorMessage(response);
+    attempts.push({ model, status: response.status, message });
+
+    if (!isVoiceCompatibilityError(response.status, message)) {
+      throw createHttpError(response.status, message);
+    }
   }
 
-  if (options.prompt) {
-    form.append('prompt', options.prompt);
-  }
-
-  const response = await fetch(`${ENV.openAiBaseUrl}/audio/transcriptions`, {
-    method: 'POST',
-    headers: buildOpenAiHeaders(),
-    body: form,
-  });
-
-  const data = await handleOpenAiResponse(response);
-
-  return {
-    text: data.text || '',
-    duration: data.duration || null,
-    language: data.language || options.language || null,
-    segments: Array.isArray(data.segments) ? data.segments : [],
-  };
+  const lastAttempt = attempts[attempts.length - 1];
+  throw createHttpError(
+    lastAttempt ? lastAttempt.status : 502,
+    'Sua chave OpenAI nao conseguiu usar um modelo de transcricao de voz compativel. Configure OPENAI_TRANSCRIBE_MODEL com um modelo habilitado na sua conta.',
+    attempts,
+  );
 }
 
 async function synthesizeSpeech(options = {}) {
@@ -288,28 +361,78 @@ async function synthesizeSpeech(options = {}) {
     throw createHttpError(400, 'Field "text" is required to synthesize speech.');
   }
 
-  const response = await fetch(`${ENV.openAiBaseUrl}/audio/speech`, {
-    method: 'POST',
-    headers: buildOpenAiHeaders({
-      'content-type': 'application/json',
-    }),
-    body: JSON.stringify({
-      model: ENV.openAiTtsModel,
-      voice: options.voice || ENV.openAiTtsVoice,
-      input: options.text.trim(),
-      response_format: 'mp3',
-      instructions: options.instructions || buildSpeechInstructions(options),
-    }),
-  });
+  const modelsToTry = uniqueCandidates([
+    options.model,
+    ENV.openAiTtsModel,
+    'gpt-4o-mini-tts',
+    'gpt-4o-tts',
+    'tts-1',
+    'tts-1-hd',
+  ]);
 
-  await handleOpenAiResponse(response, { expectJson: false });
-  const arrayBuffer = await response.arrayBuffer();
+  const voicesToTry = uniqueCandidates([options.voice, ENV.openAiTtsVoice, 'alloy']);
+  const instructions = options.instructions || buildSpeechInstructions(options);
+  const attempts = [];
 
-  return {
-    audioBase64: Buffer.from(arrayBuffer).toString('base64'),
-    mimeType: 'audio/mpeg',
-    voice: options.voice || ENV.openAiTtsVoice,
-  };
+  for (const model of modelsToTry) {
+    for (const voice of voicesToTry) {
+      const variants = [
+        {
+          model,
+          voice,
+          input: options.text.trim(),
+          response_format: 'mp3',
+          instructions,
+        },
+        {
+          model,
+          voice,
+          input: options.text.trim(),
+          response_format: 'mp3',
+        },
+      ];
+
+      for (const payload of variants) {
+        const response = await fetch(`${ENV.openAiBaseUrl}/audio/speech`, {
+          method: 'POST',
+          headers: buildOpenAiHeaders({
+            'content-type': 'application/json',
+          }),
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          const arrayBuffer = await response.arrayBuffer();
+          return {
+            audioBase64: Buffer.from(arrayBuffer).toString('base64'),
+            mimeType: 'audio/mpeg',
+            voice,
+            modelUsed: model,
+          };
+        }
+
+        const message = await readOpenAiErrorMessage(response);
+        attempts.push({
+          model,
+          voice,
+          withInstructions: Boolean(payload.instructions),
+          status: response.status,
+          message,
+        });
+
+        if (!isVoiceCompatibilityError(response.status, message)) {
+          throw createHttpError(response.status, message);
+        }
+      }
+    }
+  }
+
+  const lastAttempt = attempts[attempts.length - 1];
+  throw createHttpError(
+    lastAttempt ? lastAttempt.status : 502,
+    'Sua chave OpenAI nao conseguiu usar um modelo de resposta por voz compativel. Configure OPENAI_TTS_MODEL com um modelo de TTS habilitado na sua conta.',
+    attempts,
+  );
 }
 
 async function createVoiceReply(options = {}) {

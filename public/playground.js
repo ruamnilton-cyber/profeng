@@ -1103,6 +1103,24 @@ async function blobToBase64(blob) {
   return btoa(binary);
 }
 
+function friendlyVoiceErrorMessage(errorMessage) {
+  const raw = String(errorMessage || '');
+  const lower = raw.toLowerCase();
+
+  if (
+    lower.includes('transcribe') ||
+    lower.includes('tts') ||
+    lower.includes('voice') ||
+    lower.includes('audio') ||
+    lower.includes('model') ||
+    lower.includes('compatible')
+  ) {
+    return 'Sua chave OpenAI nao possui um modelo de voz compativel no momento. Ajuste OPENAI_TRANSCRIBE_MODEL e OPENAI_TTS_MODEL no servidor.';
+  }
+
+  return raw || 'Nao foi possivel processar o audio.';
+}
+
 function preferredRecorderMimeType() {
   if (!window.MediaRecorder || typeof window.MediaRecorder.isTypeSupported !== 'function') {
     return '';
@@ -1141,8 +1159,9 @@ async function processVoiceBlob(blob, mimeType) {
     setMessage(elements.aiScreenMessage, 'Audio processado com sucesso.', 'success');
     await refreshSession(true);
   } catch (error) {
-    setMessage(elements.aiScreenMessage, error.message, 'error');
-    setMessage(elements.aiVoiceReply, error.message, 'error');
+    const friendly = friendlyVoiceErrorMessage(error.message);
+    setMessage(elements.aiScreenMessage, friendly, 'error');
+    setMessage(elements.aiVoiceReply, friendly, 'error');
   } finally {
     elements.aiVoiceRecordButton.disabled = false;
     elements.aiVoiceStopButton.disabled = true;
