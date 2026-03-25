@@ -425,6 +425,44 @@
         margin-bottom: 6px;
       }
 
+      .question-card {
+        border: 1px solid rgba(24, 36, 47, 0.14);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.92);
+        padding: 12px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .question-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .question-type {
+        display: inline-flex;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        background: rgba(21, 118, 109, 0.12);
+        color: var(--accent);
+      }
+
+      .question-prompt {
+        color: var(--ink);
+        line-height: 1.5;
+        font-weight: 600;
+      }
+
+      .answer-input {
+        min-height: 42px;
+      }
+
       .list {
         margin: 8px 0 0;
         padding-left: 18px;
@@ -995,12 +1033,13 @@
           <ul id="activityTips" class="list"></ul>
           <div id="activityTasks" class="activity-list"></div>
           <div class="row">
-            <button id="saveDraftButton" class="btn secondary">Salvar</button>
-            <button id="requestFeedbackButton" class="btn ghost">Feedback</button>
+            <button id="regenerateActivityButton" class="btn secondary">Novo lote</button>
+            <button id="saveDraftButton" class="btn ghost">Salvar respostas</button>
+            <button id="requestFeedbackButton" class="btn secondary">Corrigir agora</button>
             <button id="completeActivityButton" class="btn">Concluir</button>
           </div>
-          <div id="activityMessage" class="message">Preencha os campos para continuar.</div>
-          <div id="activityFeedback" class="message">Feedback vai aparecer aqui.</div>
+          <div id="activityMessage" class="message">Responda as questoes objetivas e clique em "Corrigir agora".</div>
+          <div id="activityFeedback" class="message">Seu resultado vai aparecer aqui.</div>
         </section>
       </main>
 

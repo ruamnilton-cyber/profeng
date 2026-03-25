@@ -3,6 +3,8 @@ const STORAGE_KEYS = {
   token: 'profeng_token',
   completed: 'profeng_completed',
   drafts: 'profeng_drafts',
+  activitySets: 'profeng_activity_sets',
+  activityResults: 'profeng_activity_results',
 };
 
 const LEVELS_FALLBACK = [
@@ -214,6 +216,57 @@ const QUIZ_QUESTIONS = [
   },
 ];
 
+const OBJECTIVE_BANK_BY_LEVEL = {
+  A1: [
+    { id: 'a1-mc-1', type: 'mc', prompt: 'Complete: She ___ at school every morning.', options: ['study', 'studies', 'studying'], answer: 'studies', explanation: 'Para he/she/it no presente simples, usamos verbo com -s.' },
+    { id: 'a1-mc-2', type: 'mc', prompt: 'Choose the correct sentence:', options: ['They is happy.', 'They are happy.', 'They am happy.'], answer: 'They are happy.', explanation: 'Com "they", usamos "are".' },
+    { id: 'a1-fill-1', type: 'fill', prompt: 'I ___ from Brazil.', answer: ['am'], explanation: 'Use o verbo to be com I.' },
+    { id: 'a1-fill-2', type: 'fill', prompt: 'We ___ to school by bus.', answer: ['go'], explanation: 'Com "we", o verbo fica sem -s.' },
+    { id: 'a1-tf-1', type: 'tf', prompt: '"He have a dog." is correct.', answer: false, correction: 'He has a dog.' },
+    { id: 'a1-check-1', type: 'check', prompt: 'Sentence: "My sister live in Rio." This is...', answer: 'wrong', correction: 'My sister lives in Rio.' },
+  ],
+  A2: [
+    { id: 'a2-mc-1', type: 'mc', prompt: 'Choose the best sentence about yesterday:', options: ['I go to the market yesterday.', 'I went to the market yesterday.', 'I goed to the market yesterday.'], answer: 'I went to the market yesterday.', explanation: 'Simple past de go: went.' },
+    { id: 'a2-mc-2', type: 'mc', prompt: 'Complete: We are ___ visit our grandparents this weekend.', options: ['going to', 'go to', 'goes to'], answer: 'going to', explanation: 'Para planos, use going to.' },
+    { id: 'a2-fill-1', type: 'fill', prompt: 'There ___ two books on the table.', answer: ['are'], explanation: 'Com plural, use "are".' },
+    { id: 'a2-fill-2', type: 'fill', prompt: 'She ___ TV last night.', answer: ['watched'], explanation: 'Simple past regular: watched.' },
+    { id: 'a2-tf-1', type: 'tf', prompt: '"How much apples do you need?" is correct.', answer: false, correction: 'How many apples do you need?' },
+    { id: 'a2-check-1', type: 'check', prompt: 'Sentence: "I am going to travel tomorrow." This is...', answer: 'correct', correction: 'Correta para plano futuro.' },
+  ],
+  B1: [
+    { id: 'b1-mc-1', type: 'mc', prompt: 'Choose the best option:', options: ['I have finished my report yesterday.', 'I finished my report yesterday.', 'I was finish my report yesterday.'], answer: 'I finished my report yesterday.', explanation: 'Com marcador de passado definido (yesterday), use simple past.' },
+    { id: 'b1-mc-2', type: 'mc', prompt: 'Complete: If it rains, we ___ at home.', options: ['stay', 'stays', 'stayed'], answer: 'stay', explanation: 'First conditional: if + present, will/imperative/base na principal.' },
+    { id: 'b1-fill-1', type: 'fill', prompt: 'I have lived here ___ 2019.', answer: ['since'], explanation: 'Use since para ponto inicial no tempo.' },
+    { id: 'b1-fill-2', type: 'fill', prompt: 'You should ___ your manager before changing the plan.', answer: ['inform', 'tell'], explanation: 'Verbos adequados no contexto de conselho.' },
+    { id: 'b1-tf-1', type: 'tf', prompt: '"He said me to wait." is correct.', answer: false, correction: 'He told me to wait.' },
+    { id: 'b1-check-1', type: 'check', prompt: 'Sentence: "If I will see her, I will tell her." This is...', answer: 'wrong', correction: 'If I see her, I will tell her.' },
+  ],
+  B2: [
+    { id: 'b2-mc-1', type: 'mc', prompt: 'Choose the most natural business sentence:', options: ['The meeting was canceled by weather.', 'The meeting was canceled due to weather conditions.', 'The meeting canceled because weather.'], answer: 'The meeting was canceled due to weather conditions.', explanation: 'Uso mais formal e natural para contexto profissional.' },
+    { id: 'b2-mc-2', type: 'mc', prompt: 'Complete: The report ___ by the team before the deadline.', options: ['was completed', 'completed', 'has complete'], answer: 'was completed', explanation: 'Passive voice correta no passado.' },
+    { id: 'b2-fill-1', type: 'fill', prompt: 'She suggested ___ the launch by one week.', answer: ['postponing'], explanation: 'Suggest + verb-ing.' },
+    { id: 'b2-fill-2', type: 'fill', prompt: 'By this time next year, we ___ the new platform.', answer: ['will have launched'], explanation: 'Future perfect para algo concluido ate um momento futuro.' },
+    { id: 'b2-tf-1', type: 'tf', prompt: '"He explained me the process." is correct.', answer: false, correction: 'He explained the process to me.' },
+    { id: 'b2-check-1', type: 'check', prompt: 'Sentence: "The issue was solved quickly by our team." This is...', answer: 'correct', correction: 'Correta e natural.' },
+  ],
+  C1: [
+    { id: 'c1-mc-1', type: 'mc', prompt: 'Choose the best formal connector:', options: ['But', 'However', 'And then'], answer: 'However', explanation: 'Conector mais apropriado para registro formal.' },
+    { id: 'c1-mc-2', type: 'mc', prompt: 'Complete: Not only ___ costs, but it also improved quality.', options: ['we reduced', 'did we reduce', 'we did reduce'], answer: 'did we reduce', explanation: 'Inversion after "Not only".' },
+    { id: 'c1-fill-1', type: 'fill', prompt: 'The proposal is effective; ___, it needs budget approval.', answer: ['nevertheless', 'however'], explanation: 'Conector de contraste adequado.' },
+    { id: 'c1-fill-2', type: 'fill', prompt: 'Had we known the risk, we ___ differently.', answer: ['would have acted', 'would have responded'], explanation: 'Third conditional.' },
+    { id: 'c1-tf-1', type: 'tf', prompt: '"Despite of the delay, we delivered." is correct.', answer: false, correction: 'Despite the delay, we delivered.' },
+    { id: 'c1-check-1', type: 'check', prompt: 'Sentence: "Rarely do we see such consistent results." This is...', answer: 'correct', correction: 'Inversion correta para enfase formal.' },
+  ],
+  C2: [
+    { id: 'c2-mc-1', type: 'mc', prompt: 'Choose the most idiomatic option:', options: ['The plan failed in the last hour.', 'The plan fell through at the eleventh hour.', 'The plan was bad in the final moment.'], answer: 'The plan fell through at the eleventh hour.', explanation: 'Expressao idiomatica com naturalidade de alto nivel.' },
+    { id: 'c2-mc-2', type: 'mc', prompt: 'Select the most nuanced sentence:', options: ['I disagree with the policy.', 'I find the policy problematic in several respects.', 'The policy is wrong.'], answer: 'I find the policy problematic in several respects.', explanation: 'Tom sofisticado e argumentativo.' },
+    { id: 'c2-fill-1', type: 'fill', prompt: 'The argument is compelling; ___, its assumptions remain contestable.', answer: ['nonetheless', 'however'], explanation: 'Conector de contraste em registro elevado.' },
+    { id: 'c2-fill-2', type: 'fill', prompt: 'Were this strategy to fail, we ___ an alternative framework.', answer: ['would require', 'would need'], explanation: 'Estrutura condicional formal.' },
+    { id: 'c2-tf-1', type: 'tf', prompt: '"The data are inconclusive." is acceptable in formal English.', answer: true, correction: 'Uso formal aceitavel com "data" plural.' },
+    { id: 'c2-check-1', type: 'check', prompt: 'Sentence: "No sooner had we launched than the first feedback arrived." This is...', answer: 'correct', correction: 'Estrutura avancada correta.' },
+  ],
+};
+
 const state = {
   token: localStorage.getItem(STORAGE_KEYS.token) || '',
   user: null,
@@ -227,6 +280,8 @@ const state = {
   quizRecommendation: null,
   completed: readStoredJson(STORAGE_KEYS.completed, {}),
   drafts: readStoredJson(STORAGE_KEYS.drafts, {}),
+  activitySets: readStoredJson(STORAGE_KEYS.activitySets, {}),
+  activityResults: readStoredJson(STORAGE_KEYS.activityResults, {}),
   aiChatHistory: [],
   aiChatLoading: false,
   aiExerciseBatch: null,
@@ -334,6 +389,7 @@ const elements = {
   activityObjective: $('activityObjective'),
   activityTips: $('activityTips'),
   activityTasks: $('activityTasks'),
+  regenerateActivityButton: $('regenerateActivityButton'),
   saveDraftButton: $('saveDraftButton'),
   requestFeedbackButton: $('requestFeedbackButton'),
   completeActivityButton: $('completeActivityButton'),
@@ -710,13 +766,130 @@ function activitiesForLevel(levelId) {
 function completedForLevel(levelId) {
   return Array.isArray(state.completed[levelId]) ? state.completed[levelId] : [];
 }
+
+function questionBankForLevel(levelId) {
+  const order = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+  const index = Math.max(0, order.indexOf(levelId));
+  const nearbyLevels = [order[index - 1], order[index], order[index + 1]].filter(Boolean);
+
+  const merged = nearbyLevels.flatMap((id) => OBJECTIVE_BANK_BY_LEVEL[id] || []);
+  const byId = new Map(merged.map((question) => [question.id, question]));
+  return Array.from(byId.values());
+}
+
+function shuffleArray(values) {
+  const cloned = [...values];
+  for (let i = cloned.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cloned[i], cloned[j]] = [cloned[j], cloned[i]];
+  }
+  return cloned;
+}
+
+function normalizeCompare(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
+}
+
+function currentLevelId() {
+  return state.selectedLevel || (state.user && state.user.level) || 'A2';
+}
+
+function activitySessionKey(activityId, levelId = currentLevelId()) {
+  return `${levelId}:${activityId}`;
+}
+
+function buildObjectiveSet(levelId, count = 6) {
+  const bank = questionBankForLevel(levelId);
+  const selected = shuffleArray(bank).slice(0, Math.min(count, bank.length));
+  return selected.map((question) => ({
+    ...question,
+    options: Array.isArray(question.options) ? [...question.options] : question.options,
+    answer: Array.isArray(question.answer) ? [...question.answer] : question.answer,
+  }));
+}
+
+function objectiveTypeLabel(type) {
+  const labels = {
+    mc: 'Multipla escolha',
+    tf: 'Verdadeiro/Falso',
+    fill: 'Completar',
+    check: 'Certo/Errado',
+  };
+  return labels[type] || 'Questao';
+}
+
+function ensureActivitySet(item, forceNew = false) {
+  const key = activitySessionKey(item.id);
+  const currentSet = state.activitySets[key];
+
+  if (!forceNew && Array.isArray(currentSet) && currentSet.length) {
+    return { key, questions: currentSet };
+  }
+
+  const nextSet = buildObjectiveSet(currentLevelId(), 6);
+  state.activitySets[key] = nextSet;
+  state.drafts[key] = {};
+  delete state.activityResults[key];
+  writeStoredJson(STORAGE_KEYS.activitySets, state.activitySets);
+  writeStoredJson(STORAGE_KEYS.drafts, state.drafts);
+  writeStoredJson(STORAGE_KEYS.activityResults, state.activityResults);
+
+  return { key, questions: nextSet };
+}
+
+function renderObjectiveInput(question, questionId, answerValue) {
+  if (question.type === 'mc') {
+    return (question.options || [])
+      .map(
+        (option) => `
+          <label class="quiz-option">
+            <input type="radio" data-question-id="${escapeHtml(questionId)}" name="activity-${escapeHtml(questionId)}" value="${escapeHtml(option)}" ${answerValue === option ? 'checked' : ''} />
+            <span>${escapeHtml(option)}</span>
+          </label>
+        `,
+      )
+      .join('');
+  }
+
+  if (question.type === 'tf') {
+    return `
+      <label class="quiz-option">
+        <input type="radio" data-question-id="${escapeHtml(questionId)}" name="activity-${escapeHtml(questionId)}" value="true" ${String(answerValue) === 'true' ? 'checked' : ''} />
+        <span>Verdadeiro</span>
+      </label>
+      <label class="quiz-option">
+        <input type="radio" data-question-id="${escapeHtml(questionId)}" name="activity-${escapeHtml(questionId)}" value="false" ${String(answerValue) === 'false' ? 'checked' : ''} />
+        <span>Falso</span>
+      </label>
+    `;
+  }
+
+  if (question.type === 'check') {
+    return `
+      <label class="quiz-option">
+        <input type="radio" data-question-id="${escapeHtml(questionId)}" name="activity-${escapeHtml(questionId)}" value="correct" ${String(answerValue) === 'correct' ? 'checked' : ''} />
+        <span>Esta correta</span>
+      </label>
+      <label class="quiz-option">
+        <input type="radio" data-question-id="${escapeHtml(questionId)}" name="activity-${escapeHtml(questionId)}" value="wrong" ${String(answerValue) === 'wrong' ? 'checked' : ''} />
+        <span>Precisa de correcao</span>
+      </label>
+    `;
+  }
+
+  return `<input class="answer-input" data-question-id="${escapeHtml(questionId)}" type="text" value="${escapeHtml(answerValue || '')}" placeholder="Digite uma palavra/expressao" />`;
+}
+
 function renderHome() {
   if (!state.user) {
     return;
   }
 
   const name = state.user.name || 'Aluno';
-  const levelId = state.selectedLevel || state.user.level || 'A2';
+  const levelId = currentLevelId();
   const items = activitiesForLevel(levelId);
   const done = completedForLevel(levelId).length;
   const stats = state.stats || {};
@@ -732,7 +905,7 @@ function renderActivities() {
     return;
   }
 
-  const levelId = state.selectedLevel || state.user.level || 'A2';
+  const levelId = currentLevelId();
   const items = activitiesForLevel(levelId);
   const doneList = new Set(completedForLevel(levelId));
 
@@ -753,6 +926,7 @@ function renderActivities() {
             <span class="pill ${done ? 'ok' : ''}">${done ? 'concluida' : 'pendente'}</span>
           </div>
           <p class="line" style="margin-top: 8px">${escapeHtml(item.objective)}</p>
+          <p class="line" style="margin-top: 6px">Formato objetivo: multipla escolha, V/F, completar e certo/errado.</p>
           <div class="row" style="margin-top: 10px">
             <button class="btn" data-open-activity="${escapeHtml(item.id)}">Abrir</button>
           </div>
@@ -763,7 +937,7 @@ function renderActivities() {
 }
 
 function selectedActivity() {
-  const levelId = state.selectedLevel || (state.user && state.user.level) || 'A2';
+  const levelId = currentLevelId();
   return activitiesForLevel(levelId).find((item) => item.id === state.selectedActivityId) || null;
 }
 
@@ -781,25 +955,45 @@ function renderActivity() {
   elements.activityObjective.textContent = item.objective;
   elements.activityTips.innerHTML = item.tips.map((tip) => `<li>${escapeHtml(tip)}</li>`).join('');
 
-  const draft = state.drafts[item.id] || {};
-  elements.activityTasks.innerHTML = item.tasks
-    .map(
-      (task) => `
-        <article class="task">
-          <h4>${escapeHtml(task.title)}</h4>
-          <textarea data-task-id="${escapeHtml(task.id)}" placeholder="${escapeHtml(task.placeholder)}">${escapeHtml(draft[task.id] || '')}</textarea>
+  const session = ensureActivitySet(item, false);
+  if (!session.questions.length) {
+    elements.activityTasks.innerHTML = '<div class="message">Sem questoes disponiveis para este nivel.</div>';
+    setMessage(elements.activityMessage, 'Sem questoes para este nivel no momento.', 'error');
+    return;
+  }
+  const draft = state.drafts[session.key] || {};
+  elements.activityTasks.innerHTML = session.questions
+    .map((question, index) => {
+      const questionId = question.id || `q-${index + 1}`;
+      const answerValue = draft[questionId] || '';
+      return `
+        <article class="question-card">
+          <div class="question-top">
+            <strong>${index + 1}. Questao</strong>
+            <span class="question-type">${escapeHtml(objectiveTypeLabel(question.type))}</span>
+          </div>
+          <div class="question-prompt">${escapeHtml(question.prompt)}</div>
+          ${renderObjectiveInput(question, questionId, answerValue)}
         </article>
-      `,
-    )
+      `;
+    })
     .join('');
 
-  setMessage(elements.activityMessage, 'Preencha os campos e avance no seu ritmo.');
+  const previousResult = state.activityResults[session.key];
+  if (previousResult && typeof previousResult.score === 'number') {
+    setMessage(elements.activityMessage, `Ultima tentativa: ${previousResult.score}% (${previousResult.correct}/${previousResult.total}).`, previousResult.score >= 70 ? 'success' : 'error');
+  } else {
+    setMessage(elements.activityMessage, 'Responda as questoes objetivas e clique em "Corrigir agora".');
+  }
 }
 
 function collectTaskAnswers() {
   const answers = {};
-  elements.activityTasks.querySelectorAll('textarea[data-task-id]').forEach((field) => {
-    answers[field.dataset.taskId] = field.value.trim();
+  elements.activityTasks.querySelectorAll('input[type="radio"][data-question-id]:checked').forEach((field) => {
+    answers[field.dataset.questionId] = field.value;
+  });
+  elements.activityTasks.querySelectorAll('input[type="text"][data-question-id]').forEach((field) => {
+    answers[field.dataset.questionId] = field.value.trim();
   });
   return answers;
 }
@@ -810,58 +1004,81 @@ function saveDraft() {
     setMessage(elements.activityMessage, 'Abra uma atividade para salvar.', 'error');
     return;
   }
-  state.drafts[item.id] = collectTaskAnswers();
+  const session = ensureActivitySet(item, false);
+  state.drafts[session.key] = collectTaskAnswers();
   writeStoredJson(STORAGE_KEYS.drafts, state.drafts);
-  setMessage(elements.activityMessage, 'Rascunho salvo com sucesso.', 'success');
+  setMessage(elements.activityMessage, 'Respostas salvas com sucesso.', 'success');
 }
 
-async function requestFeedback() {
+function evaluateObjectiveAnswers(questions, answers) {
+  let correct = 0;
+  const details = [];
+
+  for (const question of questions) {
+    const userAnswer = answers[question.id];
+    let ok = false;
+
+    if (question.type === 'mc') {
+      ok = normalizeCompare(userAnswer) === normalizeCompare(question.answer);
+    } else if (question.type === 'tf') {
+      ok = normalizeCompare(userAnswer) === (question.answer ? 'true' : 'false');
+    } else if (question.type === 'check') {
+      ok = normalizeCompare(userAnswer) === normalizeCompare(question.answer);
+    } else if (question.type === 'fill') {
+      const expected = Array.isArray(question.answer) ? question.answer : [question.answer];
+      ok = expected.some((value) => normalizeCompare(value) === normalizeCompare(userAnswer));
+    }
+
+    if (ok) {
+      correct += 1;
+    }
+
+    details.push({
+      id: question.id,
+      ok,
+      correction: question.correction || question.explanation || '',
+    });
+  }
+
+  const total = questions.length || 1;
+  const score = Math.round((correct / total) * 100);
+  return { score, correct, total, details };
+}
+
+function requestFeedback() {
   const item = selectedActivity();
   if (!item) {
-    setMessage(elements.activityFeedback, 'Abra uma atividade para pedir feedback.', 'error');
+    setMessage(elements.activityFeedback, 'Abra uma atividade para corrigir.', 'error');
     return;
   }
 
-  if (!state.openAiConfigured) {
-    setMessage(
-      elements.activityFeedback,
-      'Feedback com IA exige OPENAI_API_KEY no .env. Reinicie o servidor apos configurar.',
-      'error',
-    );
-    return;
-  }
-
+  const session = ensureActivitySet(item, false);
   const answers = collectTaskAnswers();
-  const merged = item.tasks
-    .map((task) => {
-      const answer = answers[task.id];
-      return answer ? `${task.title}:\n${answer}` : null;
-    })
-    .filter(Boolean)
-    .join('\n\n');
-
-  if (!merged) {
-    setMessage(elements.activityFeedback, 'Preencha pelo menos uma resposta para receber feedback.', 'error');
+  const answeredCount = Object.keys(answers).length;
+  if (answeredCount < session.questions.length) {
+    setMessage(elements.activityFeedback, `Responda todas as ${session.questions.length} questoes antes de corrigir.`, 'error');
     return;
   }
 
-  elements.requestFeedbackButton.disabled = true;
-  setMessage(elements.activityFeedback, 'Analisando sua atividade...');
+  const result = evaluateObjectiveAnswers(session.questions, answers);
+  state.activityResults[session.key] = result;
+  writeStoredJson(STORAGE_KEYS.activityResults, state.activityResults);
+  saveDraft();
 
-  try {
-    const result = await api('/feedback', {
-      method: 'POST',
-      body: JSON.stringify({
-        level: state.selectedLevel,
-        text: `Atividade: ${item.title}\n\n${merged}`,
-      }),
-    });
-    setMessage(elements.activityFeedback, result.feedback || 'Feedback recebido.', 'success');
-  } catch (error) {
-    setMessage(elements.activityFeedback, error.message, 'error');
-  } finally {
-    elements.requestFeedbackButton.disabled = false;
-  }
+  const wrongHints = result.details
+    .filter((entry) => !entry.ok && entry.correction)
+    .slice(0, 3)
+    .map((entry, index) => `${index + 1}) ${escapeHtml(entry.correction)}`)
+    .join('<br />');
+
+  const body = `
+    <strong>Resultado: ${result.score}%</strong><br />
+    Acertos: ${result.correct}/${result.total}<br />
+    ${wrongHints ? `Ajustes rapidos:<br />${wrongHints}` : 'Excelente! Continue para concluir.'}
+  `;
+
+  setMessage(elements.activityFeedback, body, result.score >= 70 ? 'success' : 'error', true);
+  setMessage(elements.activityMessage, `Resultado registrado: ${result.score}%.`, result.score >= 70 ? 'success' : 'error');
 }
 
 function completeActivity() {
@@ -871,9 +1088,18 @@ function completeActivity() {
     return;
   }
 
-  saveDraft();
+  const session = ensureActivitySet(item, false);
+  const result = state.activityResults[session.key];
+  if (!result || typeof result.score !== 'number') {
+    setMessage(elements.activityMessage, 'Clique em "Corrigir agora" antes de concluir.', 'error');
+    return;
+  }
+  if (result.score < 70) {
+    setMessage(elements.activityMessage, 'Para concluir, alcance pelo menos 70%. Clique em "Novo lote" e tente novamente.', 'error');
+    return;
+  }
 
-  const levelId = state.selectedLevel || (state.user && state.user.level) || 'A2';
+  const levelId = currentLevelId();
   if (!Array.isArray(state.completed[levelId])) {
     state.completed[levelId] = [];
   }
@@ -885,6 +1111,18 @@ function completeActivity() {
   setMessage(elements.activityMessage, 'Atividade concluida. Excelente trabalho.', 'success');
   renderHome();
   renderActivities();
+}
+
+function regenerateActivitySet() {
+  const item = selectedActivity();
+  if (!item) {
+    setMessage(elements.activityMessage, 'Abra uma atividade para gerar um novo lote.', 'error');
+    return;
+  }
+
+  ensureActivitySet(item, true);
+  renderActivity();
+  setMessage(elements.activityFeedback, 'Novo lote gerado com questoes objetivas variadas.');
 }
 
 function renderAiChatLog() {
@@ -1533,6 +1771,7 @@ function bindEvents() {
   });
 
   elements.activityBackButton.addEventListener('click', () => setScreen('activities'));
+  elements.regenerateActivityButton.addEventListener('click', regenerateActivitySet);
   elements.saveDraftButton.addEventListener('click', saveDraft);
   elements.requestFeedbackButton.addEventListener('click', requestFeedback);
   elements.completeActivityButton.addEventListener('click', completeActivity);
