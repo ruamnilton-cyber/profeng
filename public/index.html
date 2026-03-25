@@ -408,6 +408,32 @@
         overflow: hidden;
       }
 
+      .ai-topic-tabs {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .ai-topic-btn {
+        min-height: 40px;
+        border-radius: 12px;
+        border: 1px solid rgba(24, 36, 47, 0.15);
+        background: rgba(255, 255, 255, 0.88);
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .ai-topic-btn.active {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+
+      .ai-panel.hidden {
+        display: none !important;
+      }
+
       .chat-head {
         display: flex;
         align-items: center;
@@ -617,6 +643,10 @@
           border-radius: 22px;
           padding: 10px;
         }
+
+        .ai-topic-tabs {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
       }
     </style>
   </head>
@@ -754,7 +784,14 @@
         <section data-screen="ai" class="screen">
           <h2>Studio IA</h2>
 
-          <article class="card chat-card">
+          <div class="ai-topic-tabs">
+            <button id="aiTopicConversation" class="ai-topic-btn active">Conversacao</button>
+            <button id="aiTopicGrammar" class="ai-topic-btn">Grammar</button>
+            <button id="aiTopicExercise" class="ai-topic-btn">Exercicios</button>
+            <button id="aiTopicVoice" class="ai-topic-btn">Voice</button>
+          </div>
+
+          <article id="aiChatPanel" class="card chat-card ai-panel">
             <div class="chat-head">
               <div class="chat-profile">
                 <span class="chat-avatar">AI</span>
@@ -782,7 +819,7 @@
             </div>
           </article>
 
-          <article class="card stack">
+          <article id="aiExercisePanel" class="card stack ai-panel hidden">
             <h3>Exercicios IA</h3>
             <div class="row">
               <label style="flex: 1">Nivel <select id="aiExerciseLevel"></select></label>
@@ -802,7 +839,7 @@
             <div id="aiExerciseResult" class="message">A correcao aparece aqui.</div>
           </article>
 
-          <article class="card stack">
+          <article id="aiVoicePanel" class="card stack ai-panel hidden">
             <h3>Voz</h3>
             <div class="row">
               <label style="flex: 1">Nivel <select id="aiVoiceLevel"></select></label>

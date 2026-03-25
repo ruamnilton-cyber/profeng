@@ -204,6 +204,7 @@ const state = {
   openAiConfigured: false,
   selectedLevel: 'A2',
   screen: 'welcome',
+  aiTopic: 'conversation',
   selectedActivityId: null,
   quizRecommendation: null,
   completed: readStoredJson(STORAGE_KEYS.completed, {}),
@@ -273,6 +274,14 @@ const elements = {
   activitiesTitle: $('activitiesTitle'),
   activitiesList: $('activitiesList'),
   activitiesMessage: $('activitiesMessage'),
+
+  aiTopicConversation: $('aiTopicConversation'),
+  aiTopicGrammar: $('aiTopicGrammar'),
+  aiTopicExercise: $('aiTopicExercise'),
+  aiTopicVoice: $('aiTopicVoice'),
+  aiChatPanel: $('aiChatPanel'),
+  aiExercisePanel: $('aiExercisePanel'),
+  aiVoicePanel: $('aiVoicePanel'),
 
   aiChatLevel: $('aiChatLevel'),
   aiChatMode: $('aiChatMode'),
@@ -559,6 +568,53 @@ function renderManualLevelInfo() {
     ? String(profile.vocabularyScope).split(',').slice(0, 3).join(', ')
     : 'comunicacao diaria';
   elements.manualLevelInfo.textContent = `${profile.id}: foco em ${focus}.`;
+}
+
+function aiPanelForTopic(topic) {
+  if (topic === 'exercise') return 'exercise';
+  if (topic === 'voice') return 'voice';
+  return 'chat';
+}
+
+function aiTopicFromChatMode(mode) {
+  if (mode === 'grammar') return 'grammar';
+  if (mode === 'voice') return 'voice';
+  return 'conversation';
+}
+
+function setAiTopic(topic, options = {}) {
+  const allowed = new Set(['conversation', 'grammar', 'exercise', 'voice']);
+  const nextTopic = allowed.has(topic) ? topic : 'conversation';
+  const shouldFocus = options.focus !== false;
+
+  state.aiTopic = nextTopic;
+  const activePanel = aiPanelForTopic(nextTopic);
+
+  elements.aiChatPanel.classList.toggle('hidden', activePanel !== 'chat');
+  elements.aiExercisePanel.classList.toggle('hidden', activePanel !== 'exercise');
+  elements.aiVoicePanel.classList.toggle('hidden', activePanel !== 'voice');
+
+  elements.aiTopicConversation.classList.toggle('active', nextTopic === 'conversation');
+  elements.aiTopicGrammar.classList.toggle('active', nextTopic === 'grammar');
+  elements.aiTopicExercise.classList.toggle('active', nextTopic === 'exercise');
+  elements.aiTopicVoice.classList.toggle('active', nextTopic === 'voice');
+
+  if (nextTopic === 'grammar') {
+    elements.aiChatMode.value = 'grammar';
+  } else if (nextTopic === 'conversation') {
+    if (elements.aiChatMode.value === 'grammar' || elements.aiChatMode.value === 'voice') {
+      elements.aiChatMode.value = 'conversation';
+    }
+  } else if (nextTopic === 'voice') {
+    const supportsVoiceMode = Array.from(elements.aiChatMode.options).some((option) => option.value === 'voice');
+    if (supportsVoiceMode) {
+      elements.aiChatMode.value = 'voice';
+    }
+  }
+
+  if (activePanel === 'chat' && shouldFocus) {
+    elements.aiChatInput.focus();
+  }
 }
 
 function renderQuiz() {
@@ -1091,6 +1147,7 @@ function stopVoiceRecording() {
 function renderAiScreen() {
   renderAiChatLog();
   renderAiExercises();
+  setAiTopic(state.aiTopic, { focus: false });
 
   if (!state.openAiConfigured) {
     setMessage(
@@ -1236,6 +1293,7 @@ async function logout() {
   state.stats = null;
   state.selectedActivityId = null;
   state.quizRecommendation = null;
+  state.aiTopic = 'conversation';
   state.aiChatHistory = [];
   state.aiChatLoading = false;
   state.aiExerciseBatch = null;
@@ -1406,6 +1464,13 @@ function bindEvents() {
       sendAiChat();
     }
   });
+  elements.aiChatMode.addEventListener('change', () => {
+    setAiTopic(aiTopicFromChatMode(elements.aiChatMode.value), { focus: false });
+  });
+  elements.aiTopicConversation.addEventListener('click', () => setAiTopic('conversation'));
+  elements.aiTopicGrammar.addEventListener('click', () => setAiTopic('grammar'));
+  elements.aiTopicExercise.addEventListener('click', () => setAiTopic('exercise', { focus: false }));
+  elements.aiTopicVoice.addEventListener('click', () => setAiTopic('voice', { focus: false }));
 
   elements.aiExerciseGenerateButton.addEventListener('click', generateAiExercises);
   elements.aiExerciseCheckButton.addEventListener('click', checkAiExercise);
