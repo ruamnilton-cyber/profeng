@@ -403,27 +403,162 @@
         line-height: 1.55;
       }
 
-      .chat-log {
+      .chat-card {
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .chat-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px;
+        border-bottom: 1px solid rgba(24, 36, 47, 0.12);
+        background: linear-gradient(180deg, rgba(246, 255, 248, 0.95), rgba(241, 248, 245, 0.95));
+      }
+
+      .chat-profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .chat-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.76rem;
+        font-weight: 800;
+        color: #ffffff;
+        background: linear-gradient(130deg, var(--accent), var(--accent-2));
+      }
+
+      .chat-head h3 {
+        font-size: 1rem;
+      }
+
+      .chat-presence {
+        margin-top: 2px;
+        font-size: 0.74rem;
+        color: var(--ok);
+        font-weight: 600;
+      }
+
+      .chat-clear-btn {
+        min-height: 34px;
+        padding: 6px 12px;
+        border-radius: 999px;
+      }
+
+      .chat-controls {
         display: grid;
         gap: 8px;
-        max-height: 220px;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.8);
+        border-bottom: 1px solid rgba(24, 36, 47, 0.1);
+      }
+
+      .chat-controls label {
+        font-size: 0.83rem;
+        font-weight: 600;
+      }
+
+      .chat-controls input,
+      .chat-controls select {
+        min-height: 40px;
+      }
+
+      .chat-log {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-height: 270px;
+        max-height: 340px;
         overflow: auto;
-        padding: 6px;
-        border: 1px dashed rgba(24, 36, 47, 0.2);
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.66);
+        padding: 14px 12px;
+        background:
+          radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.5), transparent 60%),
+          linear-gradient(180deg, rgba(235, 248, 239, 0.92), rgba(226, 242, 232, 0.92));
+      }
+
+      .chat-empty {
+        margin: auto;
+        text-align: center;
+        color: var(--muted);
+        line-height: 1.5;
+        font-size: 0.9rem;
       }
 
       .bubble {
-        padding: 10px 11px;
+        max-width: 85%;
+        padding: 8px 10px;
         border-radius: 12px;
-        line-height: 1.52;
+        line-height: 1.48;
         font-size: 0.9rem;
-        background: rgba(255, 255, 255, 0.9);
+        background: #ffffff;
+        box-shadow: 0 8px 20px rgba(28, 47, 40, 0.08);
+      }
+
+      .bubble.assistant {
+        align-self: flex-start;
+        border-bottom-left-radius: 4px;
       }
 
       .bubble.user {
-        background: rgba(21, 118, 109, 0.14);
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+        background: rgba(189, 241, 203, 0.95);
+      }
+
+      .bubble-label {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: rgba(24, 36, 47, 0.64);
+      }
+
+      .bubble-text {
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .bubble.typing .bubble-text {
+        font-style: italic;
+        color: var(--muted);
+      }
+
+      .chat-compose {
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.9);
+        border-top: 1px solid rgba(24, 36, 47, 0.12);
+      }
+
+      .chat-compose textarea {
+        min-height: 42px;
+        max-height: 120px;
+        resize: none;
+        border-radius: 18px;
+        padding: 10px 12px;
+      }
+
+      .chat-send-btn {
+        width: 44px;
+        height: 44px;
+        min-height: 44px;
+        border-radius: 999px;
+        padding: 0;
+        flex: 0 0 auto;
+        font-weight: 800;
       }
 
       .exercise-card-mini {
@@ -619,18 +754,31 @@
         <section data-screen="ai" class="screen">
           <h2>Studio IA</h2>
 
-          <article class="card stack">
-            <h3>Chat com tutor</h3>
-            <div class="row">
-              <label style="flex: 1">Nivel <select id="aiChatLevel"></select></label>
-              <label style="flex: 1">Modo <select id="aiChatMode"></select></label>
+          <article class="card chat-card">
+            <div class="chat-head">
+              <div class="chat-profile">
+                <span class="chat-avatar">AI</span>
+                <div>
+                  <h3>Tutor IA</h3>
+                  <div class="chat-presence">online</div>
+                </div>
+              </div>
+              <button id="aiChatClearButton" class="btn ghost chat-clear-btn">Limpar</button>
             </div>
-            <label>Topico <input id="aiChatTopic" placeholder="travel, work, interview..." /></label>
+
+            <div class="chat-controls">
+              <div class="row">
+                <label style="flex: 1">Nivel <select id="aiChatLevel"></select></label>
+                <label style="flex: 1">Modo <select id="aiChatMode"></select></label>
+              </div>
+              <label>Topico <input id="aiChatTopic" placeholder="travel, work, interview..." /></label>
+            </div>
+
             <div id="aiChatLog" class="chat-log"></div>
-            <label>Sua mensagem <textarea id="aiChatInput" placeholder="Write your message in English..."></textarea></label>
-            <div class="row">
-              <button id="aiChatSendButton" class="btn">Enviar</button>
-              <button id="aiChatClearButton" class="btn ghost">Limpar</button>
+
+            <div class="chat-compose">
+              <textarea id="aiChatInput" placeholder="Digite sua mensagem... (Enter envia)"></textarea>
+              <button id="aiChatSendButton" class="btn chat-send-btn" aria-label="Enviar">></button>
             </div>
           </article>
 

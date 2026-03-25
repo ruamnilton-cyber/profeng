@@ -209,6 +209,7 @@ const state = {
   completed: readStoredJson(STORAGE_KEYS.completed, {}),
   drafts: readStoredJson(STORAGE_KEYS.drafts, {}),
   aiChatHistory: [],
+  aiChatLoading: false,
   aiExerciseBatch: null,
   aiExercises: [],
   mediaRecorder: null,
@@ -797,23 +798,51 @@ function completeActivity() {
 }
 
 function renderAiChatLog() {
-  if (!state.aiChatHistory.length) {
-    elements.aiChatLog.innerHTML = '<div class="bubble">A conversa aparece aqui.</div>';
+  const history = Array.isArray(state.aiChatHistory) ? state.aiChatHistory : [];
+
+  if (!history.length && !state.aiChatLoading) {
+    elements.aiChatLog.innerHTML =
+      '<div class="chat-empty">Comece a conversa. Eu respondo como seu tutor em estilo WhatsApp.</div>';
     return;
   }
 
-  elements.aiChatLog.innerHTML = state.aiChatHistory
-    .map((message) => {
-      const tone = message.role === 'user' ? 'user' : '';
-      const who = message.role === 'user' ? 'Voce' : 'Tutor';
-      return `<div class="bubble ${tone}"><strong>${who}:</strong> ${escapeHtml(message.content)}</div>`;
-    })
-    .join('');
+  const lines = history.map((message) => {
+    const role = message.role === 'user' ? 'user' : 'assistant';
+    const label = role === 'user' ? 'Voce' : 'Tutor IA';
+    return `
+      <div class="bubble ${role}">
+        <span class="bubble-label">${escapeHtml(label)}</span>
+        <div class="bubble-text">${escapeHtml(message.content || '')}</div>
+      </div>
+    `;
+  });
+
+  if (state.aiChatLoading) {
+    lines.push(`
+      <div class="bubble assistant typing">
+        <span class="bubble-label">Tutor IA</span>
+        <div class="bubble-text">Digitando...</div>
+      </div>
+    `);
+  }
+
+  elements.aiChatLog.innerHTML = lines.join('');
 
   elements.aiChatLog.scrollTop = elements.aiChatLog.scrollHeight;
 }
 
+function resizeChatInput() {
+  elements.aiChatInput.style.height = 'auto';
+  const maxHeight = 120;
+  const nextHeight = Math.min(elements.aiChatInput.scrollHeight, maxHeight);
+  elements.aiChatInput.style.height = `${nextHeight}px`;
+}
+
 async function sendAiChat() {
+  if (state.aiChatLoading) {
+    return;
+  }
+
   const userText = elements.aiChatInput.value.trim();
   if (!userText) {
     return;
@@ -821,6 +850,8 @@ async function sendAiChat() {
 
   state.aiChatHistory.push({ role: 'user', content: userText });
   elements.aiChatInput.value = '';
+  resizeChatInput();
+  state.aiChatLoading = true;
   renderAiChatLog();
   elements.aiChatSendButton.disabled = true;
 
@@ -843,14 +874,18 @@ async function sendAiChat() {
   } catch (error) {
     state.aiChatHistory.push({ role: 'assistant', content: `Erro: ${error.message}` });
   } finally {
+    state.aiChatLoading = false;
     elements.aiChatSendButton.disabled = false;
     renderAiChatLog();
+    elements.aiChatInput.focus();
   }
 }
 
 function clearAiChat() {
   state.aiChatHistory = [];
+  state.aiChatLoading = false;
   renderAiChatLog();
+  elements.aiChatInput.focus();
 }
 
 function renderAiExercises() {
@@ -1202,6 +1237,7 @@ async function logout() {
   state.selectedActivityId = null;
   state.quizRecommendation = null;
   state.aiChatHistory = [];
+  state.aiChatLoading = false;
   state.aiExerciseBatch = null;
   state.aiExercises = [];
   syncUserBadge();
@@ -1363,6 +1399,13 @@ function bindEvents() {
 
   elements.aiChatSendButton.addEventListener('click', sendAiChat);
   elements.aiChatClearButton.addEventListener('click', clearAiChat);
+  elements.aiChatInput.addEventListener('input', resizeChatInput);
+  elements.aiChatInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      sendAiChat();
+    }
+  });
 
   elements.aiExerciseGenerateButton.addEventListener('click', generateAiExercises);
   elements.aiExerciseCheckButton.addEventListener('click', checkAiExercise);
@@ -1390,6 +1433,7 @@ async function bootstrap() {
   bindEvents();
   await loadOptions();
   await refreshSession();
+  resizeChatInput();
   renderAiChatLog();
   renderAiExercises();
   syncUserBadge();
