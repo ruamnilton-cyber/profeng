@@ -6,13 +6,31 @@ const STORAGE_KEYS = {
 };
 
 const LEVELS_FALLBACK = [
-  { id: 'A1', label: 'Beginner' },
-  { id: 'A2', label: 'Elementary' },
-  { id: 'B1', label: 'Intermediate' },
-  { id: 'B2', label: 'Upper Intermediate' },
-  { id: 'C1', label: 'Advanced' },
-  { id: 'C2', label: 'Proficient' },
+  { id: 'A1', label: 'Iniciante' },
+  { id: 'A2', label: 'Basico' },
+  { id: 'B1', label: 'Intermediario' },
+  { id: 'B2', label: 'Intermediario Avancado' },
+  { id: 'C1', label: 'Avancado' },
+  { id: 'C2', label: 'Proficiente' },
 ];
+
+const LEVEL_LABELS_PT = {
+  A1: 'Iniciante',
+  A2: 'Basico',
+  B1: 'Intermediario',
+  B2: 'Intermediario Avancado',
+  C1: 'Avancado',
+  C2: 'Proficiente',
+};
+
+const LEVEL_FOCUS_PT = {
+  A1: 'frases curtas, vocabulario do dia a dia e perguntas simples',
+  A2: 'situacoes comuns, passado basico e planos futuros',
+  B1: 'conversa com opiniao, justificativas e leitura pratica',
+  B2: 'fluidez, argumentacao e contexto profissional',
+  C1: 'precisao, nuance e comunicacao formal avancada',
+  C2: 'naturalidade de alto nivel, estilo e controle total do idioma',
+};
 
 const CHAT_MODES_FALLBACK = ['conversation', 'explain', 'correction', 'roleplay'];
 const EXERCISE_SKILLS_FALLBACK = ['mixed', 'grammar', 'vocabulary', 'reading', 'writing'];
@@ -156,42 +174,42 @@ const ACTIVITY_BY_LEVEL = {
 const QUIZ_QUESTIONS = [
   {
     id: 'q1',
-    question: 'Qual frase esta mais natural para rotina?',
+    question: 'Qual frase descreve melhor uma rotina em ingles?',
     options: [
-      { label: 'I goes to work at 8.', score: 1 },
-      { label: 'I go to work at 8.', score: 2 },
-      { label: 'I usually go to work at 8, unless I work remotely.', score: 4 },
-      { label: 'I tend to start around 8, depending on project cycles.', score: 6 },
+      { label: 'I goes to work at 8 every day.', score: 1 },
+      { label: 'I go to work at 8 every day.', score: 2 },
+      { label: 'I usually go to work at 8, but sometimes I work from home.', score: 4 },
+      { label: 'I normally start around 8, depending on the projects and team priorities.', score: 6 },
     ],
   },
   {
     id: 'q2',
-    question: 'Qual resposta esta melhor estruturada?',
+    question: 'Qual resposta esta melhor estruturada para um problema no trabalho?',
     options: [
-      { label: 'It was hard and I fix.', score: 1 },
-      { label: 'It was hard, but I solved it.', score: 2 },
-      { label: 'I reorganized tasks and solved it with my team.', score: 4 },
-      { label: 'I reframed the issue and coordinated a cross-team recovery.', score: 6 },
+      { label: 'It was difficult and I fix fast.', score: 1 },
+      { label: 'It was difficult, but I solved it.', score: 2 },
+      { label: 'I reorganized the tasks and solved it with my team.', score: 4 },
+      { label: 'I reframed the issue, aligned stakeholders and coordinated the recovery plan.', score: 6 },
     ],
   },
   {
     id: 'q3',
-    question: 'Escolha a opcao com melhor coesao:',
+    question: 'Escolha a opcao com melhor conexao de ideias:',
     options: [
-      { label: 'I like it. Is good.', score: 1 },
-      { label: 'I like it because it is practical.', score: 2 },
-      { label: 'I like it; however, we should test it first.', score: 4 },
-      { label: 'While promising, it requires stronger resource alignment.', score: 6 },
+      { label: 'I like this idea. Is very good.', score: 1 },
+      { label: 'I like this idea because it is practical.', score: 2 },
+      { label: 'I like this idea; however, we should test it before launch.', score: 4 },
+      { label: 'Although the proposal is promising, it still requires deeper validation and resource alignment.', score: 6 },
     ],
   },
   {
     id: 'q4',
-    question: 'Qual frase tem registro profissional mais forte?',
+    question: 'Qual frase tem tom mais profissional para email?',
     options: [
-      { label: 'Send me that file now.', score: 1 },
-      { label: 'Can you send me the file today?', score: 2 },
-      { label: 'Could you share the updated file by end of day?', score: 4 },
-      { label: 'Would you mind sharing the revised file by EOD so we can finalize?', score: 6 },
+      { label: 'Send me the file now.', score: 1 },
+      { label: 'Can you send the file today?', score: 2 },
+      { label: 'Could you share the updated file by the end of the day?', score: 4 },
+      { label: 'Would you mind sharing the revised version by EOD so we can finalize the deliverable?', score: 6 },
     ],
   },
 ];
@@ -257,6 +275,7 @@ const elements = {
   quizList: $('quizList'),
   checkQuizButton: $('checkQuizButton'),
   applyQuizButton: $('applyQuizButton'),
+  quizRecommendationBox: $('quizRecommendationBox'),
   levelSampleText: $('levelSampleText'),
   levelAssessApply: $('levelAssessApply'),
   levelAssessButton: $('levelAssessButton'),
@@ -422,9 +441,16 @@ function getLevelProfile(levelId) {
   return levels().find((item) => item.id === levelId) || null;
 }
 
+function levelNamePt(levelId, fallbackLabel = '') {
+  return LEVEL_LABELS_PT[levelId] || fallbackLabel || levelId;
+}
+
 function levelLabel(levelId) {
   const profile = getLevelProfile(levelId);
-  return profile ? `${profile.id} - ${profile.label}` : levelId;
+  if (!profile) {
+    return `${levelId} - ${levelNamePt(levelId)}`;
+  }
+  return `${profile.id} - ${levelNamePt(profile.id, profile.label)}`;
 }
 
 function fillSelect(selectElement, values, valueFn, labelFn, selectedValue) {
@@ -526,9 +552,15 @@ function syncStatusBanner() {
     return;
   }
 
-  elements.statusBanner.textContent = state.openAiConfigured
-    ? 'Tudo certo: IA e trilha estao ativas.'
-    : 'Trilha ativa. Para usar IA, preencha OPENAI_API_KEY no .env e reinicie o servidor.';
+  if (!state.openAiConfigured) {
+    elements.statusBanner.textContent = 'Modo Trilha ativo. Para liberar Modo IA, configure OPENAI_API_KEY no servidor.';
+    return;
+  }
+
+  elements.statusBanner.textContent =
+    state.screen === 'ai'
+      ? 'Voce esta no Modo IA: chat, exercicios e voz inteligente.'
+      : 'Voce esta no Modo Trilha: atividades por nivel com progresso guiado.';
 }
 
 function syncUserBadge() {
@@ -539,18 +571,19 @@ function syncUserBadge() {
   }
 
   const name = state.user.name || state.user.email || 'Aluno';
-  elements.userBadge.textContent = `${name} - ${state.user.level || state.selectedLevel}`;
+  const levelId = state.user.level || state.selectedLevel || 'A2';
+  elements.userBadge.textContent = `${name} - ${levelLabel(levelId)}`;
   elements.logoutButton.classList.remove('hidden');
 }
 
 function populateCoreSelects() {
   const levelValues = levels();
 
-  fillSelect(elements.registerLevel, levelValues, (item) => item.id, (item) => `${item.id} - ${item.label}`, state.selectedLevel);
-  fillSelect(elements.levelSelect, levelValues, (item) => item.id, (item) => `${item.id} - ${item.label}`, state.selectedLevel);
-  fillSelect(elements.aiChatLevel, levelValues, (item) => item.id, (item) => `${item.id} - ${item.label}`, state.selectedLevel);
-  fillSelect(elements.aiExerciseLevel, levelValues, (item) => item.id, (item) => `${item.id} - ${item.label}`, state.selectedLevel);
-  fillSelect(elements.aiVoiceLevel, levelValues, (item) => item.id, (item) => `${item.id} - ${item.label}`, state.selectedLevel);
+  fillSelect(elements.registerLevel, levelValues, (item) => item.id, (item) => levelLabel(item.id), state.selectedLevel);
+  fillSelect(elements.levelSelect, levelValues, (item) => item.id, (item) => levelLabel(item.id), state.selectedLevel);
+  fillSelect(elements.aiChatLevel, levelValues, (item) => item.id, (item) => levelLabel(item.id), state.selectedLevel);
+  fillSelect(elements.aiExerciseLevel, levelValues, (item) => item.id, (item) => levelLabel(item.id), state.selectedLevel);
+  fillSelect(elements.aiVoiceLevel, levelValues, (item) => item.id, (item) => levelLabel(item.id), state.selectedLevel);
 
   fillSelect(elements.aiChatMode, chatModes(), (item) => item, (item) => item, elements.aiChatMode.value || 'conversation');
   fillSelect(elements.aiExerciseSkill, exerciseSkills(), (item) => item, (item) => item, elements.aiExerciseSkill.value || 'mixed');
@@ -564,10 +597,8 @@ function renderManualLevelInfo() {
     return;
   }
 
-  const focus = profile.vocabularyScope
-    ? String(profile.vocabularyScope).split(',').slice(0, 3).join(', ')
-    : 'comunicacao diaria';
-  elements.manualLevelInfo.textContent = `${profile.id}: foco em ${focus}.`;
+  const focus = LEVEL_FOCUS_PT[profile.id] || 'comunicacao pratica do dia a dia';
+  elements.manualLevelInfo.textContent = `${profile.id} (${levelNamePt(profile.id, profile.label)}): foco em ${focus}.`;
 }
 
 function aiPanelForTopic(topic) {
@@ -624,7 +655,7 @@ function renderQuiz() {
       ${item.options
         .map(
           (option) => `
-            <label>
+            <label class="quiz-option">
               <input type="radio" name="${escapeHtml(item.id)}" value="${option.score}" />
               <span>${escapeHtml(option.label)}</span>
             </label>
@@ -633,6 +664,8 @@ function renderQuiz() {
         .join('')}
     </article>
   `).join('');
+
+  setMessage(elements.quizRecommendationBox, 'O nivel recomendado vai aparecer aqui.');
 }
 
 function quizLevelByAverage(average) {
@@ -650,7 +683,7 @@ function checkQuiz() {
   for (const item of QUIZ_QUESTIONS) {
     const checked = elements.quizList.querySelector(`input[name="${item.id}"]:checked`);
     if (!checked) {
-      setMessage(elements.levelMessage, 'Responda todas as perguntas do teste rapido.', 'error');
+      setMessage(elements.quizRecommendationBox, 'Responda todas as perguntas do teste rapido.', 'error');
       return;
     }
     scores.push(Number(checked.value));
@@ -663,10 +696,11 @@ function checkQuiz() {
   renderManualLevelInfo();
 
   setMessage(
-    elements.levelMessage,
-    `Recomendacao: ${levelLabel(recommended)}. Clique em "Aplicar recomendacao" para salvar.`,
+    elements.quizRecommendationBox,
+    `Nivel recomendado: ${levelLabel(recommended)}.`,
     'success',
   );
+  setMessage(elements.levelMessage, 'Se quiser, clique em "Aplicar recomendacao" para salvar o nivel.', 'success');
 }
 
 function activitiesForLevel(levelId) {
@@ -1069,6 +1103,21 @@ async function blobToBase64(blob) {
   return btoa(binary);
 }
 
+function preferredRecorderMimeType() {
+  if (!window.MediaRecorder || typeof window.MediaRecorder.isTypeSupported !== 'function') {
+    return '';
+  }
+
+  const candidates = [
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/mp4',
+    'audio/ogg;codecs=opus',
+  ];
+
+  return candidates.find((mimeType) => window.MediaRecorder.isTypeSupported(mimeType)) || '';
+}
+
 async function processVoiceBlob(blob, mimeType) {
   try {
     const result = await api('/voice/respond', {
@@ -1109,24 +1158,34 @@ async function startVoiceRecording() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     state.recordedChunks = [];
-    state.mediaRecorder = new MediaRecorder(stream);
+    const preferredMimeType = preferredRecorderMimeType();
+    const recorder = preferredMimeType
+      ? new MediaRecorder(stream, { mimeType: preferredMimeType })
+      : new MediaRecorder(stream);
+    state.mediaRecorder = recorder;
 
-    state.mediaRecorder.ondataavailable = (event) => {
+    recorder.ondataavailable = (event) => {
       if (event.data && event.data.size > 0) {
         state.recordedChunks.push(event.data);
       }
     };
 
-    state.mediaRecorder.onstop = async () => {
-      const mimeType = state.mediaRecorder ? state.mediaRecorder.mimeType : 'audio/webm';
-      const blob = new Blob(state.recordedChunks, { type: mimeType });
-      await processVoiceBlob(blob, mimeType);
+    recorder.onstop = async () => {
+      const finalMimeType = recorder.mimeType || preferredMimeType || 'audio/webm';
+      if (!state.recordedChunks.length) {
+        setMessage(elements.aiScreenMessage, 'Nenhum audio capturado. Grave novamente.', 'error');
+        elements.aiVoiceRecordButton.disabled = false;
+        elements.aiVoiceStopButton.disabled = true;
+        return;
+      }
+      const blob = new Blob(state.recordedChunks, { type: finalMimeType });
+      await processVoiceBlob(blob, finalMimeType);
     };
 
-    state.mediaRecorder.start();
+    recorder.start(250);
     elements.aiVoiceRecordButton.disabled = true;
     elements.aiVoiceStopButton.disabled = false;
-    setMessage(elements.aiScreenMessage, 'Gravando audio. Clique em "Parar e responder".', 'success');
+    setMessage(elements.aiScreenMessage, 'Gravando audio... fale e depois clique em "Parar e responder".', 'success');
   } catch (error) {
     setMessage(elements.aiScreenMessage, error.message, 'error');
   }
@@ -1139,8 +1198,12 @@ function stopVoiceRecording() {
 
   const recorder = state.mediaRecorder;
   state.mediaRecorder = null;
-  recorder.stop();
-  recorder.stream.getTracks().forEach((track) => track.stop());
+  if (recorder.state !== 'inactive') {
+    recorder.stop();
+  }
+  if (recorder.stream && typeof recorder.stream.getTracks === 'function') {
+    recorder.stream.getTracks().forEach((track) => track.stop());
+  }
   setMessage(elements.aiScreenMessage, 'Processando audio...');
 }
 
@@ -1188,7 +1251,7 @@ async function saveLevel(levelId, source) {
 
 async function applyQuizRecommendation() {
   if (!state.quizRecommendation) {
-    setMessage(elements.levelMessage, 'Primeiro clique em "Ver recomendacao".', 'error');
+    setMessage(elements.quizRecommendationBox, 'Primeiro clique em "Ver recomendacao".', 'error');
     return;
   }
   await saveLevel(state.quizRecommendation, 'Nivel recomendado');

@@ -276,6 +276,10 @@
         flex-wrap: wrap;
       }
 
+      .row .btn {
+        flex: 1 1 150px;
+      }
+
       .btn {
         min-height: 44px;
         padding: 10px 16px;
@@ -344,6 +348,31 @@
 
       .quiz-item label {
         font-weight: 500;
+      }
+
+      .quiz-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 9px 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(24, 36, 47, 0.13);
+        background: rgba(255, 255, 255, 0.92);
+      }
+
+      .quiz-option input {
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+      }
+
+      .quiz-option input:checked + span {
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .quiz-recommendation {
+        margin-top: 2px;
       }
 
       .activity-list {
@@ -432,6 +461,71 @@
 
       .ai-panel.hidden {
         display: none !important;
+      }
+
+      .mode-banner {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        width: fit-content;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .mode-banner.trail {
+        background: rgba(31, 127, 88, 0.14);
+        color: var(--ok);
+      }
+
+      .mode-banner.ai {
+        background: rgba(215, 109, 51, 0.14);
+        color: var(--accent-2);
+      }
+
+      .home-mode-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .mode-btn {
+        min-height: 86px;
+        border-radius: 16px;
+        display: grid;
+        align-content: center;
+        justify-items: start;
+        gap: 3px;
+        text-align: left;
+        padding: 14px 16px;
+      }
+
+      .mode-btn .mode-title {
+        font-size: 1rem;
+        font-weight: 800;
+      }
+
+      .mode-btn .mode-sub {
+        font-size: 0.8rem;
+        line-height: 1.4;
+        opacity: 0.95;
+      }
+
+      .mode-btn.trail {
+        background: linear-gradient(135deg, #16806c, #34a892);
+        color: #ffffff;
+      }
+
+      .mode-btn.ai {
+        background: linear-gradient(135deg, #c96b35, #ea9461);
+        color: #ffffff;
+      }
+
+      .home-level-btn {
+        width: 100%;
       }
 
       .chat-head {
@@ -587,6 +681,18 @@
         font-weight: 800;
       }
 
+      .voice-steps {
+        display: grid;
+        gap: 6px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(21, 118, 109, 0.2);
+        background: rgba(21, 118, 109, 0.08);
+        color: #0f5c54;
+        font-size: 0.86rem;
+        line-height: 1.45;
+      }
+
       .exercise-card-mini {
         border: 1px solid rgba(24, 36, 47, 0.14);
         border-radius: 12px;
@@ -612,6 +718,10 @@
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 8px;
+        padding: 8px;
+        border-radius: 16px;
+        border: 1px solid rgba(24, 36, 47, 0.12);
+        background: rgba(255, 255, 255, 0.72);
       }
 
       .nav-btn {
@@ -646,6 +756,10 @@
 
         .ai-topic-tabs {
           grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .home-mode-grid {
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -718,7 +832,7 @@
           <h2>Seu nivel</h2>
           <article class="card stack">
             <h3>Escolha manual</h3>
-            <label>Nivel CEFR <select id="levelSelect"></select></label>
+            <label>Nivel CEFR (em portugues) <select id="levelSelect"></select></label>
             <div id="manualLevelInfo" class="line"></div>
             <div class="row">
               <button id="saveLevelButton" class="btn">Salvar nivel</button>
@@ -731,6 +845,9 @@
             <div class="row">
               <button id="checkQuizButton" class="btn warn">Ver recomendacao</button>
               <button id="applyQuizButton" class="btn secondary">Aplicar recomendacao</button>
+            </div>
+            <div id="quizRecommendationBox" class="message quiz-recommendation">
+              O nivel recomendado vai aparecer aqui.
             </div>
           </article>
 
@@ -768,20 +885,29 @@
             <div id="homeLevelPill" class="pill" style="margin-top: 8px">A2</div>
             <p id="homeProgressText" class="line" style="margin-top: 10px">0 atividades concluidas.</p>
           </article>
-          <div class="row">
-            <button id="homeStartTrailButton" class="btn">Continuar trilha</button>
-            <button id="homeOpenAiButton" class="btn secondary">Abrir IA</button>
-            <button id="homeChangeLevelButton" class="btn ghost">Trocar nivel</button>
+          <div class="mode-banner trail">Modo Trilha e Modo IA</div>
+          <div class="home-mode-grid">
+            <button id="homeStartTrailButton" class="btn mode-btn trail">
+              <span class="mode-title">Continuar Trilha</span>
+              <span class="mode-sub">Atividades por nivel e progresso guiado</span>
+            </button>
+            <button id="homeOpenAiButton" class="btn mode-btn ai">
+              <span class="mode-title">Abrir Modo IA</span>
+              <span class="mode-sub">Chat, exercicios e voz com tutor inteligente</span>
+            </button>
           </div>
+          <button id="homeChangeLevelButton" class="btn ghost home-level-btn">Trocar nivel</button>
         </section>
 
         <section data-screen="activities" class="screen">
+          <div class="mode-banner trail">Modo Trilha</div>
           <h2 id="activitiesTitle">Trilha</h2>
           <div id="activitiesList" class="activity-list"></div>
           <div id="activitiesMessage" class="message">Escolha uma atividade para comecar.</div>
         </section>
 
         <section data-screen="ai" class="screen">
+          <div class="mode-banner ai">Modo IA</div>
           <h2>Studio IA</h2>
 
           <div class="ai-topic-tabs">
@@ -841,12 +967,17 @@
 
           <article id="aiVoicePanel" class="card stack ai-panel hidden">
             <h3>Voz</h3>
+            <div class="voice-steps">
+              <div>1. Clique em "Comecar gravacao".</div>
+              <div>2. Fale em ingles por alguns segundos.</div>
+              <div>3. Clique em "Parar e receber resposta".</div>
+            </div>
             <div class="row">
               <label style="flex: 1">Nivel <select id="aiVoiceLevel"></select></label>
               <label style="flex: 1">Voz <select id="aiVoiceName"></select></label>
             </div>
             <div class="row">
-              <button id="aiVoiceRecordButton" class="btn">Gravar</button>
+              <button id="aiVoiceRecordButton" class="btn">Comecar gravacao</button>
               <button id="aiVoiceStopButton" class="btn warn" disabled>Parar e responder</button>
             </div>
             <div id="aiVoiceTranscript" class="message">Transcricao aparece aqui.</div>
