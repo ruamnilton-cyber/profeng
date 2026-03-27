@@ -54,6 +54,10 @@ const CHAT_TOPIC_SUGGESTIONS = [
   { label: 'corrigir frases comuns', prompt: 'Quero praticar frases comuns e você corrige de forma simples.' },
 ];
 
+const ACTIVITY_STREAM_VERSION = 'stream-v1';
+const ACTIVITY_PASS_SCORE = 70;
+const ACTIVITY_MIN_QUESTIONS_TO_COMPLETE = 6;
+
 const ACTIVITY_BY_LEVEL = {
   A0: [
     {
@@ -1878,15 +1882,178 @@ function activitySessionKey(activityId, levelId = currentLevelId()) {
   return `${levelId}:${activityId}`;
 }
 
+function cloneObjectiveQuestion(question) {
+  if (!question || typeof question !== 'object') {
+    return null;
+  }
+  return {
+    ...question,
+    options: Array.isArray(question.options) ? [...question.options] : question.options,
+    answer: Array.isArray(question.answer) ? [...question.answer] : question.answer,
+  };
+}
+
 function buildObjectiveSet(levelId, count = 6, activityId = '') {
   const bank = questionBankForActivity(activityId, levelId);
   const orderedPool = levelId === 'A0' ? [...bank] : shuffleArray(bank);
   const selected = orderedPool.slice(0, Math.min(count, orderedPool.length));
-  return selected.map((question) => ({
-    ...question,
-    options: Array.isArray(question.options) ? [...question.options] : question.options,
-    answer: Array.isArray(question.answer) ? [...question.answer] : question.answer,
-  }));
+  return selected.map(cloneObjectiveQuestion).filter(Boolean);
+}
+
+function buildActivityQuestionCycle(levelId, activityId = '') {
+  const bank = questionBankForActivity(activityId, levelId);
+  if (!Array.isArray(bank) || !bank.length) {
+    return [];
+  }
+  const orderedPool = levelId === 'A0' ? [...bank] : shuffleArray(bank);
+  return orderedPool.map(cloneObjectiveQuestion).filter(Boolean);
+}
+
+function activityStreamScore(correct, answered) {
+  const safeAnswered = Math.max(0, Number(answered) || 0);
+  if (!safeAnswered) {
+    return 0;
+  }
+  const safeCorrect = Math.max(0, Number(correct) || 0);
+  return Math.round((Math.min(safeCorrect, safeAnswered) / safeAnswered) * 100);
+}
+
+function createActivityStreamSession(item, levelId = currentLevelId()) {
+  return {
+    mode: ACTIVITY_STREAM_VERSION,
+    activityId: item.id,
+    levelId,
+    cycle: buildActivityQuestionCycle(levelId, item.id),
+    cursor: 0,
+    answered: 0,
+    correct: 0,
+    rounds: 1,
+    lastResult: null,
+    updatedAt: Date.now(),
+  };
+}
+
+function normalizeActivityStreamSession(rawSession, item, levelId = currentLevelId()) {
+  if (!rawSession) {
+    return createActivityStreamSession(item, levelId);
+  }
+
+  if (Array.isArray(rawSession)) {
+    return {
+      mode: ACTIVITY_STREAM_VERSION,
+      activityId: item.id,
+      levelId,
+      cycle: rawSession.length
+        ? rawSession.map(cloneObjectiveQuestion).filter(Boolean)
+        : buildActivityQuestionCycle(levelId, item.id),
+      cursor: 0,
+      answered: 0,
+      correct: 0,
+      rounds: 1,
+      lastResult: null,
+      updatedAt: Date.now(),
+    };
+  }
+
+  const fallbackCycle = buildActivityQuestionCycle(levelId, item.id);
+  const cycle =
+    Array.isArray(rawSession.cycle) && rawSession.cycle.length
+      ? rawSession.cycle.map(cloneObjectiveQuestion).filter(Boolean)
+      : Array.isArray(rawSession.questions) && rawSession.questions.length
+        ? rawSession.questions.map(cloneObjectiveQuestion).filter(Boolean)
+        : fallbackCycle;
+
+  const answered = Math.max(0, Number(rawSession.answered) || 0);
+  const correct = Math.max(0, Math.min(answered, Number(rawSession.correct) || 0));
+  const cursorBase = Math.max(0, Number(rawSession.cursor) || 0);
+  const cursor = cycle.length ? cursorBase % cycle.length : 0;
+  const lastResult =
+    rawSession.lastResult && typeof rawSession.lastResult === 'object'
+      ? {
+          ok: Boolean(rawSession.lastResult.ok),
+          userAnswer: String(rawSession.lastResult.userAnswer || ''),
+          correction: String(rawSession.lastResult.correction || ''),
+          expected: String(rawSession.lastResult.expected || ''),
+          prompt: String(rawSession.lastResult.prompt || ''),
+        }
+      : null;
+
+  return {
+    mode: ACTIVITY_STREAM_VERSION,
+    activityId: item.id,
+    levelId,
+    cycle,
+    cursor,
+    answered,
+    correct,
+    rounds: Math.max(1, Number(rawSession.rounds) || 1),
+    lastResult,
+    updatedAt: Date.now(),
+  };
+}
+
+function currentQuestionFromSession(session, item) {
+  if (!Array.isArray(session.cycle) || !session.cycle.length) {
+    session.cycle = buildActivityQuestionCycle(session.levelId || currentLevelId(), item.id);
+    session.cursor = 0;
+  }
+
+  if (!session.cycle.length) {
+    return null;
+  }
+
+  const cursor = Math.max(0, Number(session.cursor) || 0) % session.cycle.length;
+  session.cursor = cursor;
+  return session.cycle[cursor] || null;
+}
+
+function advanceSessionQuestion(session, item) {
+  if (!Array.isArray(session.cycle) || !session.cycle.length) {
+    session.cycle = buildActivityQuestionCycle(session.levelId || currentLevelId(), item.id);
+    session.cursor = 0;
+    return;
+  }
+
+  session.cursor = (Number(session.cursor) || 0) + 1;
+  if (session.cursor >= session.cycle.length) {
+    session.rounds = Math.max(1, Number(session.rounds) || 1) + 1;
+    session.cycle = buildActivityQuestionCycle(session.levelId || currentLevelId(), item.id);
+    session.cursor = 0;
+  }
+}
+
+function persistActivitySession(key, session) {
+  session.updatedAt = Date.now();
+  state.activitySets[key] = session;
+  writeStoredJson(STORAGE_KEYS.activitySets, state.activitySets);
+}
+
+function ensureActivitySet(item, forceNew = false) {
+  const key = activitySessionKey(item.id);
+  const levelId = currentLevelId();
+  const existingSession = state.activitySets[key];
+  const session = forceNew
+    ? createActivityStreamSession(item, levelId)
+    : normalizeActivityStreamSession(existingSession, item, levelId);
+
+  const question = currentQuestionFromSession(session, item);
+
+  state.activitySets[key] = session;
+  if (!forceNew && !(key in state.drafts)) {
+    state.drafts[key] = {};
+  }
+  if (forceNew) {
+    state.drafts[key] = {};
+    delete state.activityResults[key];
+  }
+  writeStoredJson(STORAGE_KEYS.activitySets, state.activitySets);
+  writeStoredJson(STORAGE_KEYS.drafts, state.drafts);
+  if (forceNew) {
+    writeStoredJson(STORAGE_KEYS.activityResults, state.activityResults);
+    queueProgressStateSync(500);
+  }
+
+  return { key, session, question };
 }
 
 function objectiveTypeLabel(type) {
@@ -1964,26 +2131,6 @@ function renderActivityWordLesson(item) {
     <p class="line">${escapeHtml(lesson.note || 'Treino guiado palavra por palavra.')}</p>
     <div class="word-lesson-grid">${wordsHtml}</div>
   `;
-}
-
-function ensureActivitySet(item, forceNew = false) {
-  const key = activitySessionKey(item.id);
-  const currentSet = state.activitySets[key];
-
-  if (!forceNew && Array.isArray(currentSet) && currentSet.length) {
-    return { key, questions: currentSet };
-  }
-
-  const nextSet = buildObjectiveSet(currentLevelId(), 6, item.id);
-  state.activitySets[key] = nextSet;
-  state.drafts[key] = {};
-  delete state.activityResults[key];
-  writeStoredJson(STORAGE_KEYS.activitySets, state.activitySets);
-  writeStoredJson(STORAGE_KEYS.drafts, state.drafts);
-  writeStoredJson(STORAGE_KEYS.activityResults, state.activityResults);
-  queueProgressStateSync(500);
-
-  return { key, questions: nextSet };
 }
 
 function renderObjectiveInput(question, questionId, answerValue) {
@@ -2153,8 +2300,10 @@ function renderActivity() {
   elements.activityTips.innerHTML = item.tips.map((tip) => `<li>${escapeHtml(tip)}</li>`).join('');
   renderActivityWordLesson(item);
 
-  const session = ensureActivitySet(item, false);
-  if (!session.questions.length) {
+  const sessionRef = ensureActivitySet(item, false);
+  const session = sessionRef.session;
+  const question = sessionRef.question;
+  if (!question) {
     elements.activityTasks.innerHTML = '<div class="message">Sem questões disponíveis para este nível.</div>';
     setMessage(elements.activityMessage, 'Sem questões para este nível no momento.', 'error');
     elements.completeActivityButton.disabled = true;
@@ -2162,58 +2311,50 @@ function renderActivity() {
     return;
   }
 
-  const draft = state.drafts[session.key] || {};
-  const previousResult = state.activityResults[session.key];
-  const detailsById = new Map(
-    (previousResult && Array.isArray(previousResult.details) ? previousResult.details : []).map((entry) => [
-      entry.id,
-      entry,
-    ]),
-  );
+  const questionId = question.id || `q-${(Number(session.cursor) || 0) + 1}`;
+  const draft = state.drafts[sessionRef.key] || {};
+  const answerValue = draft[questionId] || '';
+  const answered = Math.max(0, Number(session.answered) || 0);
+  const correct = Math.max(0, Number(session.correct) || 0);
+  const score = activityStreamScore(correct, answered);
+  const canComplete = answered >= ACTIVITY_MIN_QUESTIONS_TO_COMPLETE && score >= ACTIVITY_PASS_SCORE;
 
-  elements.activityTasks.innerHTML = session.questions
-    .map((question, index) => {
-      const questionId = question.id || `q-${index + 1}`;
-      const answerValue = draft[questionId] || '';
-      const detail = detailsById.get(questionId);
-      const cardStatus = detail ? (detail.ok ? 'correct' : 'wrong') : '';
-      const feedbackHtml = detail
-        ? detail.ok
-          ? '<div class="question-feedback ok">Boa! Está questao está correta.</div>'
-          : `
-              <div class="question-feedback error">
-                Sua resposta: <strong>${escapeHtml(detail.userAnswer || '-')}</strong><br />
-                Esperado: <strong>${escapeHtml(expectedAnswerLabel(question))}</strong>
-                ${detail.correction ? `<br />Dica: ${escapeHtml(detail.correction)}` : ''}
-              </div>
-            `
-        : '';
-      return `
-        <article class="question-card ${cardStatus}">
-          <div class="question-top">
-            <strong>${index + 1}. Questao</strong>
-            <span class="question-type">${escapeHtml(objectiveTypeLabel(question.type))}</span>
-          </div>
-          <div class="question-prompt">${escapeHtml(question.prompt)}</div>
-          ${renderObjectiveInput(question, questionId, answerValue)}
-          ${feedbackHtml}
-        </article>
-      `;
-    })
-    .join('');
+  elements.activityTasks.innerHTML = `
+    <article class="question-card">
+      <div class="question-top">
+        <strong>Questao ${answered + 1}</strong>
+        <span class="question-type">${escapeHtml(objectiveTypeLabel(question.type))}</span>
+      </div>
+      <div class="question-prompt">${escapeHtml(question.prompt)}</div>
+      ${renderObjectiveInput(question, questionId, answerValue)}
+    </article>
+  `;
 
-  if (previousResult && typeof previousResult.score === 'number') {
-    setMessage(elements.activityMessage, `Última tentativa: ${previousResult.score}% (${previousResult.correct}/${previousResult.total}).`, previousResult.score >= 70 ? 'success' : 'error');
+  if (answered > 0) {
+    const guidance = canComplete
+      ? 'Você já pode concluir a atividade ou continuar praticando sem limites.'
+      : `Continue até pelo menos ${ACTIVITY_MIN_QUESTIONS_TO_COMPLETE} questões com ${ACTIVITY_PASS_SCORE}% de acerto.`;
+    setMessage(
+      elements.activityMessage,
+      `Sessão contínua: ${correct}/${answered} (${score}%). ${guidance}`,
+      canComplete ? 'success' : '',
+    );
   } else {
-    setMessage(elements.activityMessage, 'Responda as questões objetivas e clique em "Corrigir agora".');
+    setMessage(elements.activityMessage, 'Modo infinito ativo: responda e avance questão por questão.');
   }
 
-  elements.completeActivityButton.disabled = !(
-    previousResult &&
-    typeof previousResult.score === 'number' &&
-    previousResult.score >= 70
-  );
-  setActivityAutosaveHint('As respostas são salvas automaticamente.');
+  if (elements.requestFeedbackButton) {
+    elements.requestFeedbackButton.textContent = 'Responder e próxima';
+  }
+  if (elements.regenerateActivityButton) {
+    elements.regenerateActivityButton.textContent = 'Reiniciar sessão';
+  }
+  if (elements.saveDraftButton) {
+    elements.saveDraftButton.textContent = 'Salvar resposta';
+  }
+
+  elements.completeActivityButton.disabled = !canComplete;
+  setActivityAutosaveHint('Sua resposta atual é salva automaticamente.');
 }
 
 function collectTaskAnswers() {
@@ -2310,40 +2451,74 @@ function requestFeedback() {
     return;
   }
 
-  const session = ensureActivitySet(item, false);
-  const answers = collectTaskAnswers();
-  const answeredCount = Object.keys(answers).length;
-  if (answeredCount < session.questions.length) {
-    const missing = session.questions.length - answeredCount;
-    setMessage(
-      elements.activityFeedback,
-      `Faltam ${missing} questao(oes). Responda tudo antes de corrigir.`,
-      'error',
-    );
+  const sessionRef = ensureActivitySet(item, false);
+  const session = sessionRef.session;
+  const question = sessionRef.question;
+  if (!question) {
+    setMessage(elements.activityFeedback, 'Não encontrei questão ativa para corrigir.', 'error');
     return;
   }
 
-  const result = evaluateObjectiveAnswers(session.questions, answers);
-  state.activityResults[session.key] = result;
+  const questionId = question.id || `q-${(Number(session.cursor) || 0) + 1}`;
+  const answers = collectTaskAnswers();
+  const userAnswer = String(answers[questionId] || '').trim();
+  if (!userAnswer) {
+    setMessage(elements.activityFeedback, 'Responda a questão atual antes de avançar.', 'error');
+    return;
+  }
+
+  const result = evaluateObjectiveAnswers([question], { [questionId]: userAnswer });
+  const detail = result.details[0] || {
+    ok: false,
+    userAnswer,
+    correction: question.correction || question.explanation || '',
+  };
+
+  session.answered = Math.max(0, Number(session.answered) || 0) + 1;
+  if (detail.ok) {
+    session.correct = Math.max(0, Number(session.correct) || 0) + 1;
+  }
+  session.lastResult = {
+    ok: Boolean(detail.ok),
+    userAnswer: detail.userAnswer || '',
+    correction: detail.correction || '',
+    expected: expectedAnswerLabel(question),
+    prompt: question.prompt || '',
+  };
+  advanceSessionQuestion(session, item);
+
+  const totalAnswered = Math.max(0, Number(session.answered) || 0);
+  const totalCorrect = Math.max(0, Number(session.correct) || 0);
+  const score = activityStreamScore(totalCorrect, totalAnswered);
+  state.activityResults[sessionRef.key] = {
+    score,
+    correct: totalCorrect,
+    total: totalAnswered,
+    lastResult: session.lastResult,
+    updatedAt: Date.now(),
+  };
+  state.drafts[sessionRef.key] = {};
+  persistActivitySession(sessionRef.key, session);
+  writeStoredJson(STORAGE_KEYS.drafts, state.drafts);
   writeStoredJson(STORAGE_KEYS.activityResults, state.activityResults);
   queueProgressStateSync(400);
-  saveDraft({ silent: true });
   renderActivity();
 
-  const wrongHints = result.details
-    .filter((entry) => !entry.ok && entry.correction)
-    .slice(0, 3)
-    .map((entry, index) => `${index + 1}) ${escapeHtml(entry.correction)}`)
-    .join('<br />');
+  const body = detail.ok
+    ? `
+      <strong>Correta!</strong><br />
+      Avançamos para a próxima questão.<br />
+      Sessão: ${totalCorrect}/${totalAnswered} (${score}%).
+    `
+    : `
+      <strong>Quase lá.</strong><br />
+      Sua resposta: <strong>${escapeHtml(detail.userAnswer || '-')}</strong><br />
+      Esperado: <strong>${escapeHtml(expectedAnswerLabel(question))}</strong>
+      ${detail.correction ? `<br />Dica: ${escapeHtml(detail.correction)}` : ''}<br />
+      Sessão: ${totalCorrect}/${totalAnswered} (${score}%).
+    `;
 
-  const body = `
-    <strong>Resultado: ${result.score}%</strong><br />
-    Acertos: ${result.correct}/${result.total}<br />
-    ${wrongHints ? `Ajustes rápidos:<br />${wrongHints}` : 'Excelente! Continue para concluir.'}
-  `;
-
-  setMessage(elements.activityFeedback, body, result.score >= 70 ? 'success' : 'error', true);
-  setMessage(elements.activityMessage, `Resultado registrado: ${result.score}%.`, result.score >= 70 ? 'success' : 'error');
+  setMessage(elements.activityFeedback, body, detail.ok ? 'success' : 'error', true);
 }
 
 async function completeActivity() {
@@ -2353,14 +2528,26 @@ async function completeActivity() {
     return;
   }
 
-  const session = ensureActivitySet(item, false);
-  const result = state.activityResults[session.key];
+  const sessionRef = ensureActivitySet(item, false);
+  const result = state.activityResults[sessionRef.key];
   if (!result || typeof result.score !== 'number') {
-    setMessage(elements.activityMessage, 'Clique em "Corrigir agora" antes de concluir.', 'error');
+    setMessage(elements.activityMessage, 'Responda e corrija algumas questões antes de concluir.', 'error');
     return;
   }
-  if (result.score < 70) {
-    setMessage(elements.activityMessage, 'Para concluir, alcance pelo menos 70%. Clique em "Novo lote" e tente novamente.', 'error');
+  if ((Number(result.total) || 0) < ACTIVITY_MIN_QUESTIONS_TO_COMPLETE) {
+    setMessage(
+      elements.activityMessage,
+      `Faça pelo menos ${ACTIVITY_MIN_QUESTIONS_TO_COMPLETE} questões antes de concluir.`,
+      'error',
+    );
+    return;
+  }
+  if (result.score < ACTIVITY_PASS_SCORE) {
+    setMessage(
+      elements.activityMessage,
+      `Para concluir, mantenha pelo menos ${ACTIVITY_PASS_SCORE}% de acerto. Você pode continuar no modo infinito.`,
+      'error',
+    );
     return;
   }
 
@@ -2400,13 +2587,13 @@ async function completeActivity() {
 function regenerateActivitySet() {
   const item = selectedActivity();
   if (!item) {
-    setMessage(elements.activityMessage, 'Abra uma atividade para gerar um novo lote.', 'error');
+    setMessage(elements.activityMessage, 'Abra uma atividade para reiniciar a sessão.', 'error');
     return;
   }
 
   ensureActivitySet(item, true);
   renderActivity();
-  setMessage(elements.activityFeedback, 'Novo lote gerado com questões objetivas variadas.');
+  setMessage(elements.activityFeedback, 'Sessão reiniciada. Questões infinitas prontas para continuar.');
 }
 
 function renderAiChatLog() {

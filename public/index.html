@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#15766d" />
     <title>ProfEng App</title>
-    <link rel="manifest" href="./manifest.webmanifest?v=20260327-5" />
+    <link rel="manifest" href="./manifest.webmanifest?v=20260327-6" />
     <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1428,13 +1428,13 @@
           <article id="activityWordLesson" class="card word-lesson-panel hidden"></article>
           <div id="activityTasks" class="activity-list"></div>
           <div class="row">
-            <button id="regenerateActivityButton" class="btn secondary">Novo lote</button>
-            <button id="saveDraftButton" class="btn ghost">Salvar respostas</button>
-            <button id="requestFeedbackButton" class="btn secondary">Corrigir agora</button>
+            <button id="regenerateActivityButton" class="btn secondary">Reiniciar sessão</button>
+            <button id="saveDraftButton" class="btn ghost">Salvar resposta</button>
+            <button id="requestFeedbackButton" class="btn secondary">Responder e próxima</button>
             <button id="completeActivityButton" class="btn" disabled>Concluir</button>
           </div>
-          <div id="activityAutosaveHint" class="line">As respostas são salvas automaticamente.</div>
-          <div id="activityMessage" class="message">Responda as questões objetivas e clique em "Corrigir agora".</div>
+          <div id="activityAutosaveHint" class="line">Sua resposta atual é salva automaticamente.</div>
+          <div id="activityMessage" class="message">Modo infinito ativo: responda uma questão por vez.</div>
           <div id="activityFeedback" class="message">Seu resultado vai aparecer aqui.</div>
         </section>
       </main>
@@ -1448,7 +1448,7 @@
     </div>
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="/playground/playground.js?v=20260327-5"></script>
+    <script src="/playground/playground.js?v=20260327-6"></script>
   </body>
 </html>
 
