@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#15766d" />
     <title>ProfEng App</title>
-    <link rel="manifest" href="./manifest.webmanifest?v=20260327-4" />
+    <link rel="manifest" href="./manifest.webmanifest?v=20260327-5" />
     <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -370,13 +370,33 @@
         padding: 10px;
       }
 
+      .quiz-item-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
       .quiz-item strong {
         display: block;
-        margin-bottom: 8px;
       }
 
       .quiz-item label {
         font-weight: 500;
+      }
+
+      .quiz-stage {
+        display: inline-flex;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: rgba(24, 36, 47, 0.08);
+        color: var(--muted);
+        font-size: 0.69rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        font-weight: 800;
+        white-space: nowrap;
       }
 
       .quiz-option {
@@ -531,6 +551,54 @@
       .task h4 {
         font-size: 0.95rem;
         margin-bottom: 6px;
+      }
+
+      .word-lesson-panel {
+        display: grid;
+        gap: 10px;
+      }
+
+      .word-lesson-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .word-lesson-title {
+        font-size: 0.98rem;
+      }
+
+      .word-lesson-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .word-card {
+        border: 1px solid rgba(24, 36, 47, 0.14);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 9px;
+        display: grid;
+        gap: 4px;
+      }
+
+      .word-en {
+        font-weight: 800;
+        color: var(--ink);
+      }
+
+      .word-pt {
+        font-size: 0.84rem;
+        color: #0f5c54;
+        font-weight: 700;
+      }
+
+      .word-example {
+        font-size: 0.78rem;
+        color: var(--muted);
+        line-height: 1.4;
       }
 
       .question-card {
@@ -1066,6 +1134,10 @@
         .dashboard-grid {
           grid-template-columns: 1fr;
         }
+
+        .word-lesson-grid {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
@@ -1353,6 +1425,7 @@
           <h2 id="activityTitle">Atividade</h2>
           <p id="activityObjective" class="line"></p>
           <ul id="activityTips" class="list"></ul>
+          <article id="activityWordLesson" class="card word-lesson-panel hidden"></article>
           <div id="activityTasks" class="activity-list"></div>
           <div class="row">
             <button id="regenerateActivityButton" class="btn secondary">Novo lote</button>
@@ -1375,7 +1448,7 @@
     </div>
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="/playground/playground.js?v=20260327-4"></script>
+    <script src="/playground/playground.js?v=20260327-5"></script>
   </body>
 </html>
 

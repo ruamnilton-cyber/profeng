@@ -61,7 +61,7 @@ const ACTIVITY_BY_LEVEL = {
       title: 'Primeiras palavras: cumprimentos',
       objective: 'Aprender palavras básicas de saudação e cortesia.',
       tips: [
-        'Sequência didática comum: cumprimentos -> números -> cores -> família -> comida -> rotina.',
+        'Sequência didática usada em cursos introdutórios: cumprimentos -> números/cores -> família -> comida -> casa -> rotina.',
         'Palavras foco: hello, hi, bye, good morning, please, thank you.',
         'Leia em voz alta e associe palavra + significado.',
       ],
@@ -100,12 +100,64 @@ const ACTIVITY_BY_LEVEL = {
       title: 'Comida e dia a dia',
       objective: 'Fixar vocabulário básico de alimentos e rotina.',
       tips: [
-        'Palavras foco: water, bread, rice, coffee, breakfast, lunch, dinner.',
+        'Palavras foco: water, bread, rice, beans, coffee, breakfast, lunch, dinner.',
         'Use frases simples: I like coffee. I eat bread.',
         'Treine sempre no mesmo horário para criar hábito.',
       ],
       tasks: [
         { id: 'flash', title: 'Vocabulário do dia', placeholder: 'water, bread, coffee...' },
+      ],
+    },
+    {
+      id: 'a0-home-objects',
+      title: 'Objetos da casa',
+      objective: 'Aprender palavras essenciais de casa e quarto.',
+      tips: [
+        'Palavras foco: house, room, bed, table, door, window, chair.',
+        'Aponte para o objeto e fale em inglês.',
+        'Use frases curtas: This is a table.',
+      ],
+      tasks: [
+        { id: 'flash', title: 'Objetos essenciais', placeholder: 'bed, table, chair, window...' },
+      ],
+    },
+    {
+      id: 'a0-actions-routine',
+      title: 'Ações do dia a dia',
+      objective: 'Memorizar verbos básicos de rotina.',
+      tips: [
+        'Palavras foco: wake up, eat, drink, go, study, work, sleep.',
+        'Treine com frases simples em primeira pessoa.',
+        'Repita os verbos em voz alta com ritmo lento.',
+      ],
+      tasks: [
+        { id: 'flash', title: 'Verbos básicos', placeholder: 'wake up, eat, drink, go...' },
+      ],
+    },
+    {
+      id: 'a0-places-transport',
+      title: 'Lugares e transporte',
+      objective: 'Reconhecer palavras básicas de locais e deslocamento.',
+      tips: [
+        'Palavras foco: school, work, market, bus, car, street, station.',
+        'Faça associação com lugares da sua cidade.',
+        'Use perguntas simples: Where is the market?',
+      ],
+      tasks: [
+        { id: 'flash', title: 'Mapa do bairro', placeholder: 'school, bus, market, street...' },
+      ],
+    },
+    {
+      id: 'a0-mini-conversation',
+      title: 'Mini conversas guiadas',
+      objective: 'Montar diálogos curtíssimos com vocabulário inicial.',
+      tips: [
+        'Junte cumprimentos + nome + pergunta simples.',
+        'Use blocos prontos: Hello, my name is... / How are you?',
+        'Foque em clareza, não em velocidade.',
+      ],
+      tasks: [
+        { id: 'flash', title: 'Roteiro de diálogo', placeholder: 'Hello! My name is... I am fine.' },
       ],
     },
   ],
@@ -243,45 +295,304 @@ const ACTIVITY_BY_LEVEL = {
   ],
 };
 
+const STARTER_WORD_LESSONS = {
+  'a0-greetings': {
+    title: 'Cumprimentos e Cortesia',
+    note: 'Repita cada palavra 3x e use em mini diálogos.',
+    words: [
+      { en: 'hello', pt: 'olá', example: 'Hello, teacher.' },
+      { en: 'hi', pt: 'oi', example: 'Hi, Maria.' },
+      { en: 'good morning', pt: 'bom dia', example: 'Good morning, class.' },
+      { en: 'good night', pt: 'boa noite', example: 'Good night, mom.' },
+      { en: 'bye', pt: 'tchau', example: 'Bye, see you.' },
+      { en: 'please', pt: 'por favor', example: 'Please, help me.' },
+      { en: 'thank you', pt: 'obrigado(a)', example: 'Thank you, Ana.' },
+      { en: 'sorry', pt: 'desculpe', example: 'Sorry, I am late.' },
+      { en: 'yes', pt: 'sim', example: 'Yes, I do.' },
+      { en: 'no', pt: 'não', example: 'No, thanks.' },
+    ],
+  },
+  'a0-numbers-colors': {
+    title: 'Números e Cores',
+    note: 'Comece com números 0-10, depois avance para 20.',
+    words: [
+      { en: 'one', pt: 'um', example: 'One apple.' },
+      { en: 'two', pt: 'dois', example: 'Two books.' },
+      { en: 'three', pt: 'três', example: 'Three pens.' },
+      { en: 'ten', pt: 'dez', example: 'Ten minutes.' },
+      { en: 'twenty', pt: 'vinte', example: 'Twenty students.' },
+      { en: 'red', pt: 'vermelho', example: 'A red car.' },
+      { en: 'blue', pt: 'azul', example: 'A blue bag.' },
+      { en: 'green', pt: 'verde', example: 'Green trees.' },
+      { en: 'black', pt: 'preto', example: 'A black phone.' },
+      { en: 'white', pt: 'branco', example: 'A white paper.' },
+    ],
+  },
+  'a0-family': {
+    title: 'Família e Pessoas',
+    note: 'Associe cada palavra a alguém real da sua vida.',
+    words: [
+      { en: 'mother', pt: 'mãe', example: 'My mother is kind.' },
+      { en: 'father', pt: 'pai', example: 'My father is here.' },
+      { en: 'brother', pt: 'irmão', example: 'My brother is tall.' },
+      { en: 'sister', pt: 'irmã', example: 'My sister studies.' },
+      { en: 'grandmother', pt: 'avó', example: 'My grandmother cooks.' },
+      { en: 'grandfather', pt: 'avô', example: 'My grandfather reads.' },
+      { en: 'friend', pt: 'amigo(a)', example: 'My friend is funny.' },
+      { en: 'teacher', pt: 'professor(a)', example: 'My teacher helps me.' },
+      { en: 'boy', pt: 'menino', example: 'The boy is happy.' },
+      { en: 'girl', pt: 'menina', example: 'The girl is smart.' },
+    ],
+  },
+  'a0-food-daily': {
+    title: 'Comida e Rotina',
+    note: 'Treine na hora das refeições para fixar mais rápido.',
+    words: [
+      { en: 'water', pt: 'água', example: 'I drink water.' },
+      { en: 'bread', pt: 'pão', example: 'I eat bread.' },
+      { en: 'rice', pt: 'arroz', example: 'I like rice.' },
+      { en: 'beans', pt: 'feijão', example: 'Beans are healthy.' },
+      { en: 'milk', pt: 'leite', example: 'I drink milk.' },
+      { en: 'coffee', pt: 'café', example: 'Coffee is hot.' },
+      { en: 'breakfast', pt: 'café da manhã', example: 'Breakfast at 7.' },
+      { en: 'lunch', pt: 'almoço', example: 'Lunch at noon.' },
+      { en: 'dinner', pt: 'jantar', example: 'Dinner with family.' },
+      { en: 'fruit', pt: 'fruta', example: 'I eat fruit daily.' },
+    ],
+  },
+  'a0-home-objects': {
+    title: 'Casa e Objetos',
+    note: 'Aponte para o objeto real enquanto fala a palavra.',
+    words: [
+      { en: 'house', pt: 'casa', example: 'My house is small.' },
+      { en: 'room', pt: 'quarto', example: 'This is my room.' },
+      { en: 'bed', pt: 'cama', example: 'The bed is soft.' },
+      { en: 'table', pt: 'mesa', example: 'The book is on the table.' },
+      { en: 'chair', pt: 'cadeira', example: 'Sit on the chair.' },
+      { en: 'door', pt: 'porta', example: 'Close the door.' },
+      { en: 'window', pt: 'janela', example: 'Open the window.' },
+      { en: 'kitchen', pt: 'cozinha', example: 'Mom is in the kitchen.' },
+      { en: 'bathroom', pt: 'banheiro', example: 'The bathroom is clean.' },
+      { en: 'key', pt: 'chave', example: 'Where is my key?' },
+    ],
+  },
+  'a0-actions-routine': {
+    title: 'Verbos de Rotina',
+    note: 'Monte frases em sequência: I wake up, I eat, I work...',
+    words: [
+      { en: 'wake up', pt: 'acordar', example: 'I wake up at 6.' },
+      { en: 'eat', pt: 'comer', example: 'I eat breakfast.' },
+      { en: 'drink', pt: 'beber', example: 'I drink water.' },
+      { en: 'go', pt: 'ir', example: 'I go to school.' },
+      { en: 'study', pt: 'estudar', example: 'I study English.' },
+      { en: 'work', pt: 'trabalhar', example: 'I work in the morning.' },
+      { en: 'read', pt: 'ler', example: 'I read at night.' },
+      { en: 'write', pt: 'escrever', example: 'I write notes.' },
+      { en: 'sleep', pt: 'dormir', example: 'I sleep at 10.' },
+      { en: 'listen', pt: 'ouvir', example: 'I listen to music.' },
+    ],
+  },
+  'a0-places-transport': {
+    title: 'Lugares e Transporte',
+    note: 'Use perguntas simples: Where is... ? How do I go... ?',
+    words: [
+      { en: 'school', pt: 'escola', example: 'My school is near.' },
+      { en: 'work', pt: 'trabalho', example: 'I am at work.' },
+      { en: 'market', pt: 'mercado', example: 'Go to the market.' },
+      { en: 'hospital', pt: 'hospital', example: 'The hospital is far.' },
+      { en: 'bus', pt: 'ônibus', example: 'I take the bus.' },
+      { en: 'car', pt: 'carro', example: 'My car is blue.' },
+      { en: 'street', pt: 'rua', example: 'This street is busy.' },
+      { en: 'station', pt: 'estação', example: 'The station is here.' },
+      { en: 'left', pt: 'esquerda', example: 'Turn left.' },
+      { en: 'right', pt: 'direita', example: 'Turn right.' },
+    ],
+  },
+  'a0-mini-conversation': {
+    title: 'Mini Conversas',
+    note: 'Leia os blocos, depois faça pequenas trocas de falas.',
+    words: [
+      { en: 'my name is', pt: 'meu nome é', example: 'My name is João.' },
+      { en: 'how are you', pt: 'como você está', example: 'How are you today?' },
+      { en: 'I am fine', pt: 'eu estou bem', example: 'I am fine, thanks.' },
+      { en: 'nice to meet you', pt: 'prazer em conhecer você', example: 'Nice to meet you, Ana.' },
+      { en: 'where are you from', pt: 'de onde você é', example: 'Where are you from?' },
+      { en: 'I am from Brazil', pt: 'eu sou do Brasil', example: 'I am from Brazil.' },
+      { en: 'what is this', pt: 'o que é isto', example: 'What is this?' },
+      { en: 'this is', pt: 'isto é', example: 'This is my phone.' },
+      { en: 'can you help me', pt: 'você pode me ajudar', example: 'Can you help me, please?' },
+      { en: 'thank you very much', pt: 'muito obrigado(a)', example: 'Thank you very much.' },
+    ],
+  },
+};
+
 const QUIZ_QUESTIONS = [
   {
     id: 'q1',
-    question: 'Qual frase descreve melhor uma rotina em inglês?',
+    stage: 'Base A0-A1',
+    question: 'Você encontra alguém pela primeira vez. Qual resposta é mais natural para o seu nível atual?',
     options: [
-      { label: 'I goes to work at 8 every day.', score: 1 },
-      { label: 'I go to work at 8 every day.', score: 2 },
-      { label: 'I usually go to work at 8, but sometimes I work from home.', score: 4 },
-      { label: 'I normally start around 8, depending on the projects and team priorities.', score: 6 },
+      { label: 'Hi.', score: 0 },
+      { label: 'Hi, I am Ana.', score: 1 },
+      { label: 'Hi! Nice to meet you. I am Ana.', score: 2 },
+      { label: 'Hi! Nice to meet you. I am Ana from Brazil.', score: 3 },
+      { label: 'Hi, great to meet you. I am Ana and I work in marketing.', score: 4 },
+      { label: 'Hi, pleasure to meet you. I am Ana, and I would love to hear about your background too.', score: 5 },
+      { label: 'A pleasure meeting you. I am Ana, and I look forward to exploring how our experiences intersect.', score: 6 },
     ],
   },
   {
     id: 'q2',
-    question: 'Qual resposta está melhor estruturada para um problema no trabalho?',
+    stage: 'Base A0-A1',
+    question: 'Qual opção mostra vocabulário básico de comida corretamente?',
     options: [
-      { label: 'It was difficult and I fix fast.', score: 1 },
-      { label: 'It was difficult, but I solved it.', score: 2 },
-      { label: 'I reorganized the tasks and solved it with my team.', score: 4 },
-      { label: 'I reframed the issue, aligned stakeholders and coordinated the recovery plan.', score: 6 },
+      { label: 'bread = pão', score: 0 },
+      { label: 'bread = pão, rice = arroz', score: 1 },
+      { label: 'I like bread and rice.', score: 2 },
+      { label: 'I usually eat rice and beans for lunch.', score: 3 },
+      { label: 'I usually have a light lunch with rice, beans and salad.', score: 4 },
+      { label: 'I generally prefer a balanced lunch, typically rice, beans and vegetables.', score: 5 },
+      { label: 'My lunch tends to be nutritionally balanced, often centered on rice, beans and fresh produce.', score: 6 },
     ],
   },
   {
     id: 'q3',
-    question: 'Escolha a opção com melhor conexao de ideias:',
+    stage: 'A1-A2',
+    question: 'Você quer pedir algo no restaurante. Qual frase representa melhor seu nível?',
     options: [
-      { label: 'I like this idea. Is very good.', score: 1 },
-      { label: 'I like this idea because it is practical.', score: 2 },
-      { label: 'I like this idea; however, we should test it before launch.', score: 4 },
-      { label: 'Although the proposal is promising, it still requires deeper validation and resource alignment.', score: 6 },
+      { label: 'Water, please.', score: 0 },
+      { label: 'Can I have water, please?', score: 1 },
+      { label: 'Can I have water and bread, please?', score: 2 },
+      { label: 'Could I have water, bread and a small salad, please?', score: 3 },
+      { label: 'Could I have water, whole-grain bread and a small salad, please?', score: 4 },
+      { label: 'Could I have sparkling water and a light starter, please? Thank you.', score: 5 },
+      { label: 'Could I please have sparkling water and a light starter while I review the main options?', score: 6 },
     ],
   },
   {
     id: 'q4',
-    question: 'Qual frase tem tom mais profissional para email?',
+    stage: 'A2',
+    question: 'Você precisa pedir informação de direção. Qual opção é mais adequada ao seu nível?',
     options: [
-      { label: 'Send me the file now.', score: 1 },
-      { label: 'Can you send the file today?', score: 2 },
-      { label: 'Could you share the updated file by the end of the day?', score: 4 },
-      { label: 'Would you mind sharing the revised version by EOD so we can finalize the deliverable?', score: 6 },
+      { label: 'Where station?', score: 0 },
+      { label: 'Where is the station?', score: 1 },
+      { label: 'Excuse me, where is the bus station?', score: 2 },
+      { label: 'Excuse me, how can I get to the bus station?', score: 3 },
+      { label: 'Excuse me, could you tell me the best way to get to the station?', score: 4 },
+      { label: 'Could you please point me toward the nearest station and suggest the quickest route?', score: 5 },
+      { label: 'Would you mind indicating the most efficient route to the station at this time of day?', score: 6 },
+    ],
+  },
+  {
+    id: 'q5',
+    stage: 'A2-B1',
+    question: 'Como você descreve um dia de ontem?',
+    options: [
+      { label: 'Yesterday good.', score: 0 },
+      { label: 'Yesterday I go to work.', score: 1 },
+      { label: 'Yesterday I went to work and I was tired.', score: 2 },
+      { label: 'Yesterday I went to work, solved some tasks and got home late.', score: 3 },
+      { label: 'Yesterday I handled a busy day at work and still completed my main priorities.', score: 4 },
+      { label: 'Yesterday was demanding, but I managed to prioritize well and close key deliverables.', score: 5 },
+      { label: 'Yesterday was particularly demanding; however, through clear prioritization I delivered every critical task.', score: 6 },
+    ],
+  },
+  {
+    id: 'q6',
+    stage: 'B1',
+    question: 'Você quer dar sua opinião com argumento. Qual opção encaixa melhor?',
+    options: [
+      { label: 'I like this.', score: 0 },
+      { label: 'I like this because is good.', score: 1 },
+      { label: 'I like this idea because it is practical.', score: 2 },
+      { label: 'I agree with this idea because it saves time and reduces confusion.', score: 3 },
+      { label: 'I support this idea because it streamlines execution and improves team alignment.', score: 4 },
+      { label: 'I support this approach, as it improves coordination while keeping implementation realistic.', score: 5 },
+      { label: 'I endorse this approach, given its operational efficiency and its capacity to sustain cross-team alignment.', score: 6 },
+    ],
+  },
+  {
+    id: 'q7',
+    stage: 'B1-B2',
+    question: 'Houve um problema no trabalho. Como explicar de forma clara?',
+    options: [
+      { label: 'Big problem. We fix.', score: 0 },
+      { label: 'There was a problem and we fixed fast.', score: 1 },
+      { label: 'There was a problem, but my team fixed it quickly.', score: 2 },
+      { label: 'There was a technical issue, so we reorganized tasks and solved it on time.', score: 3 },
+      { label: 'We faced a technical issue, reprioritized tasks and restored delivery within the same day.', score: 4 },
+      { label: 'We encountered a critical issue, reassigned ownership and recovered delivery without impacting milestones.', score: 5 },
+      { label: 'We encountered a critical incident, recalibrated ownership and recovered delivery while protecting strategic milestones.', score: 6 },
+    ],
+  },
+  {
+    id: 'q8',
+    stage: 'B2',
+    question: 'Qual frase tem tom mais profissional para e-mail?',
+    options: [
+      { label: 'Send me the file now.', score: 0 },
+      { label: 'Can you send me the file today?', score: 1 },
+      { label: 'Could you send me the updated file today, please?', score: 2 },
+      { label: 'Could you share the updated file by the end of the day?', score: 3 },
+      { label: 'Would you mind sharing the revised file by EOD so we can finalize the deliverable?', score: 4 },
+      { label: 'Could you please share the revised version by EOD so we can complete final validation?', score: 5 },
+      { label: 'Would you be able to share the revised version by EOD to support final validation and sign-off?', score: 6 },
+    ],
+  },
+  {
+    id: 'q9',
+    stage: 'B2-C1',
+    question: 'Você precisa discordar com educação. Qual opção é mais madura linguisticamente?',
+    options: [
+      { label: 'No, you are wrong.', score: 0 },
+      { label: 'I do not agree.', score: 1 },
+      { label: 'I see your point, but I do not agree.', score: 2 },
+      { label: 'I understand your view; however, I believe we should test another approach.', score: 3 },
+      { label: 'I appreciate your perspective; nonetheless, I recommend we validate an alternative before deciding.', score: 4 },
+      { label: 'Your perspective is valid; still, I would advocate an additional validation cycle before commitment.', score: 5 },
+      { label: 'While your argument is well-founded, I would still prioritize a secondary validation stream before commitment.', score: 6 },
+    ],
+  },
+  {
+    id: 'q10',
+    stage: 'C1',
+    question: 'Como você resumiria um resultado de projeto com precisão?',
+    options: [
+      { label: 'Project was good.', score: 0 },
+      { label: 'Project was good and finished.', score: 1 },
+      { label: 'The project finished on time and had good results.', score: 2 },
+      { label: 'The project met the deadline, improved quality and reduced rework.', score: 3 },
+      { label: 'The project met the deadline, improved quality indicators and reduced rework by 18%.', score: 4 },
+      { label: 'The project met schedule targets, improved quality metrics and lowered rework by 18% across two cycles.', score: 5 },
+      { label: 'The project met schedule targets, improved quality metrics and sustainably reduced rework by 18% across two cycles.', score: 6 },
+    ],
+  },
+  {
+    id: 'q11',
+    stage: 'C1-C2',
+    question: 'Em negociação, qual resposta mostra maior controle de nuance?',
+    options: [
+      { label: 'No discount.', score: 0 },
+      { label: 'We cannot give discount.', score: 1 },
+      { label: 'We cannot offer a discount right now.', score: 2 },
+      { label: 'At this stage, we cannot reduce pricing, but we can review delivery scope.', score: 3 },
+      { label: 'At this stage, pricing is fixed; however, we can optimize implementation scope to increase value.', score: 4 },
+      { label: 'While pricing remains fixed, we can reframe scope and milestones to maximize commercial value for both sides.', score: 5 },
+      { label: 'Although pricing remains fixed, we can recalibrate scope and milestones to optimize value capture for both parties.', score: 6 },
+    ],
+  },
+  {
+    id: 'q12',
+    stage: 'Conversação Avançada',
+    question: 'Qual resposta demonstra fluência em conversação complexa sob pressão?',
+    options: [
+      { label: 'I am nervous.', score: 0 },
+      { label: 'I am nervous but I can do it.', score: 1 },
+      { label: 'I am nervous, but I will do my best to explain clearly.', score: 2 },
+      { label: 'Although I feel pressure, I can structure my points and respond objectively.', score: 3 },
+      { label: 'Even under pressure, I can prioritize key arguments and respond with clarity and evidence.', score: 4 },
+      { label: 'Despite the pressure, I can synthesize complex inputs and respond with strategic clarity and composure.', score: 5 },
+      { label: 'Even in high-stakes contexts, I can integrate competing inputs and deliver a coherent, evidence-based response with composure.', score: 6 },
     ],
   },
 ];
@@ -469,6 +780,190 @@ const OBJECTIVE_BANK_BY_ACTIVITY = {
       prompt: 'Complete: I drink ___.',
       answer: ['water', 'coffee'],
       explanation: 'As duas opções são válidas para o treino.',
+    },
+  ],
+  'a0-home-objects': [
+    {
+      id: 'a0h-mc-1',
+      type: 'mc',
+      prompt: 'Qual palavra significa "janela"?',
+      options: ['window', 'door', 'table'],
+      answer: 'window',
+      explanation: 'Window = janela.',
+    },
+    {
+      id: 'a0h-mc-2',
+      type: 'mc',
+      prompt: 'Complete: This is a ___. (cadeira)',
+      options: ['chair', 'bed', 'kitchen'],
+      answer: 'chair',
+      explanation: 'Chair = cadeira.',
+    },
+    {
+      id: 'a0h-fill-1',
+      type: 'fill',
+      prompt: 'Escreva em inglês: "porta".',
+      answer: ['door'],
+      explanation: 'Door = porta.',
+    },
+    {
+      id: 'a0h-tf-1',
+      type: 'tf',
+      prompt: '"Table" significa mesa.',
+      answer: true,
+      correction: 'Correto: table = mesa.',
+    },
+    {
+      id: 'a0h-check-1',
+      type: 'check',
+      prompt: 'Sentence: "Bed" significa cama. This is...',
+      answer: 'correct',
+      correction: 'Correta. Bed = cama.',
+    },
+    {
+      id: 'a0h-fill-2',
+      type: 'fill',
+      prompt: 'Complete: Open the ___.',
+      answer: ['window', 'door'],
+      explanation: 'As duas palavras são válidas no contexto.',
+    },
+  ],
+  'a0-actions-routine': [
+    {
+      id: 'a0r-mc-1',
+      type: 'mc',
+      prompt: 'Qual verbo significa "acordar"?',
+      options: ['wake up', 'sleep', 'read'],
+      answer: 'wake up',
+      explanation: 'Wake up = acordar.',
+    },
+    {
+      id: 'a0r-mc-2',
+      type: 'mc',
+      prompt: 'Complete: I ___ water.',
+      options: ['drink', 'sleep', 'write'],
+      answer: 'drink',
+      explanation: 'A frase correta é I drink water.',
+    },
+    {
+      id: 'a0r-fill-1',
+      type: 'fill',
+      prompt: 'Escreva em inglês: "estudar".',
+      answer: ['study'],
+      explanation: 'Study = estudar.',
+    },
+    {
+      id: 'a0r-tf-1',
+      type: 'tf',
+      prompt: '"Sleep" significa dormir.',
+      answer: true,
+      correction: 'Correto: sleep = dormir.',
+    },
+    {
+      id: 'a0r-check-1',
+      type: 'check',
+      prompt: 'Sentence: "I work in the morning." This is...',
+      answer: 'correct',
+      correction: 'Correta e natural para rotina.',
+    },
+    {
+      id: 'a0r-fill-2',
+      type: 'fill',
+      prompt: 'Complete: I ___ English every day.',
+      answer: ['study'],
+      explanation: 'Use study para "estudo".',
+    },
+  ],
+  'a0-places-transport': [
+    {
+      id: 'a0p-mc-1',
+      type: 'mc',
+      prompt: 'Qual palavra significa "ônibus"?',
+      options: ['bus', 'car', 'station'],
+      answer: 'bus',
+      explanation: 'Bus = ônibus.',
+    },
+    {
+      id: 'a0p-mc-2',
+      type: 'mc',
+      prompt: 'Complete: I go to ___. (escola)',
+      options: ['school', 'street', 'left'],
+      answer: 'school',
+      explanation: 'School = escola.',
+    },
+    {
+      id: 'a0p-fill-1',
+      type: 'fill',
+      prompt: 'Escreva em inglês: "mercado".',
+      answer: ['market'],
+      explanation: 'Market = mercado.',
+    },
+    {
+      id: 'a0p-tf-1',
+      type: 'tf',
+      prompt: '"Right" pode significar direita.',
+      answer: true,
+      correction: 'Correto: right = direita.',
+    },
+    {
+      id: 'a0p-check-1',
+      type: 'check',
+      prompt: 'Sentence: "Turn left." This is...',
+      answer: 'correct',
+      correction: 'Correta para instrução de direção.',
+    },
+    {
+      id: 'a0p-fill-2',
+      type: 'fill',
+      prompt: 'Complete: The ___ is near my house. (estação)',
+      answer: ['station'],
+      explanation: 'Station = estação.',
+    },
+  ],
+  'a0-mini-conversation': [
+    {
+      id: 'a0c-mc-1',
+      type: 'mc',
+      prompt: 'Qual é a melhor abertura de mini conversa?',
+      options: ['Hello, my name is Ana.', 'Rice and bread.', 'Blue bus.'],
+      answer: 'Hello, my name is Ana.',
+      explanation: 'Ótima abertura simples e útil.',
+    },
+    {
+      id: 'a0c-mc-2',
+      type: 'mc',
+      prompt: 'Complete: Nice to ___ you.',
+      options: ['meet', 'eat', 'sleep'],
+      answer: 'meet',
+      explanation: 'A expressão correta é Nice to meet you.',
+    },
+    {
+      id: 'a0c-fill-1',
+      type: 'fill',
+      prompt: 'Escreva em inglês: "Como você está?"',
+      answer: ['how are you'],
+      explanation: 'How are you? é a forma comum.',
+    },
+    {
+      id: 'a0c-tf-1',
+      type: 'tf',
+      prompt: '"I am fine" significa "eu estou bem".',
+      answer: true,
+      correction: 'Correto.',
+    },
+    {
+      id: 'a0c-check-1',
+      type: 'check',
+      prompt: 'Sentence: "Where are you from?" This is...',
+      answer: 'correct',
+      correction: 'Correta para perguntar origem.',
+    },
+    {
+      id: 'a0c-fill-2',
+      type: 'fill',
+      prompt: 'Complete: I am ___ Brazil.',
+      answer: ['from'],
+      explanation: 'A frase correta é I am from Brazil.',
     },
   ],
 };
@@ -677,6 +1172,7 @@ const elements = {
   activityTitle: $('activityTitle'),
   activityObjective: $('activityObjective'),
   activityTips: $('activityTips'),
+  activityWordLesson: $('activityWordLesson'),
   activityTasks: $('activityTasks'),
   regenerateActivityButton: $('regenerateActivityButton'),
   saveDraftButton: $('saveDraftButton'),
@@ -1165,7 +1661,7 @@ function renderManualLevelInfo() {
 
   if (profile.id === 'A0') {
     elements.manualLevelInfo.textContent =
-      'A0 (Pré-A1): sequência didática de primeiras palavras (cumprimentos, números, cores, família e comida).';
+      'A0 (Pré-A1): sequência didática de primeiras palavras (cumprimentos, números, cores, família, comida, casa, rotina e mini conversas).';
     return;
   }
 
@@ -1228,7 +1724,10 @@ function renderQuiz() {
 
   elements.quizList.innerHTML = QUIZ_QUESTIONS.map((item, index) => `
     <article class="quiz-item" data-quiz-id="${escapeHtml(item.id)}">
-      <strong>${index + 1}. ${escapeHtml(item.question)}</strong>
+      <div class="quiz-item-head">
+        <strong>${index + 1}. ${escapeHtml(item.question)}</strong>
+        ${item.stage ? `<span class="quiz-stage">${escapeHtml(item.stage)}</span>` : ''}
+      </div>
       ${item.options
         .map(
           (option, optionIndex) => `
@@ -1272,20 +1771,24 @@ function syncQuizSelectionUi() {
     elements.quizAnsweredCount.textContent = `${answered}/${total} respondidas`;
   }
   if (elements.quizHelperText) {
-    elements.quizHelperText.textContent =
-      answered === total
-        ? 'Tudo pronto. Clique em "Ver recomendação".'
-        : `Faltam ${total - answered} pergunta(s) para completar.`;
+    if (answered === total) {
+      elements.quizHelperText.textContent = 'Tudo pronto. Clique em "Ver recomendação".';
+    } else if (answered === 0) {
+      elements.quizHelperText.textContent =
+        'Teste progressivo: do básico de palavras até conversação avançada.';
+    } else {
+      elements.quizHelperText.textContent = `Faltam ${total - answered} pergunta(s) para completar.`;
+    }
   }
 }
 
 function quizLevelByAverage(average) {
-  if (average <= 1.2) return 'A0';
-  if (average <= 2.0) return 'A1';
-  if (average <= 2.9) return 'A2';
-  if (average <= 3.8) return 'B1';
-  if (average <= 4.8) return 'B2';
-  if (average <= 5.4) return 'C1';
+  if (average <= 0.9) return 'A0';
+  if (average <= 1.7) return 'A1';
+  if (average <= 2.6) return 'A2';
+  if (average <= 3.6) return 'B1';
+  if (average <= 4.5) return 'B2';
+  if (average <= 5.3) return 'C1';
   return 'C2';
 }
 
@@ -1377,7 +1880,8 @@ function activitySessionKey(activityId, levelId = currentLevelId()) {
 
 function buildObjectiveSet(levelId, count = 6, activityId = '') {
   const bank = questionBankForActivity(activityId, levelId);
-  const selected = shuffleArray(bank).slice(0, Math.min(count, bank.length));
+  const orderedPool = levelId === 'A0' ? [...bank] : shuffleArray(bank);
+  const selected = orderedPool.slice(0, Math.min(count, orderedPool.length));
   return selected.map((question) => ({
     ...question,
     options: Array.isArray(question.options) ? [...question.options] : question.options,
@@ -1417,6 +1921,49 @@ function setActivityAutosaveHint(text) {
     return;
   }
   elements.activityAutosaveHint.textContent = text || '';
+}
+
+function starterWordLessonByActivity(activityId) {
+  return STARTER_WORD_LESSONS[String(activityId || '').trim()] || null;
+}
+
+function renderActivityWordLesson(item) {
+  if (!elements.activityWordLesson) {
+    return;
+  }
+
+  const levelId = currentLevelId();
+  const lesson = item && levelId === 'A0' ? starterWordLessonByActivity(item.id) : null;
+  if (!lesson || !Array.isArray(lesson.words) || !lesson.words.length) {
+    elements.activityWordLesson.classList.add('hidden');
+    elements.activityWordLesson.innerHTML = '';
+    return;
+  }
+
+  const a0Activities = ACTIVITY_BY_LEVEL.A0 || [];
+  const stepIndex = Math.max(0, a0Activities.findIndex((activity) => activity.id === item.id));
+  const stepText = `Etapa ${stepIndex + 1} de ${Math.max(1, a0Activities.length)}`;
+  const wordsHtml = lesson.words
+    .map(
+      (word) => `
+        <article class="word-card">
+          <strong class="word-en">${escapeHtml(word.en)}</strong>
+          <span class="word-pt">${escapeHtml(word.pt)}</span>
+          <span class="word-example">${escapeHtml(word.example || '')}</span>
+        </article>
+      `,
+    )
+    .join('');
+
+  elements.activityWordLesson.classList.remove('hidden');
+  elements.activityWordLesson.innerHTML = `
+    <div class="word-lesson-head">
+      <strong class="word-lesson-title">${escapeHtml(lesson.title || 'Palavrinhas do dia')}</strong>
+      <span class="pill">${escapeHtml(stepText)}</span>
+    </div>
+    <p class="line">${escapeHtml(lesson.note || 'Treino guiado palavra por palavra.')}</p>
+    <div class="word-lesson-grid">${wordsHtml}</div>
+  `;
 }
 
 function ensureActivitySet(item, forceNew = false) {
@@ -1498,9 +2045,12 @@ function renderHome() {
   const averageScore =
     typeof stats.averageScore === 'number' ? `${Math.max(0, Math.min(100, stats.averageScore))}%` : '-';
   const activeDays = Number(stats.activeDays) || 0;
+  const isStarterLevel = levelId === 'A0';
 
   elements.homeGreeting.textContent = `Ola, ${name}.`;
-  elements.homeSubtitle.textContent = `Streak atual: ${streak} dia(s) | Dias ativos: ${activeDays}`;
+  elements.homeSubtitle.textContent = isStarterLevel
+    ? `Rota didática inicial ativa (cumprimentos -> comida -> rotina) | Streak: ${streak} dia(s)`
+    : `Streak atual: ${streak} dia(s) | Dias ativos: ${activeDays}`;
   elements.homeLevelPill.textContent = levelLabel(levelId);
   elements.homeProgressText.textContent = `${done} de ${items.length} atividades concluídas neste nível.`;
   if (elements.homeStreakValue) {
@@ -1541,7 +2091,7 @@ function renderActivities() {
   const progressPercent = total ? Math.round((doneCount / total) * 100) : 0;
   const isStarterLevel = levelId === 'A0';
   const activityFormatDescription = isStarterLevel
-    ? 'Modo primeiras palavras: vocabulário base + exercícios simples de fixação.'
+    ? 'Modo primeiras palavras: vocabulário palavra por palavra + exercícios simples de fixação.'
     : 'Formato objetivo: multipla escolha, V/F, completar e certo/errado.';
 
   elements.activitiesTitle.textContent = `Trilha ${levelLabel(levelId)}`;
@@ -1591,6 +2141,7 @@ function renderActivity() {
     elements.activityTitle.textContent = 'Atividade';
     elements.activityObjective.textContent = 'Escolha uma atividade da trilha.';
     elements.activityTips.innerHTML = '';
+    renderActivityWordLesson(null);
     elements.activityTasks.innerHTML = '';
     elements.completeActivityButton.disabled = true;
     setActivityAutosaveHint('');
@@ -1600,6 +2151,7 @@ function renderActivity() {
   elements.activityTitle.textContent = item.title;
   elements.activityObjective.textContent = item.objective;
   elements.activityTips.innerHTML = item.tips.map((tip) => `<li>${escapeHtml(tip)}</li>`).join('');
+  renderActivityWordLesson(item);
 
   const session = ensureActivitySet(item, false);
   if (!session.questions.length) {
