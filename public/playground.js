@@ -1334,13 +1334,21 @@ function renderAiChatLog() {
     return;
   }
 
-  const lines = history.map((message) => {
+  const lines = history.map((message, index) => {
     const role = message.role === 'user' ? 'user' : 'assistant';
     const label = role === 'user' ? 'Voce' : 'Tutor IA';
+    const audioUrl = typeof message.audioDataUrl === 'string' ? message.audioDataUrl : '';
+    const audioHtml =
+      role === 'assistant'
+        ? audioUrl
+          ? `<audio class="bubble-audio" controls src="${escapeHtml(audioUrl)}"></audio>`
+          : `<button type="button" class="btn secondary bubble-listen-btn" data-chat-speak-index="${index}">Ouvir audio</button>`
+        : '';
     return `
       <div class="bubble ${role}">
         <span class="bubble-label">${escapeHtml(label)}</span>
         <div class="bubble-text">${escapeHtml(message.content || '')}</div>
+        ${audioHtml}
       </div>
     `;
   });
@@ -1357,6 +1365,111 @@ function renderAiChatLog() {
   elements.aiChatLog.innerHTML = lines.join('');
 
   elements.aiChatLog.scrollTop = elements.aiChatLog.scrollHeight;
+}
+
+function trimAiChatHistory() {
+  if (state.aiChatHistory.length > 20) {
+    state.aiChatHistory = state.aiChatHistory.slice(-20);
+  }
+}
+
+function speakWithBrowserTts(text, locale, preferredVoiceName) {
+  if (!window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== 'function') {
+    return false;
+  }
+
+  try {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = locale;
+    utterance.rate = 1;
+    const allVoices = window.speechSynthesis.getVoices();
+    const preferred = String(preferredVoiceName || '').toLowerCase();
+    const localeLower = String(locale || '').toLowerCase();
+    const localePrefix = localeLower.slice(0, 2);
+    const pickedVoice =
+      allVoices.find((item) => String(item.lang || '').toLowerCase() === localeLower) ||
+      allVoices.find((item) => String(item.lang || '').toLowerCase().startsWith(localePrefix)) ||
+      allVoices.find((item) => String(item.name || '').toLowerCase().includes(preferred)) ||
+      allVoices[0];
+    if (pickedVoice) {
+      utterance.voice = pickedVoice;
+    }
+    window.speechSynthesis.speak(utterance);
+    return true;
+  } catch (_error) {
+    return false;
+  }
+}
+
+async function playAudioDataUrl(dataUrl) {
+  if (!dataUrl) {
+    return false;
+  }
+
+  try {
+    const audio = new Audio(dataUrl);
+    await audio.play();
+    return true;
+  } catch (_error) {
+    return false;
+  }
+}
+
+async function ensureAssistantMessageAudio(message, options = {}) {
+  if (!message || message.role !== 'assistant' || !String(message.content || '').trim()) {
+    return false;
+  }
+
+  const autoPlay = options.autoPlay !== false;
+  const locale = message.locale || selectedVoiceLanguage();
+  const level = elements.aiVoiceLevel.value || state.selectedLevel;
+  const voice = elements.aiVoiceName.value || 'alloy';
+
+  if (message.audioDataUrl) {
+    if (autoPlay) {
+      const played = await playAudioDataUrl(message.audioDataUrl);
+      if (played) {
+        return true;
+      }
+    }
+    return true;
+  }
+
+  try {
+    const speakResult = await api('/voice/speak', {
+      method: 'POST',
+      body: JSON.stringify({
+        level,
+        voice,
+        language: locale,
+        instructions: speechInstructionsForLocale(locale),
+        text: message.content,
+      }),
+    });
+
+    if (speakResult && speakResult.speech && speakResult.speech.audioBase64) {
+      message.audioDataUrl = `data:${speakResult.speech.mimeType};base64,${speakResult.speech.audioBase64}`;
+      if (elements.aiVoicePlayer) {
+        elements.aiVoicePlayer.src = message.audioDataUrl;
+      }
+      renderAiChatLog();
+      if (autoPlay) {
+        const played = await playAudioDataUrl(message.audioDataUrl);
+        if (played) {
+          return true;
+        }
+      }
+      return true;
+    }
+  } catch (_speechError) {
+    // Browser fallback below.
+  }
+
+  if (autoPlay) {
+    return speakWithBrowserTts(message.content, locale, voice);
+  }
+  return false;
 }
 
 function nextAiTopicSuggestions(limit = 4) {
@@ -1441,12 +1554,19 @@ async function sendAiChat() {
       }),
     });
 
-    state.aiChatHistory.push({ role: 'assistant', content: result.reply || 'Sem resposta.' });
-    if (state.aiChatHistory.length > 20) {
-      state.aiChatHistory = state.aiChatHistory.slice(-20);
-    }
+    const reply = String(result.reply || 'Sem resposta.').trim() || 'Sem resposta.';
+    const assistantMessage = {
+      role: 'assistant',
+      content: reply,
+      locale: selectedVoiceLanguage(),
+    };
+    state.aiChatHistory.push(assistantMessage);
+    trimAiChatHistory();
+    renderAiChatLog();
+    ensureAssistantMessageAudio(assistantMessage, { autoPlay: true }).catch(() => {});
   } catch (error) {
     state.aiChatHistory.push({ role: 'assistant', content: `Erro: ${error.message}` });
+    trimAiChatHistory();
   } finally {
     state.aiChatLoading = false;
     elements.aiChatSendButton.disabled = false;
@@ -1691,7 +1811,6 @@ function setVoiceRecordingUi(isRecording) {
 async function processVoiceBlob(blob, mimeType) {
   try {
     const level = elements.aiVoiceLevel.value || state.selectedLevel;
-    const voice = elements.aiVoiceName.value || 'alloy';
     const locale = selectedVoiceLanguage();
     const audioBase64 = await blobToBase64(blob);
 
@@ -1727,59 +1846,14 @@ async function processVoiceBlob(blob, mimeType) {
     setMessage(elements.aiVoiceReply, reply, 'success');
 
     state.aiChatHistory.push({ role: 'user', content: transcript });
-    state.aiChatHistory.push({ role: 'assistant', content: reply });
-    if (state.aiChatHistory.length > 20) {
-      state.aiChatHistory = state.aiChatHistory.slice(-20);
-    }
+    const assistantMessage = { role: 'assistant', content: reply, locale };
+    state.aiChatHistory.push(assistantMessage);
+    trimAiChatHistory();
     renderAiChatLog();
     refreshAiChatSuggestions();
 
-    let playedAudio = false;
     setMessage(elements.aiScreenMessage, 'Gerando audio da resposta...');
-    try {
-      const speakResult = await api('/voice/speak', {
-        method: 'POST',
-        body: JSON.stringify({
-          level,
-          voice,
-          language: locale,
-          instructions: speechInstructionsForLocale(locale),
-          text: reply,
-        }),
-      });
-
-      if (speakResult && speakResult.speech && speakResult.speech.audioBase64) {
-        elements.aiVoicePlayer.src = `data:${speakResult.speech.mimeType};base64,${speakResult.speech.audioBase64}`;
-        playedAudio = true;
-      }
-    } catch (_speechError) {
-      // Fallback below.
-    }
-
-    if (!playedAudio && window.speechSynthesis && typeof window.SpeechSynthesisUtterance === 'function') {
-      try {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(reply);
-        utterance.lang = locale;
-        utterance.rate = 1;
-        const allVoices = window.speechSynthesis.getVoices();
-        const preferred = String(voice).toLowerCase();
-        const localeLower = locale.toLowerCase();
-        const localePrefix = localeLower.slice(0, 2);
-        const pickedVoice =
-          allVoices.find((item) => String(item.lang || '').toLowerCase() === localeLower) ||
-          allVoices.find((item) => String(item.lang || '').toLowerCase().startsWith(localePrefix)) ||
-          allVoices.find((item) => String(item.name || '').toLowerCase().includes(preferred)) ||
-          allVoices[0];
-        if (pickedVoice) {
-          utterance.voice = pickedVoice;
-        }
-        window.speechSynthesis.speak(utterance);
-        playedAudio = true;
-      } catch (_browserSpeechError) {
-        // Keep text-only response.
-      }
-    }
+    const playedAudio = await ensureAssistantMessageAudio(assistantMessage, { autoPlay: true });
 
     if (playedAudio) {
       setMessage(elements.aiScreenMessage, 'Audio processado com sucesso.', 'success');
@@ -2274,6 +2348,18 @@ function bindEvents() {
       event.preventDefault();
       sendAiChat();
     }
+  });
+  elements.aiChatLog.addEventListener('click', (event) => {
+    const target = event.target.closest('[data-chat-speak-index]');
+    if (!target) {
+      return;
+    }
+    const index = Number(target.dataset.chatSpeakIndex);
+    const message = Number.isInteger(index) ? state.aiChatHistory[index] : null;
+    if (!message || message.role !== 'assistant') {
+      return;
+    }
+    ensureAssistantMessageAudio(message, { autoPlay: true }).catch(() => {});
   });
   if (elements.aiChatSuggestions) {
     elements.aiChatSuggestions.addEventListener('click', (event) => {
