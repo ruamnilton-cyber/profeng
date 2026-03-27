@@ -158,6 +158,73 @@ test('activity progress endpoint syncs completion stats for the logged user', as
   assert.equal(me.stats.bestStreakDays >= 1, true);
 });
 
+test('progress state endpoint syncs trail data by authenticated account', async () => {
+  const { response: registerResponse, json: register } = await requestJson('/auth/register', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      email: 'sync@profeng.dev',
+      password: 'Senha1234',
+      name: 'Aluno Sync',
+      level: 'A2',
+    }),
+  });
+
+  assert.equal(registerResponse.status, 200);
+  assert.ok(register.token);
+
+  const statePayload = {
+    completed: { A2: ['a2-weekend'] },
+    drafts: { 'A2:a2-weekend': { 'a2-fill-1': 'are' } },
+    activitySets: { 'A2:a2-weekend': [{ id: 'a2-fill-1', type: 'fill' }] },
+    activityResults: { 'A2:a2-weekend': { score: 83, correct: 5, total: 6 } },
+  };
+
+  const { response: putResponse, json: putResult } = await requestJson('/progress/state', {
+    method: 'PUT',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${register.token}`,
+    },
+    body: JSON.stringify({ state: statePayload }),
+  });
+
+  assert.equal(putResponse.status, 200);
+  assert.equal(putResult.success, true);
+  assert.deepEqual(putResult.state.completed.A2, ['a2-weekend']);
+
+  const { response: getResponse, json: getResult } = await requestJson('/progress/state', {
+    headers: {
+      Authorization: `Bearer ${register.token}`,
+    },
+  });
+
+  assert.equal(getResponse.status, 200);
+  assert.deepEqual(getResult.state.completed.A2, ['a2-weekend']);
+  assert.equal(getResult.state.activityResults['A2:a2-weekend'].score, 83);
+
+  const { response: registerOtherResponse, json: registerOther } = await requestJson('/auth/register', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      email: 'other@profeng.dev',
+      password: 'Senha1234',
+      name: 'Outra Conta',
+      level: 'A1',
+    }),
+  });
+
+  assert.equal(registerOtherResponse.status, 200);
+  const { response: otherGetResponse, json: otherGet } = await requestJson('/progress/state', {
+    headers: {
+      Authorization: `Bearer ${registerOther.token}`,
+    },
+  });
+
+  assert.equal(otherGetResponse.status, 200);
+  assert.deepEqual(otherGet.state.completed, {});
+});
+
 test('chat route fails gracefully when OpenAI is not configured', async () => {
   const { response, json } = await requestJson('/chat', {
     method: 'POST',

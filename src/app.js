@@ -25,7 +25,7 @@ function createApp() {
       'Access-Control-Allow-Headers',
       'Origin, X-Requested-With, Content-Type, Accept, Authorization',
     );
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Credentials', 'true');
 
     if (req.method === 'OPTIONS') {
@@ -65,6 +65,8 @@ function createApp() {
         'POST /voice/respond',
         'POST /voice/speak',
         'POST /progress/activity',
+        'GET /progress/state',
+        'PUT /progress/state',
         'POST /exercises/generate',
         'POST /exercises/check',
         'POST /levels/assess',

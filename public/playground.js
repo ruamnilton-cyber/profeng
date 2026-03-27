@@ -1,6 +1,7 @@
 ﻿
 const STORAGE_KEYS = {
   token: 'profeng_token',
+  syncedUserId: 'profeng_synced_user_id',
   completed: 'profeng_completed',
   drafts: 'profeng_drafts',
   activitySets: 'profeng_activity_sets',
@@ -302,6 +303,7 @@ const state = {
   mediaRecorder: null,
   recordedChunks: [],
   activityAutoSaveTimer: null,
+  progressSyncTimer: null,
   deferredInstallPrompt: null,
   isInstallAvailable: false,
 };
@@ -457,6 +459,180 @@ function setToken(token) {
     localStorage.setItem(STORAGE_KEYS.token, state.token);
   } else {
     localStorage.removeItem(STORAGE_KEYS.token);
+  }
+}
+
+function ensurePlainObject(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
+function sanitizeCompletedState(completed) {
+  const source = ensurePlainObject(completed);
+  const output = {};
+
+  Object.entries(source).forEach(([levelId, items]) => {
+    if (!Array.isArray(items)) {
+      return;
+    }
+
+    const unique = Array.from(
+      new Set(
+        items
+          .map((item) => String(item || '').trim())
+          .filter(Boolean),
+      ),
+    );
+    if (unique.length) {
+      output[levelId] = unique;
+    }
+  });
+
+  return output;
+}
+
+function sanitizeKeyedState(value) {
+  const source = ensurePlainObject(value);
+  const output = {};
+
+  Object.entries(source).forEach(([key, item]) => {
+    if (!key || item === undefined || item === null) {
+      return;
+    }
+    output[String(key)] = item;
+  });
+
+  return output;
+}
+
+function sanitizeProgressStateSnapshot(snapshot) {
+  const source = ensurePlainObject(snapshot);
+  return {
+    completed: sanitizeCompletedState(source.completed),
+    drafts: sanitizeKeyedState(source.drafts),
+    activitySets: sanitizeKeyedState(source.activitySets),
+    activityResults: sanitizeKeyedState(source.activityResults),
+  };
+}
+
+function readLocalProgressStateSnapshot() {
+  return sanitizeProgressStateSnapshot({
+    completed: readStoredJson(STORAGE_KEYS.completed, {}),
+    drafts: readStoredJson(STORAGE_KEYS.drafts, {}),
+    activitySets: readStoredJson(STORAGE_KEYS.activitySets, {}),
+    activityResults: readStoredJson(STORAGE_KEYS.activityResults, {}),
+  });
+}
+
+function currentProgressStateSnapshot() {
+  return sanitizeProgressStateSnapshot({
+    completed: state.completed,
+    drafts: state.drafts,
+    activitySets: state.activitySets,
+    activityResults: state.activityResults,
+  });
+}
+
+function applyProgressStateSnapshot(snapshot) {
+  const next = sanitizeProgressStateSnapshot(snapshot);
+  state.completed = next.completed;
+  state.drafts = next.drafts;
+  state.activitySets = next.activitySets;
+  state.activityResults = next.activityResults;
+
+  writeStoredJson(STORAGE_KEYS.completed, state.completed);
+  writeStoredJson(STORAGE_KEYS.drafts, state.drafts);
+  writeStoredJson(STORAGE_KEYS.activitySets, state.activitySets);
+  writeStoredJson(STORAGE_KEYS.activityResults, state.activityResults);
+}
+
+function mergeCompletedState(remoteCompleted, localCompleted) {
+  const merged = { ...sanitizeCompletedState(remoteCompleted) };
+  const local = sanitizeCompletedState(localCompleted);
+
+  Object.entries(local).forEach(([levelId, items]) => {
+    const existing = Array.isArray(merged[levelId]) ? merged[levelId] : [];
+    merged[levelId] = Array.from(new Set([...existing, ...items]));
+  });
+
+  return merged;
+}
+
+function mergeProgressStateSnapshots(remoteSnapshot, localSnapshot) {
+  const remote = sanitizeProgressStateSnapshot(remoteSnapshot);
+  const local = sanitizeProgressStateSnapshot(localSnapshot);
+
+  return {
+    completed: mergeCompletedState(remote.completed, local.completed),
+    drafts: { ...remote.drafts, ...Object.fromEntries(Object.entries(local.drafts).filter(([key]) => !(key in remote.drafts))) },
+    activitySets: { ...remote.activitySets, ...Object.fromEntries(Object.entries(local.activitySets).filter(([key]) => !(key in remote.activitySets))) },
+    activityResults: { ...remote.activityResults, ...Object.fromEntries(Object.entries(local.activityResults).filter(([key]) => !(key in remote.activityResults))) },
+  };
+}
+
+function progressSnapshotsEqual(a, b) {
+  return JSON.stringify(sanitizeProgressStateSnapshot(a)) === JSON.stringify(sanitizeProgressStateSnapshot(b));
+}
+
+async function pushProgressStateToServer(snapshotOverride = null) {
+  if (!state.user || !state.token) {
+    return false;
+  }
+
+  const payload = sanitizeProgressStateSnapshot(snapshotOverride || currentProgressStateSnapshot());
+  try {
+    await api('/progress/state', {
+      method: 'PUT',
+      body: JSON.stringify({ state: payload }),
+    });
+    return true;
+  } catch (_error) {
+    return false;
+  }
+}
+
+function queueProgressStateSync(delayMs = 650) {
+  if (!state.user || !state.token) {
+    return;
+  }
+
+  if (state.progressSyncTimer) {
+    clearTimeout(state.progressSyncTimer);
+  }
+
+  state.progressSyncTimer = setTimeout(async () => {
+    state.progressSyncTimer = null;
+    await pushProgressStateToServer();
+  }, Math.max(150, Number(delayMs) || 650));
+}
+
+async function hydrateUserProgressState() {
+  if (!state.user || !state.token) {
+    return;
+  }
+
+  const localSnapshot = readLocalProgressStateSnapshot();
+  const previousUserId = localStorage.getItem(STORAGE_KEYS.syncedUserId) || '';
+  const sameUser = previousUserId === state.user.id;
+
+  let remoteSnapshot = sanitizeProgressStateSnapshot({});
+  try {
+    const result = await api('/progress/state');
+    remoteSnapshot = sanitizeProgressStateSnapshot(result && result.state);
+  } catch (_error) {
+    // If endpoint is temporarily unavailable, keep local state.
+    applyProgressStateSnapshot(localSnapshot);
+    return;
+  }
+
+  const nextSnapshot = sameUser
+    ? mergeProgressStateSnapshots(remoteSnapshot, localSnapshot)
+    : remoteSnapshot;
+
+  applyProgressStateSnapshot(nextSnapshot);
+  localStorage.setItem(STORAGE_KEYS.syncedUserId, state.user.id);
+
+  if (!progressSnapshotsEqual(nextSnapshot, remoteSnapshot)) {
+    await pushProgressStateToServer(nextSnapshot);
   }
 }
 
@@ -989,6 +1165,7 @@ function ensureActivitySet(item, forceNew = false) {
   writeStoredJson(STORAGE_KEYS.activitySets, state.activitySets);
   writeStoredJson(STORAGE_KEYS.drafts, state.drafts);
   writeStoredJson(STORAGE_KEYS.activityResults, state.activityResults);
+  queueProgressStateSync(500);
 
   return { key, questions: nextSet };
 }
@@ -1244,6 +1421,7 @@ function saveDraft(options = {}) {
   const session = ensureActivitySet(item, false);
   state.drafts[session.key] = collectTaskAnswers();
   writeStoredJson(STORAGE_KEYS.drafts, state.drafts);
+  queueProgressStateSync(silent ? 900 : 400);
 
   const timeText = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   if (silent) {
@@ -1316,6 +1494,7 @@ function requestFeedback() {
   const result = evaluateObjectiveAnswers(session.questions, answers);
   state.activityResults[session.key] = result;
   writeStoredJson(STORAGE_KEYS.activityResults, state.activityResults);
+  queueProgressStateSync(400);
   saveDraft({ silent: true });
   renderActivity();
 
@@ -1361,6 +1540,7 @@ async function completeActivity() {
     state.completed[levelId].push(item.id);
   }
   writeStoredJson(STORAGE_KEYS.completed, state.completed);
+  queueProgressStateSync(300);
 
   if (state.user && state.token) {
     try {
@@ -2221,6 +2401,10 @@ async function logout() {
   }
 
   setToken('');
+  if (state.progressSyncTimer) {
+    clearTimeout(state.progressSyncTimer);
+    state.progressSyncTimer = null;
+  }
   state.user = null;
   state.stats = null;
   state.selectedActivityId = null;
@@ -2237,6 +2421,10 @@ async function logout() {
 
 async function refreshSession(preserveScreen = false) {
   if (!state.token) {
+    if (state.progressSyncTimer) {
+      clearTimeout(state.progressSyncTimer);
+      state.progressSyncTimer = null;
+    }
     state.user = null;
     state.stats = null;
     state.selectedActivityId = null;
@@ -2252,6 +2440,7 @@ async function refreshSession(preserveScreen = false) {
     state.user = data.user;
     state.stats = data.stats || null;
     state.selectedLevel = state.user.level || state.selectedLevel;
+    await hydrateUserProgressState();
     populateCoreSelects();
     renderManualLevelInfo();
     syncUserBadge();
@@ -2262,6 +2451,10 @@ async function refreshSession(preserveScreen = false) {
     }
   } catch (_error) {
     setToken('');
+    if (state.progressSyncTimer) {
+      clearTimeout(state.progressSyncTimer);
+      state.progressSyncTimer = null;
+    }
     state.user = null;
     state.stats = null;
     syncUserBadge();

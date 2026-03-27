@@ -19,6 +19,7 @@ function createDefaultStore() {
     levelAssessments: [],
     voiceSessions: [],
     activityCompletions: [],
+    userProgressStates: [],
   };
 }
 
@@ -38,6 +39,9 @@ function normalizeStore(store) {
     voiceSessions: Array.isArray(store && store.voiceSessions) ? store.voiceSessions : [],
     activityCompletions: Array.isArray(store && store.activityCompletions)
       ? store.activityCompletions
+      : [],
+    userProgressStates: Array.isArray(store && store.userProgressStates)
+      ? store.userProgressStates
       : [],
   };
 }

@@ -74,6 +74,108 @@ function calculateStreaks(dateKeys = []) {
   };
 }
 
+function ensureObject(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
+function sanitizeCompleted(completed) {
+  const input = ensureObject(completed);
+  const output = {};
+
+  for (const [levelId, items] of Object.entries(input)) {
+    if (!Array.isArray(items)) {
+      continue;
+    }
+
+    const uniqueIds = Array.from(
+      new Set(
+        items
+          .map((item) => String(item || '').trim())
+          .filter(Boolean),
+      ),
+    );
+    if (uniqueIds.length) {
+      output[levelId] = uniqueIds;
+    }
+  }
+
+  return output;
+}
+
+function sanitizeKeyedObject(value) {
+  const input = ensureObject(value);
+  const output = {};
+
+  for (const [key, entry] of Object.entries(input)) {
+    if (!key || entry === undefined || entry === null) {
+      continue;
+    }
+    output[String(key)] = entry;
+  }
+
+  return output;
+}
+
+function createEmptyUserProgressState() {
+  return {
+    completed: {},
+    drafts: {},
+    activitySets: {},
+    activityResults: {},
+  };
+}
+
+function sanitizeUserProgressState(state) {
+  const base = createEmptyUserProgressState();
+  const input = ensureObject(state);
+
+  return {
+    ...base,
+    completed: sanitizeCompleted(input.completed),
+    drafts: sanitizeKeyedObject(input.drafts),
+    activitySets: sanitizeKeyedObject(input.activitySets),
+    activityResults: sanitizeKeyedObject(input.activityResults),
+  };
+}
+
+async function getUserProgressState(userId) {
+  if (!userId) {
+    return createEmptyUserProgressState();
+  }
+
+  const store = await readStore();
+  const entry = store.userProgressStates.find((item) => item.userId === userId);
+  return sanitizeUserProgressState(entry && entry.state);
+}
+
+async function saveUserProgressState(userId, state) {
+  if (!userId) {
+    return createEmptyUserProgressState();
+  }
+
+  const sanitizedState = sanitizeUserProgressState(state);
+
+  await updateStore((store) => {
+    const now = new Date().toISOString();
+    const existing = store.userProgressStates.find((item) => item.userId === userId);
+    if (existing) {
+      existing.state = sanitizedState;
+      existing.updatedAt = now;
+      return;
+    }
+
+    store.userProgressStates.push({
+      id: `${userId}-${Date.now()}`,
+      userId,
+      state: sanitizedState,
+      createdAt: now,
+      updatedAt: now,
+    });
+  });
+
+  return sanitizedState;
+}
+
 async function recordExerciseAttempt(entry) {
   if (!entry || !entry.userId) {
     return;
@@ -217,9 +319,13 @@ async function getUserStats(userId) {
 }
 
 module.exports = {
+  createEmptyUserProgressState,
   getUserStats,
+  getUserProgressState,
   recordActivityCompletion,
   recordExerciseAttempt,
   recordLevelAssessment,
   recordVoiceSession,
+  sanitizeUserProgressState,
+  saveUserProgressState,
 };

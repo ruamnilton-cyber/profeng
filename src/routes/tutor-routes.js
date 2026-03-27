@@ -19,11 +19,14 @@ const {
   transcribeAudio,
 } = require('../lib/openai');
 const {
+  getUserProgressState,
   getUserStats,
   recordActivityCompletion,
   recordExerciseAttempt,
   recordLevelAssessment,
   recordVoiceSession,
+  sanitizeUserProgressState,
+  saveUserProgressState,
 } = require('../lib/progress');
 const { CHAT_MODES, CORRECTION_MODES } = require('../lib/prompting');
 
@@ -197,6 +200,25 @@ tutorRouter.post(
 
     const stats = await getUserStats(auth.user.id);
     res.json({ success: true, stats });
+  }),
+);
+
+tutorRouter.get(
+  '/progress/state',
+  asyncRoute(async (req, res) => {
+    const auth = await requireAuthenticatedSession(req);
+    const state = await getUserProgressState(auth.user.id);
+    res.json({ state });
+  }),
+);
+
+tutorRouter.put(
+  '/progress/state',
+  asyncRoute(async (req, res) => {
+    const auth = await requireAuthenticatedSession(req);
+    const nextState = sanitizeUserProgressState(req.body && req.body.state);
+    const saved = await saveUserProgressState(auth.user.id, nextState);
+    res.json({ success: true, state: saved });
   }),
 );
 
