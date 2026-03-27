@@ -1645,6 +1645,32 @@ function speechInstructionsForLocale(locale) {
     : 'Speak in natural American English with clear intonation and friendly pace.';
 }
 
+async function hasAudioInputDevice() {
+  if (!navigator.mediaDevices || typeof navigator.mediaDevices.enumerateDevices !== 'function') {
+    return true;
+  }
+
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  return devices.some((device) => device.kind === 'audioinput');
+}
+
+function friendlyRecorderError(error) {
+  const name = String(error && error.name ? error.name : '').toLowerCase();
+  const message = String(error && error.message ? error.message : '').toLowerCase();
+
+  if (name.includes('notfound') || message.includes('requested device not found')) {
+    return 'Nenhum microfone foi encontrado. Conecte/ative um microfone no sistema e tente novamente.';
+  }
+  if (name.includes('notallowed') || name.includes('security')) {
+    return 'Permissao de microfone bloqueada. Libere o microfone para este site no navegador.';
+  }
+  if (name.includes('notreadable') || message.includes('track start failed')) {
+    return 'O microfone parece estar em uso por outro app. Feche outros apps de chamada e tente novamente.';
+  }
+
+  return error && error.message ? error.message : 'Nao foi possivel iniciar a gravacao de voz.';
+}
+
 function setVoiceRecordingUi(isRecording) {
   if (elements.aiVoiceRecordButton) {
     elements.aiVoiceRecordButton.disabled = Boolean(isRecording);
@@ -1782,6 +1808,17 @@ async function startVoiceRecording() {
   }
 
   try {
+    const hasDevice = await hasAudioInputDevice();
+    if (!hasDevice) {
+      setVoiceRecordingUi(false);
+      setMessage(
+        elements.aiScreenMessage,
+        'Nenhum microfone detectado no dispositivo. Conecte/ative um microfone e tente novamente.',
+        'error',
+      );
+      return;
+    }
+
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     state.recordedChunks = [];
     const preferredMimeType = preferredRecorderMimeType();
@@ -1812,7 +1849,7 @@ async function startVoiceRecording() {
     setMessage(elements.aiScreenMessage, 'Gravando audio... fale e depois clique em "Parar e responder".', 'success');
   } catch (error) {
     setVoiceRecordingUi(false);
-    setMessage(elements.aiScreenMessage, error.message, 'error');
+    setMessage(elements.aiScreenMessage, friendlyRecorderError(error), 'error');
   }
 }
 
