@@ -9,45 +9,45 @@ const STORAGE_KEYS = {
 
 const LEVELS_FALLBACK = [
   { id: 'A1', label: 'Iniciante' },
-  { id: 'A2', label: 'Basico' },
-  { id: 'B1', label: 'Intermediario' },
-  { id: 'B2', label: 'Intermediario Avancado' },
-  { id: 'C1', label: 'Avancado' },
+  { id: 'A2', label: 'Básico' },
+  { id: 'B1', label: 'Intermediário' },
+  { id: 'B2', label: 'Intermediário Avançado' },
+  { id: 'C1', label: 'Avançado' },
   { id: 'C2', label: 'Proficiente' },
 ];
 
 const LEVEL_LABELS_PT = {
   A1: 'Iniciante',
-  A2: 'Basico',
-  B1: 'Intermediario',
-  B2: 'Intermediario Avancado',
-  C1: 'Avancado',
+  A2: 'Básico',
+  B1: 'Intermediário',
+  B2: 'Intermediário Avançado',
+  C1: 'Avançado',
   C2: 'Proficiente',
 };
 
 const LEVEL_FOCUS_PT = {
-  A1: 'frases curtas, vocabulario do dia a dia e perguntas simples',
+  A1: 'frases curtas, vocabulário do dia a dia e perguntas simples',
   A2: 'situacoes comuns, passado basico e planos futuros',
-  B1: 'conversa com opiniao, justificativas e leitura pratica',
+  B1: 'conversa com opinião, justificativas e leitura prática',
   B2: 'fluidez, argumentacao e contexto profissional',
-  C1: 'precisao, nuance e comunicacao formal avancada',
-  C2: 'naturalidade de alto nivel, estilo e controle total do idioma',
+  C1: 'precisão, nuance e comunicação formal avançada',
+  C2: 'naturalidade de alto nível, estilo e controle total do idioma',
 };
 
 const CHAT_MODES_FALLBACK = ['conversation', 'explain', 'correction', 'roleplay'];
 const EXERCISE_SKILLS_FALLBACK = ['mixed', 'grammar', 'vocabulary', 'reading', 'writing'];
 const VOICES_FALLBACK = ['alloy', 'verse', 'sage', 'ash', 'coral'];
 const CHAT_TOPIC_SUGGESTIONS = [
-  { label: 'viagem internacional', prompt: 'Vamos conversar sobre uma viagem internacional que voce quer fazer.' },
-  { label: 'entrevista de emprego', prompt: 'Simule uma entrevista de emprego em ingles comigo.' },
-  { label: 'ingles no trabalho', prompt: 'Pratique uma conversa de trabalho com reuniao e e-mails.' },
-  { label: 'restaurante e pedidos', prompt: 'Pratique ingles para pedir comida em um restaurante.' },
-  { label: 'apresentacao pessoal', prompt: 'Me ajude a fazer uma apresentacao pessoal natural em ingles.' },
+  { label: 'viagem internacional', prompt: 'Vamos conversar sobre uma viagem internacional que você quer fazer.' },
+  { label: 'entrevista de emprego', prompt: 'Simule uma entrevista de emprego em inglês comigo.' },
+  { label: 'inglês no trabalho', prompt: 'Pratique uma conversa de trabalho com reunião e e-mails.' },
+  { label: 'restaurante e pedidos', prompt: 'Pratique inglês para pedir comida em um restaurante.' },
+  { label: 'apresentação pessoal', prompt: 'Me ajude a fazer uma apresentação pessoal natural em inglês.' },
   { label: 'conversa no aeroporto', prompt: 'Treine dialogos comuns de aeroporto e voo internacional.' },
   { label: 'small talk no dia a dia', prompt: 'Pratique small talk curto para situacoes do dia a dia.' },
-  { label: 'planejamento de estudos', prompt: 'Monte comigo um plano de estudos de ingles para 30 dias.' },
-  { label: 'ingles para viagem de negocios', prompt: 'Simule situacoes de viagem de negocios em ingles.' },
-  { label: 'corrigir frases comuns', prompt: 'Quero praticar frases comuns e voce corrige de forma simples.' },
+  { label: 'planejamento de estudos', prompt: 'Monte comigo um plano de estudos de inglês para 30 dias.' },
+  { label: 'inglês para viagem de negócios', prompt: 'Simule situacoes de viagem de negócios em inglês.' },
+  { label: 'corrigir frases comuns', prompt: 'Quero praticar frases comuns e você corrige de forma simples.' },
 ];
 
 const ACTIVITY_BY_LEVEL = {
@@ -55,7 +55,7 @@ const ACTIVITY_BY_LEVEL = {
     {
       id: 'a1-self',
       title: 'Apresentacao pessoal simples',
-      objective: 'Falar sobre voce com frases curtas e claras.',
+      objective: 'Falar sobre você com frases curtas e claras.',
       tips: ['Use simple present.', 'Fale nome, cidade e rotina.', 'Feche com uma pergunta simples.'],
       tasks: [
         { id: 'words', title: '10 palavras-chave', placeholder: 'name, city, work, family...' },
@@ -65,7 +65,7 @@ const ACTIVITY_BY_LEVEL = {
     {
       id: 'a1-shopping',
       title: 'Dialogo no mercado',
-      objective: 'Pedir informacoes basicas em ingles.',
+      objective: 'Pedir informações basicas em inglês.',
       tips: ['Use how much e where.', 'Mantenha frases curtas.', 'Repita perguntas importantes.'],
       tasks: [
         { id: 'list', title: 'Lista de compras', placeholder: 'milk, bread, rice...' },
@@ -87,7 +87,7 @@ const ACTIVITY_BY_LEVEL = {
     {
       id: 'a2-yesterday',
       title: 'Ontem x hoje',
-      objective: 'Praticar simple past com comparacao.',
+      objective: 'Praticar simple past com comparação.',
       tips: ['Use verbos regulares e irregulares.', 'Mostre ordem do dia.', 'Compare passado e presente.'],
       tasks: [
         { id: 'past', title: 'Texto sobre ontem', placeholder: 'Yesterday I woke up at...' },
@@ -98,22 +98,22 @@ const ACTIVITY_BY_LEVEL = {
   B1: [
     {
       id: 'b1-opinion',
-      title: 'Defendendo uma opiniao',
+      title: 'Defendendo uma opinião',
       objective: 'Argumentar com clareza e exemplos.',
       tips: ['Use conectores: because, however, therefore.', 'Diga um exemplo real.', 'Responda um contra-argumento.'],
       tasks: [
-        { id: 'view', title: 'Sua opiniao', placeholder: 'I believe remote work...' },
+        { id: 'view', title: 'Sua opinião', placeholder: 'I believe remote work...' },
         { id: 'arguments', title: 'Dois argumentos', placeholder: 'First... Second...' },
       ],
     },
     {
       id: 'b1-summary',
       title: 'Resumo de noticia',
-      objective: 'Ler e resumir com opiniao pessoal.',
-      tips: ['Separe fato de opiniao.', 'Mantenha estrutura clara.', 'Feche com sua leitura critica.'],
+      objective: 'Ler e resumir com opinião pessoal.',
+      tips: ['Separe fato de opinião.', 'Mantenha estrutura clara.', 'Feche com sua leitura critica.'],
       tasks: [
         { id: 'summary', title: 'Resumo (8 frases)', placeholder: 'The article explains...' },
-        { id: 'opinion', title: 'Sua opiniao (4 frases)', placeholder: 'In my view...' },
+        { id: 'opinion', title: 'Sua opinião (4 frases)', placeholder: 'In my view...' },
       ],
     },
   ],
@@ -130,11 +130,11 @@ const ACTIVITY_BY_LEVEL = {
     },
     {
       id: 'b2-meeting',
-      title: 'Fala de reuniao internacional',
-      objective: 'Conduzir uma reuniao em ingles.',
-      tips: ['Abra com agenda objetiva.', 'Interaja com educacao.', 'Feche com proximos passos.'],
+      title: 'Fala de reunião internacional',
+      objective: 'Conduzir uma reunião em inglês.',
+      tips: ['Abra com agenda objetiva.', 'Interaja com educação.', 'Feche com próximos passos.'],
       tasks: [
-        { id: 'agenda', title: 'Abertura da reuniao', placeholder: 'Today we will cover...' },
+        { id: 'agenda', title: 'Abertura da reunião', placeholder: 'Today we will cover...' },
         { id: 'closing', title: 'Fechamento', placeholder: 'By next week we will...' },
       ],
     },
@@ -144,7 +144,7 @@ const ACTIVITY_BY_LEVEL = {
       id: 'c1-presentation',
       title: 'Apresentacao executiva',
       objective: 'Apresentar dados com narrativa forte.',
-      tips: ['Use linguagem precisa.', 'Evite frases vagas.', 'Feche com recomendacao clara.'],
+      tips: ['Use linguagem precisa.', 'Evite frases vagas.', 'Feche com recomendação clara.'],
       tasks: [
         { id: 'insights', title: '3 insights principais', placeholder: 'Sales grew..., churn...' },
         { id: 'speech', title: 'Pitch (150-180 palavras)', placeholder: 'Our key takeaway...' },
@@ -166,7 +166,7 @@ const ACTIVITY_BY_LEVEL = {
       id: 'c2-editorial',
       title: 'Editorial avancado',
       objective: 'Escrever com estilo e controle retorico.',
-      tips: ['Trabalhe ritmo e enfase.', 'Mantenha consistencia de voz.', 'Revise para precisao maxima.'],
+      tips: ['Trabalhe ritmo e ênfase.', 'Mantenha consistência de voz.', 'Revise para precisão máxima.'],
       tasks: [
         { id: 'thesis', title: 'Tese central', placeholder: 'Education systems must...' },
         { id: 'editorial', title: 'Texto editorial', placeholder: 'In contemporary debates...' },
@@ -176,10 +176,10 @@ const ACTIVITY_BY_LEVEL = {
       id: 'c2-register',
       title: 'Mudanca de registro',
       objective: 'Adaptar mensagem para contextos distintos.',
-      tips: ['Mantenha a ideia central.', 'Ajuste tom e vocabulario.', 'Evite mistura de estilos.'],
+      tips: ['Mantenha a ideia central.', 'Ajuste tom e vocabulário.', 'Evite mistura de estilos.'],
       tasks: [
-        { id: 'formal', title: 'Versao formal', placeholder: 'Due to unforeseen constraints...' },
-        { id: 'technical', title: 'Versao tecnica', placeholder: 'The deployment timeline has...' },
+        { id: 'formal', title: 'Versão formal', placeholder: 'Due to unforeseen constraints...' },
+        { id: 'technical', title: 'Versão técnica', placeholder: 'The deployment timeline has...' },
       ],
     },
   ],
@@ -188,7 +188,7 @@ const ACTIVITY_BY_LEVEL = {
 const QUIZ_QUESTIONS = [
   {
     id: 'q1',
-    question: 'Qual frase descreve melhor uma rotina em ingles?',
+    question: 'Qual frase descreve melhor uma rotina em inglês?',
     options: [
       { label: 'I goes to work at 8 every day.', score: 1 },
       { label: 'I go to work at 8 every day.', score: 2 },
@@ -198,7 +198,7 @@ const QUIZ_QUESTIONS = [
   },
   {
     id: 'q2',
-    question: 'Qual resposta esta melhor estruturada para um problema no trabalho?',
+    question: 'Qual resposta está melhor estruturada para um problema no trabalho?',
     options: [
       { label: 'It was difficult and I fix fast.', score: 1 },
       { label: 'It was difficult, but I solved it.', score: 2 },
@@ -208,7 +208,7 @@ const QUIZ_QUESTIONS = [
   },
   {
     id: 'q3',
-    question: 'Escolha a opcao com melhor conexao de ideias:',
+    question: 'Escolha a opção com melhor conexao de ideias:',
     options: [
       { label: 'I like this idea. Is very good.', score: 1 },
       { label: 'I like this idea because it is practical.', score: 2 },
@@ -257,7 +257,7 @@ const OBJECTIVE_BANK_BY_LEVEL = {
     { id: 'b2-mc-1', type: 'mc', prompt: 'Choose the most natural business sentence:', options: ['The meeting was canceled by weather.', 'The meeting was canceled due to weather conditions.', 'The meeting canceled because weather.'], answer: 'The meeting was canceled due to weather conditions.', explanation: 'Uso mais formal e natural para contexto profissional.' },
     { id: 'b2-mc-2', type: 'mc', prompt: 'Complete: The report ___ by the team before the deadline.', options: ['was completed', 'completed', 'has complete'], answer: 'was completed', explanation: 'Passive voice correta no passado.' },
     { id: 'b2-fill-1', type: 'fill', prompt: 'She suggested ___ the launch by one week.', answer: ['postponing'], explanation: 'Suggest + verb-ing.' },
-    { id: 'b2-fill-2', type: 'fill', prompt: 'By this time next year, we ___ the new platform.', answer: ['will have launched'], explanation: 'Future perfect para algo concluido ate um momento futuro.' },
+    { id: 'b2-fill-2', type: 'fill', prompt: 'By this time next year, we ___ the new platform.', answer: ['will have launched'], explanation: 'Future perfect para algo concluído até um momento futuro.' },
     { id: 'b2-tf-1', type: 'tf', prompt: '"He explained me the process." is correct.', answer: false, correction: 'He explained the process to me.' },
     { id: 'b2-check-1', type: 'check', prompt: 'Sentence: "The issue was solved quickly by our team." This is...', answer: 'correct', correction: 'Correta e natural.' },
   ],
@@ -270,7 +270,7 @@ const OBJECTIVE_BANK_BY_LEVEL = {
     { id: 'c1-check-1', type: 'check', prompt: 'Sentence: "Rarely do we see such consistent results." This is...', answer: 'correct', correction: 'Inversion correta para enfase formal.' },
   ],
   C2: [
-    { id: 'c2-mc-1', type: 'mc', prompt: 'Choose the most idiomatic option:', options: ['The plan failed in the last hour.', 'The plan fell through at the eleventh hour.', 'The plan was bad in the final moment.'], answer: 'The plan fell through at the eleventh hour.', explanation: 'Expressao idiomatica com naturalidade de alto nivel.' },
+    { id: 'c2-mc-1', type: 'mc', prompt: 'Choose the most idiomatic option:', options: ['The plan failed in the last hour.', 'The plan fell through at the eleventh hour.', 'The plan was bad in the final moment.'], answer: 'The plan fell through at the eleventh hour.', explanation: 'Expressão idiomática com naturalidade de alto nível.' },
     { id: 'c2-mc-2', type: 'mc', prompt: 'Select the most nuanced sentence:', options: ['I disagree with the policy.', 'I find the policy problematic in several respects.', 'The policy is wrong.'], answer: 'I find the policy problematic in several respects.', explanation: 'Tom sofisticado e argumentativo.' },
     { id: 'c2-fill-1', type: 'fill', prompt: 'The argument is compelling; ___, its assumptions remain contestable.', answer: ['nonetheless', 'however'], explanation: 'Conector de contraste em registro elevado.' },
     { id: 'c2-fill-2', type: 'fill', prompt: 'Were this strategy to fail, we ___ an alternative framework.', answer: ['would require', 'would need'], explanation: 'Estrutura condicional formal.' },
@@ -309,6 +309,7 @@ const state = {
 const $ = (id) => document.getElementById(id);
 
 const elements = {
+  appShell: document.querySelector('.app-shell'),
   screens: Array.from(document.querySelectorAll('.screen')),
   userBadge: $('userBadge'),
   logoutButton: $('logoutButton'),
@@ -346,6 +347,8 @@ const elements = {
   quizList: $('quizList'),
   checkQuizButton: $('checkQuizButton'),
   applyQuizButton: $('applyQuizButton'),
+  quizHelperText: $('quizHelperText'),
+  quizAnsweredCount: $('quizAnsweredCount'),
   quizRecommendationBox: $('quizRecommendationBox'),
   levelSampleText: $('levelSampleText'),
   levelAssessApply: $('levelAssessApply'),
@@ -373,6 +376,7 @@ const elements = {
   activitiesProgressFill: $('activitiesProgressFill'),
   activitiesList: $('activitiesList'),
   activitiesMessage: $('activitiesMessage'),
+  activitiesOpenAiButton: $('activitiesOpenAiButton'),
 
   aiTopicConversation: $('aiTopicConversation'),
   aiTopicGrammar: $('aiTopicGrammar'),
@@ -412,6 +416,7 @@ const elements = {
   aiVoiceReply: $('aiVoiceReply'),
   aiVoicePlayer: $('aiVoicePlayer'),
   aiScreenMessage: $('aiScreenMessage'),
+  aiOpenTrailButton: $('aiOpenTrailButton'),
 
   activityBackButton: $('activityBackButton'),
   activityTitle: $('activityTitle'),
@@ -582,6 +587,7 @@ function setScreen(screen) {
   syncJourney();
   syncBottomNav();
   syncStatusBanner();
+  syncAppTheme();
 }
 
 function setStepClasses(active, done = []) {
@@ -637,9 +643,27 @@ function syncBottomNav() {
   elements.navLevel.classList.toggle('active', navMap.level.includes(state.screen));
 }
 
+function syncAppTheme() {
+  if (!elements.appShell) {
+    return;
+  }
+
+  const nextTheme =
+    state.screen === 'ai'
+      ? 'theme-ai'
+      : state.screen === 'activities' || state.screen === 'activity'
+        ? 'theme-trail'
+        : state.screen === 'level'
+          ? 'theme-level'
+          : 'theme-home';
+
+  elements.appShell.classList.remove('theme-home', 'theme-level', 'theme-trail', 'theme-ai');
+  elements.appShell.classList.add(nextTheme);
+}
+
 function syncStatusBanner() {
   if (!state.user) {
-    elements.statusBanner.textContent = 'Crie sua conta para receber uma trilha pronta no seu nivel.';
+    elements.statusBanner.textContent = 'Crie sua conta para receber uma trilha pronta no seu nível.';
     return;
   }
 
@@ -650,13 +674,13 @@ function syncStatusBanner() {
 
   elements.statusBanner.textContent =
     state.screen === 'ai'
-      ? 'Voce esta no Modo IA: chat, exercicios e voz inteligente.'
-      : 'Voce esta no Modo Trilha: atividades por nivel com progresso guiado.';
+      ? 'Você está no Modo IA: chat, exercícios e voz inteligente.'
+      : 'Você está no Modo Trilha: atividades por nível com progresso guiado.';
 }
 
 function formatLastActiveText(isoDate) {
   if (!isoDate) {
-    return 'Conclua uma atividade para iniciar seu historico de evolucao.';
+    return 'Conclua uma atividade para iniciar seu histórico de evolução.';
   }
 
   const date = new Date(isoDate);
@@ -666,7 +690,7 @@ function formatLastActiveText(isoDate) {
 
   const dateText = date.toLocaleDateString('pt-BR');
   const timeText = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  return `Ultima atividade registrada em ${dateText} as ${timeText}.`;
+  return `Última atividade registrada em ${dateText} às ${timeText}.`;
 }
 
 function syncInstallButton() {
@@ -710,7 +734,7 @@ function renderManualLevelInfo() {
     return;
   }
 
-  const focus = LEVEL_FOCUS_PT[profile.id] || 'comunicacao pratica do dia a dia';
+  const focus = LEVEL_FOCUS_PT[profile.id] || 'comunicação prática do dia a dia';
   elements.manualLevelInfo.textContent = `${profile.id} (${levelNamePt(profile.id, profile.label)}): foco em ${focus}.`;
 }
 
@@ -762,15 +786,23 @@ function setAiTopic(topic, options = {}) {
 }
 
 function renderQuiz() {
+  state.quizRecommendation = null;
+  if (elements.applyQuizButton) {
+    elements.applyQuizButton.disabled = true;
+  }
+
   elements.quizList.innerHTML = QUIZ_QUESTIONS.map((item, index) => `
-    <article class="quiz-item">
+    <article class="quiz-item" data-quiz-id="${escapeHtml(item.id)}">
       <strong>${index + 1}. ${escapeHtml(item.question)}</strong>
       ${item.options
         .map(
-          (option) => `
+          (option, optionIndex) => `
             <label class="quiz-option">
               <input type="radio" name="${escapeHtml(item.id)}" value="${option.score}" />
-              <span>${escapeHtml(option.label)}</span>
+              <span class="quiz-option-copy">
+                <span class="quiz-option-letter">${String.fromCharCode(65 + optionIndex)}</span>
+                <span>${escapeHtml(option.label)}</span>
+              </span>
             </label>
           `,
         )
@@ -778,7 +810,38 @@ function renderQuiz() {
     </article>
   `).join('');
 
-  setMessage(elements.quizRecommendationBox, 'O nivel recomendado vai aparecer aqui.');
+  setMessage(elements.quizRecommendationBox, 'O nível recomendado vai aparecer aqui.');
+  syncQuizSelectionUi();
+}
+
+function syncQuizSelectionUi() {
+  if (!elements.quizList) {
+    return;
+  }
+
+  let answered = 0;
+
+  elements.quizList.querySelectorAll('.quiz-item').forEach((item) => {
+    const selected = item.querySelector('input[type="radio"]:checked');
+    if (selected) {
+      answered += 1;
+    }
+    item.querySelectorAll('.quiz-option').forEach((optionNode) => {
+      const input = optionNode.querySelector('input[type="radio"]');
+      optionNode.classList.toggle('selected', Boolean(input && input.checked));
+    });
+  });
+
+  const total = QUIZ_QUESTIONS.length;
+  if (elements.quizAnsweredCount) {
+    elements.quizAnsweredCount.textContent = `${answered}/${total} respondidas`;
+  }
+  if (elements.quizHelperText) {
+    elements.quizHelperText.textContent =
+      answered === total
+        ? 'Tudo pronto. Clique em "Ver recomendação".'
+        : `Faltam ${total - answered} pergunta(s) para completar.`;
+  }
 }
 
 function quizLevelByAverage(average) {
@@ -796,7 +859,12 @@ function checkQuiz() {
   for (const item of QUIZ_QUESTIONS) {
     const checked = elements.quizList.querySelector(`input[name="${item.id}"]:checked`);
     if (!checked) {
-      setMessage(elements.quizRecommendationBox, 'Responda todas as perguntas do teste rapido.', 'error');
+      state.quizRecommendation = null;
+      if (elements.applyQuizButton) {
+        elements.applyQuizButton.disabled = true;
+      }
+      setMessage(elements.quizRecommendationBox, 'Responda todas as perguntas do teste rápido.', 'error');
+      syncQuizSelectionUi();
       return;
     }
     scores.push(Number(checked.value));
@@ -807,13 +875,17 @@ function checkQuiz() {
   state.quizRecommendation = recommended;
   elements.levelSelect.value = recommended;
   renderManualLevelInfo();
+  if (elements.applyQuizButton) {
+    elements.applyQuizButton.disabled = false;
+  }
 
   setMessage(
     elements.quizRecommendationBox,
-    `Nivel recomendado: ${levelLabel(recommended)}.`,
+    `<strong>Nível recomendado: ${escapeHtml(levelLabel(recommended))}</strong><br />Pontuacao média: ${escapeHtml(average.toFixed(1))} de 6.0<br />Se fizer sentido para você, clique em "Aplicar recomendação".`,
     'success',
+    true,
   );
-  setMessage(elements.levelMessage, 'Se quiser, clique em "Aplicar recomendacao" para salvar o nivel.', 'success');
+  setMessage(elements.levelMessage, 'Se quiser, clique em "Aplicar recomendação" para salvar o nível.', 'success');
 }
 
 function activitiesForLevel(levelId) {
@@ -887,7 +959,7 @@ function expectedAnswerLabel(question) {
     return question.answer ? 'Verdadeiro' : 'Falso';
   }
   if (question.type === 'check') {
-    return question.answer === 'correct' ? 'Esta correta' : 'Precisa de correcao';
+    return question.answer === 'correct' ? 'Está correta' : 'Precisa de correção';
   }
   if (Array.isArray(question.answer)) {
     return question.answer.join(' / ');
@@ -952,16 +1024,16 @@ function renderObjectiveInput(question, questionId, answerValue) {
     return `
       <label class="quiz-option">
         <input type="radio" data-question-id="${escapeHtml(questionId)}" name="activity-${escapeHtml(questionId)}" value="correct" ${String(answerValue) === 'correct' ? 'checked' : ''} />
-        <span>Esta correta</span>
+        <span>Está correta</span>
       </label>
       <label class="quiz-option">
         <input type="radio" data-question-id="${escapeHtml(questionId)}" name="activity-${escapeHtml(questionId)}" value="wrong" ${String(answerValue) === 'wrong' ? 'checked' : ''} />
-        <span>Precisa de correcao</span>
+        <span>Precisa de correção</span>
       </label>
     `;
   }
 
-  return `<input class="answer-input" data-question-id="${escapeHtml(questionId)}" type="text" value="${escapeHtml(answerValue || '')}" placeholder="Digite uma palavra/expressao" />`;
+  return `<input class="answer-input" data-question-id="${escapeHtml(questionId)}" type="text" value="${escapeHtml(answerValue || '')}" placeholder="Digite uma palavra/expressão" />`;
 }
 
 function renderHome() {
@@ -984,7 +1056,7 @@ function renderHome() {
   elements.homeGreeting.textContent = `Ola, ${name}.`;
   elements.homeSubtitle.textContent = `Streak atual: ${streak} dia(s) | Dias ativos: ${activeDays}`;
   elements.homeLevelPill.textContent = levelLabel(levelId);
-  elements.homeProgressText.textContent = `${done} de ${items.length} atividades concluidas neste nivel.`;
+  elements.homeProgressText.textContent = `${done} de ${items.length} atividades concluídas neste nível.`;
   if (elements.homeStreakValue) {
     elements.homeStreakValue.textContent = String(streak);
   }
@@ -1017,7 +1089,7 @@ function renderActivities() {
 
   elements.activitiesTitle.textContent = `Trilha ${levelLabel(levelId)}`;
   if (elements.activitiesProgressText) {
-    elements.activitiesProgressText.textContent = `${progressPercent}% concluido`;
+    elements.activitiesProgressText.textContent = `${progressPercent}% concluído`;
   }
   if (elements.activitiesProgressCount) {
     elements.activitiesProgressCount.textContent = `${doneCount}/${total}`;
@@ -1027,7 +1099,7 @@ function renderActivities() {
   }
 
   if (!items.length) {
-    elements.activitiesList.innerHTML = '<div class="message">Sem atividades para este nivel.</div>';
+    elements.activitiesList.innerHTML = '<div class="message">Sem atividades para este nível.</div>';
     return;
   }
 
@@ -1038,7 +1110,7 @@ function renderActivities() {
         <article class="activity-card ${done ? 'done' : ''}">
           <div class="activity-top">
             <strong>${index + 1}. ${escapeHtml(item.title)}</strong>
-            <span class="pill ${done ? 'ok' : ''}">${done ? 'concluida' : 'pendente'}</span>
+            <span class="pill ${done ? 'ok' : ''}">${done ? 'concluída' : 'pendente'}</span>
           </div>
           <p class="line" style="margin-top: 8px">${escapeHtml(item.objective)}</p>
           <p class="line" style="margin-top: 6px">Formato objetivo: multipla escolha, V/F, completar e certo/errado.</p>
@@ -1074,8 +1146,8 @@ function renderActivity() {
 
   const session = ensureActivitySet(item, false);
   if (!session.questions.length) {
-    elements.activityTasks.innerHTML = '<div class="message">Sem questoes disponiveis para este nivel.</div>';
-    setMessage(elements.activityMessage, 'Sem questoes para este nivel no momento.', 'error');
+    elements.activityTasks.innerHTML = '<div class="message">Sem questões disponíveis para este nível.</div>';
+    setMessage(elements.activityMessage, 'Sem questões para este nível no momento.', 'error');
     elements.completeActivityButton.disabled = true;
     setActivityAutosaveHint('');
     return;
@@ -1098,7 +1170,7 @@ function renderActivity() {
       const cardStatus = detail ? (detail.ok ? 'correct' : 'wrong') : '';
       const feedbackHtml = detail
         ? detail.ok
-          ? '<div class="question-feedback ok">Boa! Esta questao esta correta.</div>'
+          ? '<div class="question-feedback ok">Boa! Está questao está correta.</div>'
           : `
               <div class="question-feedback error">
                 Sua resposta: <strong>${escapeHtml(detail.userAnswer || '-')}</strong><br />
@@ -1122,9 +1194,9 @@ function renderActivity() {
     .join('');
 
   if (previousResult && typeof previousResult.score === 'number') {
-    setMessage(elements.activityMessage, `Ultima tentativa: ${previousResult.score}% (${previousResult.correct}/${previousResult.total}).`, previousResult.score >= 70 ? 'success' : 'error');
+    setMessage(elements.activityMessage, `Última tentativa: ${previousResult.score}% (${previousResult.correct}/${previousResult.total}).`, previousResult.score >= 70 ? 'success' : 'error');
   } else {
-    setMessage(elements.activityMessage, 'Responda as questoes objetivas e clique em "Corrigir agora".');
+    setMessage(elements.activityMessage, 'Responda as questões objetivas e clique em "Corrigir agora".');
   }
 
   elements.completeActivityButton.disabled = !(
@@ -1132,7 +1204,7 @@ function renderActivity() {
     typeof previousResult.score === 'number' &&
     previousResult.score >= 70
   );
-  setActivityAutosaveHint('As respostas sao salvas automaticamente.');
+  setActivityAutosaveHint('As respostas são salvas automaticamente.');
 }
 
 function collectTaskAnswers() {
@@ -1256,7 +1328,7 @@ function requestFeedback() {
   const body = `
     <strong>Resultado: ${result.score}%</strong><br />
     Acertos: ${result.correct}/${result.total}<br />
-    ${wrongHints ? `Ajustes rapidos:<br />${wrongHints}` : 'Excelente! Continue para concluir.'}
+    ${wrongHints ? `Ajustes rápidos:<br />${wrongHints}` : 'Excelente! Continue para concluir.'}
   `;
 
   setMessage(elements.activityFeedback, body, result.score >= 70 ? 'success' : 'error', true);
@@ -1308,7 +1380,7 @@ async function completeActivity() {
     }
   }
 
-  setMessage(elements.activityMessage, 'Atividade concluida. Excelente trabalho.', 'success');
+  setMessage(elements.activityMessage, 'Atividade concluída. Excelente trabalho.', 'success');
   renderHome();
   renderActivities();
 }
@@ -1322,7 +1394,7 @@ function regenerateActivitySet() {
 
   ensureActivitySet(item, true);
   renderActivity();
-  setMessage(elements.activityFeedback, 'Novo lote gerado com questoes objetivas variadas.');
+  setMessage(elements.activityFeedback, 'Novo lote gerado com questões objetivas variadas.');
 }
 
 function renderAiChatLog() {
@@ -1336,7 +1408,7 @@ function renderAiChatLog() {
 
   const lines = history.map((message, index) => {
     const role = message.role === 'user' ? 'user' : 'assistant';
-    const label = role === 'user' ? 'Voce' : 'Tutor IA';
+    const label = role === 'user' ? 'Você' : 'Tutor IA';
     const audioUrl = typeof message.audioDataUrl === 'string' ? message.audioDataUrl : '';
     const audioHtml =
       role === 'assistant'
@@ -1588,8 +1660,8 @@ function renderAiExercises() {
   const exercises = state.aiExercises;
 
   if (!exercises.length) {
-    elements.aiExerciseList.innerHTML = '<div class="message">Gere exercicios para aparecerem aqui.</div>';
-    elements.aiExercisePick.innerHTML = '<option value="">Sem exercicios</option>';
+    elements.aiExerciseList.innerHTML = '<div class="message">Gere exercícios para aparecerem aqui.</div>';
+    elements.aiExercisePick.innerHTML = '<option value="">Sem exercícios</option>';
     return;
   }
 
@@ -1597,7 +1669,7 @@ function renderAiExercises() {
     .map(
       (item, index) => `
         <article class="exercise-card-mini">
-          <strong>${index + 1}. ${escapeHtml(item.prompt || 'Exercicio')}</strong>
+          <strong>${index + 1}. ${escapeHtml(item.prompt || 'Exercício')}</strong>
           ${Array.isArray(item.choices) && item.choices.length
             ? `<ul class="list">${item.choices.map((choice) => `<li>${escapeHtml(choice)}</li>`).join('')}</ul>`
             : ''}
@@ -1610,13 +1682,13 @@ function renderAiExercises() {
     .join('');
 
   elements.aiExercisePick.innerHTML = exercises
-    .map((item, index) => `<option value="${index}">${index + 1}. ${escapeHtml(item.prompt || 'Exercicio')}</option>`)
+    .map((item, index) => `<option value="${index}">${index + 1}. ${escapeHtml(item.prompt || 'Exercício')}</option>`)
     .join('');
 }
 
 async function generateAiExercises() {
   elements.aiExerciseGenerateButton.disabled = true;
-  setMessage(elements.aiExerciseResult, 'Gerando exercicios...');
+  setMessage(elements.aiExerciseResult, 'Gerando exercícios...');
 
   try {
     const result = await api('/exercises/generate', {
@@ -1632,7 +1704,7 @@ async function generateAiExercises() {
     state.aiExerciseBatch = result;
     state.aiExercises = Array.isArray(result.exercises) ? result.exercises : [];
     renderAiExercises();
-    setMessage(elements.aiExerciseResult, 'Exercicios gerados com sucesso.', 'success');
+    setMessage(elements.aiExerciseResult, 'Exercícios gerados com sucesso.', 'success');
   } catch (error) {
     state.aiExerciseBatch = null;
     state.aiExercises = [];
@@ -1655,7 +1727,7 @@ async function checkAiExercise() {
   const item = Number.isInteger(index) ? state.aiExercises[index] : null;
 
   if (!item) {
-    setMessage(elements.aiExerciseResult, 'Selecione um exercicio para corrigir.', 'error');
+    setMessage(elements.aiExerciseResult, 'Selecione um exercício para corrigir.', 'error');
     return;
   }
 
@@ -1721,10 +1793,10 @@ function friendlyVoiceErrorMessage(errorMessage) {
     lower.includes('model') ||
     lower.includes('compatible')
   ) {
-    return 'A chave OpenAI respondeu sem suporte completo de voz. Vou manter transcricao e resposta em texto, e usar voz do navegador quando possivel.';
+    return 'A chave OpenAI respondeu sem suporte completo de voz. Vou manter transcrição e resposta em texto, e usar voz do navegador quando possível.';
   }
 
-  return raw || 'Nao foi possivel processar o audio.';
+  return raw || 'Não foi possível processar o audio.';
 }
 
 function preferredRecorderMimeType() {
@@ -1782,13 +1854,13 @@ function friendlyRecorderError(error) {
     return 'Nenhum microfone foi encontrado. Conecte/ative um microfone no sistema e tente novamente.';
   }
   if (name.includes('notallowed') || name.includes('security')) {
-    return 'Permissao de microfone bloqueada. Libere o microfone para este site no navegador.';
+    return 'Permissão de microfone bloqueada. Libere o microfone para este site no navegador.';
   }
   if (name.includes('notreadable') || message.includes('track start failed')) {
     return 'O microfone parece estar em uso por outro app. Feche outros apps de chamada e tente novamente.';
   }
 
-  return error && error.message ? error.message : 'Nao foi possivel iniciar a gravacao de voz.';
+  return error && error.message ? error.message : 'Não foi possível iniciar a gravação de voz.';
 }
 
 function setVoiceRecordingUi(isRecording) {
@@ -1826,7 +1898,7 @@ async function processVoiceBlob(blob, mimeType) {
     });
     const transcript = String(transcription.text || '').trim();
     if (!transcript) {
-      throw new Error('Nao foi possivel transcrever o audio.');
+      throw new Error('Não foi possível transcrever o audio.');
     }
     setMessage(elements.aiVoiceTranscript, transcript, 'success');
 
@@ -1858,7 +1930,7 @@ async function processVoiceBlob(blob, mimeType) {
     if (playedAudio) {
       setMessage(elements.aiScreenMessage, 'Audio processado com sucesso.', 'success');
     } else {
-      setMessage(elements.aiScreenMessage, 'Transcricao e resposta prontas. Audio indisponivel nesta chave.', 'error');
+      setMessage(elements.aiScreenMessage, 'Transcrição e resposta prontas. Audio indisponível nesta chave.', 'error');
     }
 
     await refreshSession(true);
@@ -1877,7 +1949,7 @@ async function startVoiceRecording() {
   }
 
   if (!navigator.mediaDevices || !window.MediaRecorder) {
-    setMessage(elements.aiScreenMessage, 'Seu navegador nao suporta gravacao neste dispositivo.', 'error');
+    setMessage(elements.aiScreenMessage, 'Seu navegador não suporta gravação neste dispositivo.', 'error');
     return;
   }
 
@@ -1972,7 +2044,7 @@ function renderAiScreen() {
   if (!state.openAiConfigured) {
     setMessage(
       elements.aiScreenMessage,
-      'IA indisponivel: configure OPENAI_API_KEY no .env e reinicie o servidor.',
+      'IA indisponível: configure OPENAI_API_KEY no .env e reinicie o servidor.',
       'error',
     );
   } else {
@@ -2022,7 +2094,7 @@ function setupPwaSupport() {
 
 async function saveLevel(levelId, source) {
   if (!state.user) {
-    setMessage(elements.levelMessage, 'Voce precisa estar logado para salvar nivel.', 'error');
+    setMessage(elements.levelMessage, 'Você precisa estar logado para salvar nível.', 'error');
     return;
   }
 
@@ -2048,10 +2120,10 @@ async function saveLevel(levelId, source) {
 
 async function applyQuizRecommendation() {
   if (!state.quizRecommendation) {
-    setMessage(elements.quizRecommendationBox, 'Primeiro clique em "Ver recomendacao".', 'error');
+    setMessage(elements.quizRecommendationBox, 'Primeiro clique em "Ver recomendação".', 'error');
     return;
   }
-  await saveLevel(state.quizRecommendation, 'Nivel recomendado');
+  await saveLevel(state.quizRecommendation, 'Nível recomendado');
 }
 
 async function assessLevelWithAi() {
@@ -2062,7 +2134,7 @@ async function assessLevelWithAi() {
   }
 
   elements.levelAssessButton.disabled = true;
-  setMessage(elements.levelAssessResult, 'Avaliando nivel...');
+  setMessage(elements.levelAssessResult, 'Avaliando nível...');
 
   try {
     const result = await api('/levels/assess', {
@@ -2076,8 +2148,8 @@ async function assessLevelWithAi() {
 
     const confidence = typeof result.confidence === 'number' ? `${Math.round(result.confidence * 100)}%` : '--';
     const body = `
-      <strong>Nivel recomendado: ${escapeHtml(result.recommendedLevel || '--')}</strong><br />
-      Confianca: ${escapeHtml(confidence)}<br />
+      <strong>Nível recomendado: ${escapeHtml(result.recommendedLevel || '--')}</strong><br />
+      Confiança: ${escapeHtml(confidence)}<br />
       ${escapeHtml(result.explanation || 'Sem explicacao.')}
     `;
     setMessage(elements.levelAssessResult, body, 'success', true);
@@ -2086,7 +2158,7 @@ async function assessLevelWithAi() {
       await refreshSession(true);
       populateCoreSelects();
       renderManualLevelInfo();
-      setMessage(elements.levelMessage, 'Nivel atualizado automaticamente com base na avaliacao.', 'success');
+      setMessage(elements.levelMessage, 'Nível atualizado automaticamente com base na avaliação.', 'success');
     }
   } catch (error) {
     setMessage(elements.levelAssessResult, error.message, 'error');
@@ -2133,7 +2205,7 @@ async function login() {
 
     setToken(result.token);
     elements.loginPassword.value = '';
-    setMessage(elements.loginMessage, 'Login concluido.', 'success');
+    setMessage(elements.loginMessage, 'Login concluído.', 'success');
     await refreshSession(true);
     setScreen('home');
   } catch (error) {
@@ -2208,7 +2280,7 @@ async function handleGoogleCredentialResponse(response) {
     });
 
     setToken(result.token);
-    setMessage(elements.loginMessage, 'Login com Google concluido.', 'success');
+    setMessage(elements.loginMessage, 'Login com Google concluído.', 'success');
     await refreshSession(true);
     setScreen('home');
   } catch (error) {
@@ -2221,7 +2293,7 @@ function setupGoogleLogin(retry = 0) {
   }
 
   if (!state.options.auth.googleConfigured || !state.options.auth.googleClientId) {
-    elements.googleHint.textContent = 'Google indisponivel. Preencha GOOGLE_CLIENT_ID no .env e reinicie.';
+    elements.googleHint.textContent = 'Google indisponível. Preencha GOOGLE_CLIENT_ID no .env e reinicie.';
     return;
   }
 
@@ -2230,7 +2302,7 @@ function setupGoogleLogin(retry = 0) {
       window.setTimeout(() => setupGoogleLogin(retry + 1), 500);
       return;
     }
-    elements.googleHint.textContent = 'Nao foi possivel carregar login Google.';
+    elements.googleHint.textContent = 'Não foi possível carregar o login com Google.';
     return;
   }
 
@@ -2247,7 +2319,7 @@ function setupGoogleLogin(retry = 0) {
     text: 'continue_with',
     width: 300,
   });
-  elements.googleHint.textContent = 'Ou continue com sua conta Google.';
+  elements.googleHint.textContent = 'Ou continue com sua conta do Google.';
 }
 
 async function loadOptions() {
@@ -2293,13 +2365,27 @@ function bindEvents() {
     renderManualLevelInfo();
   });
 
-  elements.saveLevelButton.addEventListener('click', () => saveLevel(elements.levelSelect.value, 'Nivel'));
+  elements.saveLevelButton.addEventListener('click', () => saveLevel(elements.levelSelect.value, 'Nível'));
   elements.checkQuizButton.addEventListener('click', checkQuiz);
   elements.applyQuizButton.addEventListener('click', applyQuizRecommendation);
+  elements.quizList.addEventListener('change', () => {
+    state.quizRecommendation = null;
+    if (elements.applyQuizButton) {
+      elements.applyQuizButton.disabled = true;
+    }
+    setMessage(elements.quizRecommendationBox, 'Clique em "Ver recomendação" para recalcular seu nível.');
+    syncQuizSelectionUi();
+  });
   elements.levelAssessButton.addEventListener('click', assessLevelWithAi);
 
   elements.homeStartTrailButton.addEventListener('click', () => setScreen('activities'));
   elements.homeOpenAiButton.addEventListener('click', () => setScreen('ai'));
+  if (elements.activitiesOpenAiButton) {
+    elements.activitiesOpenAiButton.addEventListener('click', () => setScreen('ai'));
+  }
+  if (elements.aiOpenTrailButton) {
+    elements.aiOpenTrailButton.addEventListener('click', () => setScreen('activities'));
+  }
   if (elements.installAppButton) {
     elements.installAppButton.addEventListener('click', promptInstallApp);
   }
@@ -2430,3 +2516,4 @@ async function bootstrap() {
 bootstrap().catch((error) => {
   elements.statusBanner.textContent = error.message;
 });
+

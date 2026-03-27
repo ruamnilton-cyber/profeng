@@ -1,11 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#15766d" />
     <title>ProfEng App</title>
-    <link rel="manifest" href="./manifest.webmanifest?v=20260327-2" />
+    <link rel="manifest" href="./manifest.webmanifest?v=20260327-4" />
     <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -94,6 +94,25 @@
         background: var(--panel);
         box-shadow: var(--shadow);
         backdrop-filter: blur(10px);
+      }
+
+      .app-shell.theme-home {
+        border-color: rgba(24, 36, 47, 0.18);
+      }
+
+      .app-shell.theme-level {
+        border-color: rgba(215, 109, 51, 0.36);
+        box-shadow: 0 26px 60px rgba(183, 92, 40, 0.16);
+      }
+
+      .app-shell.theme-trail {
+        border-color: rgba(31, 127, 88, 0.42);
+        box-shadow: 0 26px 60px rgba(27, 116, 82, 0.2);
+      }
+
+      .app-shell.theme-ai {
+        border-color: rgba(215, 109, 51, 0.4);
+        box-shadow: 0 26px 60px rgba(192, 100, 52, 0.2);
       }
 
       .topbar {
@@ -245,6 +264,13 @@
         font-size: 0.95rem;
       }
 
+      .screen-lead {
+        font-size: 0.9rem;
+        color: var(--muted);
+        line-height: 1.52;
+        margin-top: -4px;
+      }
+
       .stack {
         display: grid;
         gap: 10px;
@@ -363,15 +389,62 @@
         background: rgba(255, 255, 255, 0.92);
       }
 
+      .quiz-option.selected {
+        border-color: rgba(21, 118, 109, 0.35);
+        background: rgba(21, 118, 109, 0.08);
+      }
+
       .quiz-option input {
         width: 18px;
         height: 18px;
         margin-top: 2px;
       }
 
-      .quiz-option input:checked + span {
+      .quiz-option input:checked + .quiz-option-copy {
         color: var(--accent);
         font-weight: 700;
+      }
+
+      .quiz-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        border: 1px dashed rgba(24, 36, 47, 0.2);
+        border-radius: 12px;
+        padding: 8px 10px;
+        background: rgba(255, 255, 255, 0.76);
+      }
+
+      .quiz-progress {
+        display: inline-flex;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: rgba(24, 36, 47, 0.08);
+        color: var(--ink);
+        font-size: 0.78rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+
+      .quiz-option-copy {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        line-height: 1.4;
+      }
+
+      .quiz-option-letter {
+        min-width: 20px;
+        height: 20px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: var(--muted);
+        background: rgba(24, 36, 47, 0.08);
       }
 
       .quiz-recommendation {
@@ -674,6 +747,14 @@
         width: auto;
       }
 
+      .quick-switch {
+        margin-top: -4px;
+      }
+
+      .quick-switch .btn {
+        flex: 1 1 180px;
+      }
+
       .chat-head {
         display: flex;
         align-items: center;
@@ -937,9 +1018,20 @@
         min-height: 42px;
         border-radius: 12px;
         font-weight: 700;
+        display: grid;
+        place-items: center;
+        gap: 1px;
+        text-align: center;
         background: rgba(255, 255, 255, 0.86);
         border: 1px solid rgba(24, 36, 47, 0.14);
         color: var(--muted);
+      }
+
+      .nav-btn small {
+        font-size: 0.64rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        opacity: 0.8;
       }
 
       .nav-btn.active {
@@ -952,7 +1044,7 @@
         display: none !important;
       }
 
-      @media (max-width: 540px) {
+      @média (max-width: 540px) {
         body {
           padding: 8px;
         }
@@ -982,7 +1074,7 @@
       <header class="topbar">
         <div class="brand">
           <span>ProfEng</span>
-          <h1>Seu ingles diario</h1>
+          <h1>Seu inglês diário</h1>
         </div>
         <div class="user-wrap">
           <div id="userBadge" class="user-badge">Visitante</div>
@@ -990,21 +1082,21 @@
         </div>
       </header>
 
-      <div id="statusBanner" class="status">Pronto para comecar sua jornada.</div>
+      <div id="statusBanner" class="status">Pronto para começar sua jornada.</div>
 
       <div class="journey">
         <div id="stepAuth" class="step active"><strong>1</strong><span>Conta</span></div>
-        <div id="stepLevel" class="step"><strong>2</strong><span>Nivel</span></div>
+        <div id="stepLevel" class="step"><strong>2</strong><span>Nível</span></div>
         <div id="stepPlan" class="step"><strong>3</strong><span>Trilha</span></div>
-        <div id="stepDo" class="step"><strong>4</strong><span>Pratica</span></div>
+        <div id="stepDo" class="step"><strong>4</strong><span>Prática</span></div>
       </div>
 
       <main class="screen-stack">
         <section data-screen="welcome" class="screen active">
           <article class="hero">
-            <h2>Aprenda ingles como app de verdade.</h2>
+            <h2>Aprenda inglês como app de verdade.</h2>
             <p class="subtitle" style="margin-top: 10px">
-              Entre, defina seu nivel e receba atividades certas para o seu momento.
+              Entre, defina seu nível e receba atividades certas para o seu momento.
             </p>
           </article>
           <div class="row">
@@ -1016,20 +1108,20 @@
         <section data-screen="register" class="screen">
           <h2>Cadastro</h2>
           <label>Nome <input id="registerName" placeholder="Seu nome" /></label>
-          <label>Email <input id="registerEmail" type="email" placeholder="voce@email.com" /></label>
-          <label>Senha <input id="registerPassword" type="password" placeholder="Minimo 8 caracteres" /></label>
-          <label>Nivel inicial <select id="registerLevel"></select></label>
+          <label>E-mail <input id="registerEmail" type="email" placeholder="voce@exemplo.com" /></label>
+          <label>Senha <input id="registerPassword" type="password" placeholder="Mínimo 8 caracteres" /></label>
+          <label>Nível inicial <select id="registerLevel"></select></label>
           <div class="row">
             <button id="registerSubmitButton" class="btn">Continuar</button>
             <button id="registerBackButton" class="btn ghost">Voltar</button>
-            <button id="registerToLoginButton" class="btn secondary">Ja tenho conta</button>
+            <button id="registerToLoginButton" class="btn secondary">Já tenho conta</button>
           </div>
           <div id="registerMessage" class="message">Preencha para criar sua conta.</div>
         </section>
 
         <section data-screen="login" class="screen">
-          <h2>Login</h2>
-          <label>Email <input id="loginEmail" type="email" placeholder="voce@email.com" /></label>
+          <h2>Entrar</h2>
+          <label>E-mail <input id="loginEmail" type="email" placeholder="voce@exemplo.com" /></label>
           <label>Senha <input id="loginPassword" type="password" placeholder="Sua senha" /></label>
           <div class="row">
             <button id="loginSubmitButton" class="btn">Entrar</button>
@@ -1037,37 +1129,42 @@
             <button id="loginToRegisterButton" class="btn secondary">Criar conta</button>
           </div>
           <div id="googleSlot"></div>
-          <div id="googleHint" class="line">Carregando Google...</div>
-          <div id="loginMessage" class="message">Entre para liberar sua trilha.</div>
+          <div id="googleHint" class="line">Carregando login com Google...</div>
+          <div id="loginMessage" class="message">Entre para liberar sua trilha personalizada.</div>
         </section>
 
         <section data-screen="level" class="screen">
-          <h2>Seu nivel</h2>
+          <h2>Seu nível</h2>
+          <p class="screen-lead">Escolha manualmente ou faça o teste rápido para receber recomendação.</p>
           <article class="card stack">
             <h3>Escolha manual</h3>
-            <label>Nivel CEFR (em portugues) <select id="levelSelect"></select></label>
+            <label>Nível CEFR (em português) <select id="levelSelect"></select></label>
             <div id="manualLevelInfo" class="line"></div>
             <div class="row">
-              <button id="saveLevelButton" class="btn">Salvar nivel</button>
+              <button id="saveLevelButton" class="btn">Salvar nível</button>
             </div>
           </article>
 
           <article class="card stack">
-            <h3>Teste rapido</h3>
+            <h3>Teste rápido</h3>
+            <div class="quiz-meta">
+              <span id="quizHelperText" class="line">Marque 1 opção por pergunta.</span>
+              <strong id="quizAnsweredCount" class="quiz-progress">0/0 respondidas</strong>
+            </div>
             <div id="quizList" class="quiz-list"></div>
             <div class="row">
-              <button id="checkQuizButton" class="btn warn">Ver recomendacao</button>
-              <button id="applyQuizButton" class="btn secondary">Aplicar recomendacao</button>
+              <button id="checkQuizButton" class="btn warn">Ver recomendação</button>
+              <button id="applyQuizButton" class="btn secondary">Aplicar recomendação</button>
             </div>
             <div id="quizRecommendationBox" class="message quiz-recommendation">
-              O nivel recomendado vai aparecer aqui.
+              O nível recomendado vai aparecer aqui.
             </div>
           </article>
 
           <article class="card stack">
-            <h3>Avaliacao IA (opcional)</h3>
+            <h3>Avaliação IA (opcional)</h3>
             <label>
-              Texto para avaliacao
+              Texto para avaliação
               <textarea
                 id="levelSampleText"
                 placeholder="Write a short text in English about your routine, goals, or work."
@@ -1075,28 +1172,28 @@
             </label>
             <label class="toggle">
               <input id="levelAssessApply" type="checkbox" />
-              Atualizar meu nivel automaticamente com a recomendacao
+              Atualizar meu nível automaticamente com a recomendação
             </label>
             <div class="row">
               <button id="levelAssessButton" class="btn secondary">Avaliar com IA</button>
             </div>
-            <div id="levelAssessResult" class="message">A avaliacao por IA aparece aqui.</div>
+            <div id="levelAssessResult" class="message">A avaliação por IA aparece aqui.</div>
           </article>
 
-          <div id="levelMessage" class="message">Ajuste seu nivel para montar a trilha correta.</div>
+          <div id="levelMessage" class="message">Ajuste seu nível para montar a trilha correta.</div>
         </section>
 
         <section data-screen="home" class="screen">
           <article class="hero">
             <h2 id="homeGreeting">Bem-vindo</h2>
             <p id="homeSubtitle" class="subtitle" style="margin-top: 8px">
-              Seu plano esta pronto.
+              Seu plano está pronto.
             </p>
           </article>
           <article class="card">
-            <h3>Nivel atual</h3>
+            <h3>Nível atual</h3>
             <div id="homeLevelPill" class="pill" style="margin-top: 8px">A2</div>
-            <p id="homeProgressText" class="line" style="margin-top: 10px">0 atividades concluidas.</p>
+            <p id="homeProgressText" class="line" style="margin-top: 10px">0 atividades concluídas.</p>
           </article>
           <article class="card">
             <h3>Seu ritmo</h3>
@@ -1111,11 +1208,11 @@
               </div>
               <div class="metric-card">
                 <strong id="homeDoneValue" class="metric-value">0</strong>
-                <span class="metric-label">Concluidas</span>
+                <span class="metric-label">Concluídas</span>
               </div>
               <div class="metric-card">
                 <strong id="homeAverageValue" class="metric-value">-</strong>
-                <span class="metric-label">Media de acertos</span>
+                <span class="metric-label">Média de acertos</span>
               </div>
             </div>
             <p id="homeLastActiveText" class="line" style="margin-top: 10px">Seu progresso aparece em tempo real.</p>
@@ -1124,22 +1221,26 @@
           <div class="home-mode-grid">
             <button id="homeStartTrailButton" class="btn mode-btn trail">
               <span class="mode-title">Continuar Trilha</span>
-              <span class="mode-sub">Atividades por nivel e progresso guiado</span>
+              <span class="mode-sub">Atividades por nível e progresso guiado</span>
             </button>
             <button id="homeOpenAiButton" class="btn mode-btn ai">
               <span class="mode-title">Abrir Modo IA</span>
-              <span class="mode-sub">Chat, exercicios e voz com tutor inteligente</span>
+              <span class="mode-sub">Chat, exercícios e voz com tutor inteligente</span>
             </button>
           </div>
           <div class="row home-tools">
             <button id="installAppButton" class="btn secondary hidden">Instalar app</button>
-            <button id="homeChangeLevelButton" class="btn ghost home-level-btn">Trocar nivel</button>
+            <button id="homeChangeLevelButton" class="btn ghost home-level-btn">Trocar nível</button>
           </div>
         </section>
 
         <section data-screen="activities" class="screen">
           <div class="mode-banner trail">Modo Trilha</div>
           <h2 id="activitiesTitle">Trilha</h2>
+          <p class="screen-lead">Prática guiada com questões objetivas e progresso claro.</p>
+          <div class="row quick-switch">
+            <button id="activitiesOpenAiButton" class="btn secondary">Ir para Modo IA Livre</button>
+          </div>
           <article class="trail-progress">
             <div class="trail-progress-head">
               <strong id="activitiesProgressText">Progresso da trilha</strong>
@@ -1150,17 +1251,21 @@
             </div>
           </article>
           <div id="activitiesList" class="activity-list"></div>
-          <div id="activitiesMessage" class="message">Escolha uma atividade para comecar.</div>
+          <div id="activitiesMessage" class="message">Escolha uma atividade para começar.</div>
         </section>
 
         <section data-screen="ai" class="screen clean-ai-only">
           <div class="mode-banner ai">Modo IA</div>
-          <h2>Studio IA</h2>
+          <h2>Chat IA Livre</h2>
+          <p class="screen-lead">Converse sem formulário: texto e voz no mesmo lugar.</p>
+          <div class="row quick-switch">
+            <button id="aiOpenTrailButton" class="btn secondary">Voltar para Trilha</button>
+          </div>
 
           <div class="ai-topic-tabs">
-            <button id="aiTopicConversation" class="ai-topic-btn active">Conversacao</button>
+            <button id="aiTopicConversation" class="ai-topic-btn active">Conversação</button>
             <button id="aiTopicGrammar" class="ai-topic-btn">Grammar</button>
-            <button id="aiTopicExercise" class="ai-topic-btn">Exercicios</button>
+            <button id="aiTopicExercise" class="ai-topic-btn">Exercícios</button>
             <button id="aiTopicVoice" class="ai-topic-btn">Voice</button>
           </div>
 
@@ -1178,10 +1283,10 @@
 
             <div class="chat-controls">
               <div class="row">
-                <label style="flex: 1">Nivel <select id="aiChatLevel"></select></label>
+                <label style="flex: 1">Nível <select id="aiChatLevel"></select></label>
                 <label style="flex: 1">Modo <select id="aiChatMode"></select></label>
               </div>
-              <label>Topico <input id="aiChatTopic" placeholder="travel, work, interview..." /></label>
+              <label>Tópico <input id="aiChatTopic" placeholder="travel, work, interview..." /></label>
             </div>
 
             <div id="aiChatLog" class="chat-log"></div>
@@ -1194,47 +1299,47 @@
                 <option value="pt-BR">PT-BR</option>
               </select>
               <button id="aiChatVoiceButton" class="btn secondary chat-voice-btn" aria-label="Gravar voz">Mic</button>
-              <button id="aiChatVoiceStopButton" class="btn warn chat-voice-btn hidden" aria-label="Parar gravacao">Stop</button>
+              <button id="aiChatVoiceStopButton" class="btn warn chat-voice-btn hidden" aria-label="Parar gravação">Stop</button>
               <button id="aiChatSendButton" class="btn chat-send-btn" aria-label="Enviar">></button>
             </div>
           </article>
 
           <article id="aiExercisePanel" class="card stack ai-panel hidden">
-            <h3>Exercicios IA</h3>
+            <h3>Exercícios IA</h3>
             <div class="row">
-              <label style="flex: 1">Nivel <select id="aiExerciseLevel"></select></label>
+              <label style="flex: 1">Nível <select id="aiExerciseLevel"></select></label>
               <label style="flex: 1">Skill <select id="aiExerciseSkill"></select></label>
             </div>
-            <label>Topico <input id="aiExerciseTopic" placeholder="present perfect, interview, travel..." /></label>
+            <label>Tópico <input id="aiExerciseTopic" placeholder="present perfect, interview, travel..." /></label>
             <div class="row">
               <button id="aiExerciseGenerateButton" class="btn">Gerar</button>
             </div>
             <div id="aiExerciseList" class="activity-list"></div>
 
-            <label>Selecionar exercicio <select id="aiExercisePick"></select></label>
+            <label>Selecionar exercício <select id="aiExercisePick"></select></label>
             <label>Sua resposta <textarea id="aiExerciseAnswer" placeholder="Type your answer..."></textarea></label>
             <div class="row">
               <button id="aiExerciseCheckButton" class="btn secondary">Corrigir</button>
             </div>
-            <div id="aiExerciseResult" class="message">A correcao aparece aqui.</div>
+            <div id="aiExerciseResult" class="message">A correção aparece aqui.</div>
           </article>
 
           <article id="aiVoicePanel" class="card stack ai-panel hidden">
             <h3>Voz</h3>
             <div class="voice-steps">
-              <div>1. Clique em "Comecar gravacao".</div>
-              <div>2. Fale em ingles por alguns segundos.</div>
+              <div>1. Clique em "Começar gravação".</div>
+              <div>2. Fale em inglês por alguns segundos.</div>
               <div>3. Clique em "Parar e receber resposta".</div>
             </div>
             <div class="row">
-              <label style="flex: 1">Nivel <select id="aiVoiceLevel"></select></label>
+              <label style="flex: 1">Nível <select id="aiVoiceLevel"></select></label>
               <label style="flex: 1">Voz <select id="aiVoiceName"></select></label>
             </div>
             <div class="row">
-              <button id="aiVoiceRecordButton" class="btn">Comecar gravacao</button>
+              <button id="aiVoiceRecordButton" class="btn">Começar gravação</button>
               <button id="aiVoiceStopButton" class="btn warn" disabled>Parar e responder</button>
             </div>
-            <div id="aiVoiceTranscript" class="message">Transcricao aparece aqui.</div>
+            <div id="aiVoiceTranscript" class="message">Transcrição aparece aqui.</div>
             <div id="aiVoiceReply" class="message">Resposta aparece aqui.</div>
             <audio id="aiVoicePlayer" controls></audio>
           </article>
@@ -1254,21 +1359,22 @@
             <button id="requestFeedbackButton" class="btn secondary">Corrigir agora</button>
             <button id="completeActivityButton" class="btn" disabled>Concluir</button>
           </div>
-          <div id="activityAutosaveHint" class="line">As respostas sao salvas automaticamente.</div>
-          <div id="activityMessage" class="message">Responda as questoes objetivas e clique em "Corrigir agora".</div>
+          <div id="activityAutosaveHint" class="line">As respostas são salvas automaticamente.</div>
+          <div id="activityMessage" class="message">Responda as questões objetivas e clique em "Corrigir agora".</div>
           <div id="activityFeedback" class="message">Seu resultado vai aparecer aqui.</div>
         </section>
       </main>
 
       <nav id="bottomNav" class="bottom-nav hidden">
-        <button id="navHome" class="nav-btn">Inicio</button>
-        <button id="navActivities" class="nav-btn">Trilha</button>
-        <button id="navAi" class="nav-btn">IA</button>
-        <button id="navLevel" class="nav-btn">Nivel</button>
+        <button id="navHome" class="nav-btn"><span>Início</span><small>Resumo</small></button>
+        <button id="navActivities" class="nav-btn"><span>Trilha</span><small>Guiado</small></button>
+        <button id="navAi" class="nav-btn"><span>Chat IA</span><small>Livre</small></button>
+        <button id="navLevel" class="nav-btn"><span>Nível</span><small>CEFR</small></button>
       </nav>
     </div>
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="/playground/playground.js?v=20260327-2"></script>
+    <script src="/playground/playground.js?v=20260327-4"></script>
   </body>
 </html>
+
