@@ -1,4 +1,19 @@
 const LEVELS = {
+  A0: {
+    id: 'A0',
+    label: 'Starter (Pre-A1)',
+    responseWindow: 'single words to 1 very short sentence',
+    vocabularyScope:
+      'greetings, classroom words, numbers 0-20, colors, family words, basic food and daily objects',
+    grammarScope:
+      'word recognition, simple chunks (I am, this is), yes/no understanding and very short prompts',
+    teacherFocus: [
+      'Prioritize confidence and comprehension over grammar perfection.',
+      'Teach with repetition, visual anchors and very short examples.',
+      'Use Portuguese support when needed to avoid learner frustration.',
+    ],
+    exerciseTypes: ['matching', 'multiple_choice', 'word_identification', 'micro_gap_fill'],
+  },
   A1: {
     id: 'A1',
     label: 'Beginner',
@@ -96,6 +111,14 @@ const LEVELS = {
 };
 
 const LEVEL_ALIASES = {
+  a0: 'A0',
+  'pre-a1': 'A0',
+  prea1: 'A0',
+  prea: 'A0',
+  starter: 'A0',
+  zero: 'A0',
+  inicianteabsoluto: 'A0',
+  iniciantezero: 'A0',
   beginner: 'A1',
   iniciante: 'A1',
   basic: 'A2',

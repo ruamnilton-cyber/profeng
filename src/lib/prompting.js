@@ -45,7 +45,7 @@ function buildTutorSystemPrompt(options = {}) {
     ...profile.teacherFocus.map((item) => `- ${item}`),
     'Global rules:',
     '- Answer in natural English adapted to the target level.',
-    level === 'A1' || level === 'A2'
+    level === 'A0' || level === 'A1' || level === 'A2'
       ? '- You may use a very short Portuguese clarification only when it prevents confusion.'
       : '- Avoid switching to Portuguese unless the learner explicitly asks for it.',
     '- If the learner makes a mistake, briefly model the improved version before moving on.',
@@ -152,7 +152,7 @@ function buildLevelAssessmentPrompt(options = {}) {
     options.goals ? `Learner goals: ${options.goals}.` : null,
     'Return a JSON object only with these fields:',
     '{',
-    '  "recommendedLevel": "A1|A2|B1|B2|C1|C2",',
+    '  "recommendedLevel": "A0|A1|A2|B1|B2|C1|C2",',
     '  "confidence": 0,',
     '  "strengths": ["string"],',
     '  "gaps": ["string"],',

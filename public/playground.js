@@ -9,6 +9,7 @@ const STORAGE_KEYS = {
 };
 
 const LEVELS_FALLBACK = [
+  { id: 'A0', label: 'Starter (Pre-A1)' },
   { id: 'A1', label: 'Iniciante' },
   { id: 'A2', label: 'Básico' },
   { id: 'B1', label: 'Intermediário' },
@@ -18,6 +19,7 @@ const LEVELS_FALLBACK = [
 ];
 
 const LEVEL_LABELS_PT = {
+  A0: 'Pré-A1 (Primeiras Palavras)',
   A1: 'Iniciante',
   A2: 'Básico',
   B1: 'Intermediário',
@@ -27,6 +29,7 @@ const LEVEL_LABELS_PT = {
 };
 
 const LEVEL_FOCUS_PT = {
+  A0: 'vocabulário essencial, reconhecimento de palavras e frases curtíssimas',
   A1: 'frases curtas, vocabulário do dia a dia e perguntas simples',
   A2: 'situacoes comuns, passado basico e planos futuros',
   B1: 'conversa com opinião, justificativas e leitura prática',
@@ -52,6 +55,60 @@ const CHAT_TOPIC_SUGGESTIONS = [
 ];
 
 const ACTIVITY_BY_LEVEL = {
+  A0: [
+    {
+      id: 'a0-greetings',
+      title: 'Primeiras palavras: cumprimentos',
+      objective: 'Aprender palavras básicas de saudação e cortesia.',
+      tips: [
+        'Sequência didática comum: cumprimentos -> números -> cores -> família -> comida -> rotina.',
+        'Palavras foco: hello, hi, bye, good morning, please, thank you.',
+        'Leia em voz alta e associe palavra + significado.',
+      ],
+      tasks: [
+        { id: 'flash', title: 'Mini flashcards', placeholder: 'hello = oi, thank you = obrigado(a)' },
+      ],
+    },
+    {
+      id: 'a0-numbers-colors',
+      title: 'Números e cores essenciais',
+      objective: 'Reconhecer números 0-20 e cores mais usadas.',
+      tips: [
+        'Palavras foco: one to twenty, red, blue, green, black, white.',
+        'Treine apontando objetos reais na sua casa.',
+        'Repita em blocos curtos (5 palavras por vez).',
+      ],
+      tasks: [
+        { id: 'flash', title: 'Lista rápida', placeholder: 'one, two, three... red, blue, green...' },
+      ],
+    },
+    {
+      id: 'a0-family',
+      title: 'Família e pessoas',
+      objective: 'Aprender palavras do núcleo familiar e apresentações simples.',
+      tips: [
+        'Palavras foco: mother, father, brother, sister, friend, teacher.',
+        'Monte frases curtíssimas: This is my mother.',
+        'Conecte com sua vida para memorizar mais rápido.',
+      ],
+      tasks: [
+        { id: 'flash', title: 'Mapa de família', placeholder: 'mother, father, brother...' },
+      ],
+    },
+    {
+      id: 'a0-food-daily',
+      title: 'Comida e dia a dia',
+      objective: 'Fixar vocabulário básico de alimentos e rotina.',
+      tips: [
+        'Palavras foco: water, bread, rice, coffee, breakfast, lunch, dinner.',
+        'Use frases simples: I like coffee. I eat bread.',
+        'Treine sempre no mesmo horário para criar hábito.',
+      ],
+      tasks: [
+        { id: 'flash', title: 'Vocabulário do dia', placeholder: 'water, bread, coffee...' },
+      ],
+    },
+  ],
   A1: [
     {
       id: 'a1-self',
@@ -229,7 +286,202 @@ const QUIZ_QUESTIONS = [
   },
 ];
 
+const OBJECTIVE_BANK_BY_ACTIVITY = {
+  'a0-greetings': [
+    {
+      id: 'a0g-mc-1',
+      type: 'mc',
+      prompt: 'Qual palavra significa "oi" em inglês?',
+      options: ['goodbye', 'hello', 'night'],
+      answer: 'hello',
+      explanation: 'Hello = oi/olá.',
+    },
+    {
+      id: 'a0g-mc-2',
+      type: 'mc',
+      prompt: 'Complete: ___ morning!',
+      options: ['Good', 'Please', 'Thanks'],
+      answer: 'Good',
+      explanation: 'A expressão correta é "Good morning".',
+    },
+    {
+      id: 'a0g-fill-1',
+      type: 'fill',
+      prompt: 'Escreva em inglês: "obrigado(a)".',
+      answer: ['thank you', 'thanks'],
+      explanation: 'Thank you e Thanks são formas corretas.',
+    },
+    {
+      id: 'a0g-tf-1',
+      type: 'tf',
+      prompt: '"Bye" é usado para se despedir.',
+      answer: true,
+      correction: 'Correto: Bye = tchau.',
+    },
+    {
+      id: 'a0g-check-1',
+      type: 'check',
+      prompt: 'Sentence: "Please" é usado para pedir algo com educação. This is...',
+      answer: 'correct',
+      correction: 'Correta. "Please" deixa o pedido educado.',
+    },
+    {
+      id: 'a0g-fill-2',
+      type: 'fill',
+      prompt: 'Complete: Hi, ___ are you?',
+      answer: ['how'],
+      explanation: 'A pergunta básica é "How are you?".',
+    },
+  ],
+  'a0-numbers-colors': [
+    {
+      id: 'a0n-mc-1',
+      type: 'mc',
+      prompt: 'Qual é o número "3" em inglês?',
+      options: ['two', 'three', 'thirteen'],
+      answer: 'three',
+      explanation: '3 = three.',
+    },
+    {
+      id: 'a0n-mc-2',
+      type: 'mc',
+      prompt: 'Qual cor significa "azul"?',
+      options: ['green', 'blue', 'black'],
+      answer: 'blue',
+      explanation: 'Blue = azul.',
+    },
+    {
+      id: 'a0n-fill-1',
+      type: 'fill',
+      prompt: 'Escreva em inglês: "vermelho".',
+      answer: ['red'],
+      explanation: 'Red = vermelho.',
+    },
+    {
+      id: 'a0n-tf-1',
+      type: 'tf',
+      prompt: '"Ten" significa 10.',
+      answer: true,
+      correction: 'Correto: ten = 10.',
+    },
+    {
+      id: 'a0n-check-1',
+      type: 'check',
+      prompt: 'Sentence: "White" significa branco. This is...',
+      answer: 'correct',
+      correction: 'Correta. White = branco.',
+    },
+    {
+      id: 'a0n-fill-2',
+      type: 'fill',
+      prompt: 'Complete: One, two, ___.',
+      answer: ['three'],
+      explanation: 'A sequência é one, two, three.',
+    },
+  ],
+  'a0-family': [
+    {
+      id: 'a0f-mc-1',
+      type: 'mc',
+      prompt: 'Qual palavra significa "mãe"?',
+      options: ['mother', 'brother', 'teacher'],
+      answer: 'mother',
+      explanation: 'Mother = mãe.',
+    },
+    {
+      id: 'a0f-mc-2',
+      type: 'mc',
+      prompt: 'Complete: This is my ___. (irmão)',
+      options: ['sister', 'brother', 'friend'],
+      answer: 'brother',
+      explanation: 'Brother = irmão.',
+    },
+    {
+      id: 'a0f-fill-1',
+      type: 'fill',
+      prompt: 'Escreva em inglês: "amiga(o)".',
+      answer: ['friend'],
+      explanation: 'Friend = amiga(o).',
+    },
+    {
+      id: 'a0f-tf-1',
+      type: 'tf',
+      prompt: '"Father" significa pai.',
+      answer: true,
+      correction: 'Correto: father = pai.',
+    },
+    {
+      id: 'a0f-check-1',
+      type: 'check',
+      prompt: 'Sentence: "Sister" significa irmã. This is...',
+      answer: 'correct',
+      correction: 'Correta. Sister = irmã.',
+    },
+    {
+      id: 'a0f-fill-2',
+      type: 'fill',
+      prompt: 'Complete: This is my ___. (professora/professor)',
+      answer: ['teacher'],
+      explanation: 'Teacher = professora/professor.',
+    },
+  ],
+  'a0-food-daily': [
+    {
+      id: 'a0d-mc-1',
+      type: 'mc',
+      prompt: 'Qual palavra significa "água"?',
+      options: ['water', 'coffee', 'bread'],
+      answer: 'water',
+      explanation: 'Water = água.',
+    },
+    {
+      id: 'a0d-mc-2',
+      type: 'mc',
+      prompt: 'Qual refeição significa "café da manhã"?',
+      options: ['dinner', 'breakfast', 'lunch'],
+      answer: 'breakfast',
+      explanation: 'Breakfast = café da manhã.',
+    },
+    {
+      id: 'a0d-fill-1',
+      type: 'fill',
+      prompt: 'Escreva em inglês: "pão".',
+      answer: ['bread'],
+      explanation: 'Bread = pão.',
+    },
+    {
+      id: 'a0d-tf-1',
+      type: 'tf',
+      prompt: '"Dinner" pode significar jantar.',
+      answer: true,
+      correction: 'Correto: dinner = jantar.',
+    },
+    {
+      id: 'a0d-check-1',
+      type: 'check',
+      prompt: 'Sentence: "I like coffee." This is...',
+      answer: 'correct',
+      correction: 'Correta. Frase simples e natural.',
+    },
+    {
+      id: 'a0d-fill-2',
+      type: 'fill',
+      prompt: 'Complete: I drink ___.',
+      answer: ['water', 'coffee'],
+      explanation: 'As duas opções são válidas para o treino.',
+    },
+  ],
+};
+
 const OBJECTIVE_BANK_BY_LEVEL = {
+  A0: [
+    { id: 'a0-mc-1', type: 'mc', prompt: 'Qual palavra significa "tchau"?', options: ['bye', 'thanks', 'hello'], answer: 'bye', explanation: 'Bye = tchau.' },
+    { id: 'a0-mc-2', type: 'mc', prompt: 'Qual palavra significa "verde"?', options: ['green', 'black', 'blue'], answer: 'green', explanation: 'Green = verde.' },
+    { id: 'a0-fill-1', type: 'fill', prompt: 'Complete: Good ___ (manhã).', answer: ['morning'], explanation: 'Good morning = bom dia.' },
+    { id: 'a0-fill-2', type: 'fill', prompt: 'Escreva em inglês: "irmã".', answer: ['sister'], explanation: 'Sister = irmã.' },
+    { id: 'a0-tf-1', type: 'tf', prompt: '"Please" é usado para pedir algo com educação.', answer: true, correction: 'Correto.' },
+    { id: 'a0-check-1', type: 'check', prompt: 'Sentence: "Water" significa água. This is...', answer: 'correct', correction: 'Correta.' },
+  ],
   A1: [
     { id: 'a1-mc-1', type: 'mc', prompt: 'Complete: She ___ at school every morning.', options: ['study', 'studies', 'studying'], answer: 'studies', explanation: 'Para he/she/it no presente simples, usamos verbo com -s.' },
     { id: 'a1-mc-2', type: 'mc', prompt: 'Choose the correct sentence:', options: ['They is happy.', 'They are happy.', 'They am happy.'], answer: 'They are happy.', explanation: 'Com "they", usamos "are".' },
@@ -369,6 +621,7 @@ const elements = {
   homeLastActiveText: $('homeLastActiveText'),
   homeStartTrailButton: $('homeStartTrailButton'),
   homeOpenAiButton: $('homeOpenAiButton'),
+  homeStarterModeButton: $('homeStarterModeButton'),
   installAppButton: $('installAppButton'),
   homeChangeLevelButton: $('homeChangeLevelButton'),
 
@@ -910,6 +1163,12 @@ function renderManualLevelInfo() {
     return;
   }
 
+  if (profile.id === 'A0') {
+    elements.manualLevelInfo.textContent =
+      'A0 (Pré-A1): sequência didática de primeiras palavras (cumprimentos, números, cores, família e comida).';
+    return;
+  }
+
   const focus = LEVEL_FOCUS_PT[profile.id] || 'comunicação prática do dia a dia';
   elements.manualLevelInfo.textContent = `${profile.id} (${levelNamePt(profile.id, profile.label)}): foco em ${focus}.`;
 }
@@ -1021,11 +1280,12 @@ function syncQuizSelectionUi() {
 }
 
 function quizLevelByAverage(average) {
-  if (average <= 1.5) return 'A1';
-  if (average <= 2.5) return 'A2';
-  if (average <= 3.5) return 'B1';
-  if (average <= 4.5) return 'B2';
-  if (average <= 5.2) return 'C1';
+  if (average <= 1.2) return 'A0';
+  if (average <= 2.0) return 'A1';
+  if (average <= 2.9) return 'A2';
+  if (average <= 3.8) return 'B1';
+  if (average <= 4.8) return 'B2';
+  if (average <= 5.4) return 'C1';
   return 'C2';
 }
 
@@ -1073,13 +1333,22 @@ function completedForLevel(levelId) {
 }
 
 function questionBankForLevel(levelId) {
-  const order = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+  const order = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
   const index = Math.max(0, order.indexOf(levelId));
   const nearbyLevels = [order[index - 1], order[index], order[index + 1]].filter(Boolean);
 
   const merged = nearbyLevels.flatMap((id) => OBJECTIVE_BANK_BY_LEVEL[id] || []);
   const byId = new Map(merged.map((question) => [question.id, question]));
   return Array.from(byId.values());
+}
+
+function questionBankForActivity(activityId, levelId) {
+  const activityKey = String(activityId || '').trim();
+  const scoped = OBJECTIVE_BANK_BY_ACTIVITY[activityKey];
+  if (Array.isArray(scoped) && scoped.length) {
+    return scoped;
+  }
+  return questionBankForLevel(levelId);
 }
 
 function shuffleArray(values) {
@@ -1106,8 +1375,8 @@ function activitySessionKey(activityId, levelId = currentLevelId()) {
   return `${levelId}:${activityId}`;
 }
 
-function buildObjectiveSet(levelId, count = 6) {
-  const bank = questionBankForLevel(levelId);
+function buildObjectiveSet(levelId, count = 6, activityId = '') {
+  const bank = questionBankForActivity(activityId, levelId);
   const selected = shuffleArray(bank).slice(0, Math.min(count, bank.length));
   return selected.map((question) => ({
     ...question,
@@ -1158,7 +1427,7 @@ function ensureActivitySet(item, forceNew = false) {
     return { key, questions: currentSet };
   }
 
-  const nextSet = buildObjectiveSet(currentLevelId(), 6);
+  const nextSet = buildObjectiveSet(currentLevelId(), 6, item.id);
   state.activitySets[key] = nextSet;
   state.drafts[key] = {};
   delete state.activityResults[key];
@@ -1249,6 +1518,13 @@ function renderHome() {
   if (elements.homeLastActiveText) {
     elements.homeLastActiveText.textContent = formatLastActiveText(stats.lastActiveAt);
   }
+  if (elements.homeStarterModeButton) {
+    const isStarter = levelId === 'A0';
+    elements.homeStarterModeButton.textContent = isStarter
+      ? 'Modo Primeiras Palavras ativo'
+      : 'Ativar Modo Primeiras Palavras';
+    elements.homeStarterModeButton.disabled = isStarter;
+  }
   syncInstallButton();
 }
 
@@ -1263,6 +1539,10 @@ function renderActivities() {
   const total = items.length;
   const doneCount = doneList.size;
   const progressPercent = total ? Math.round((doneCount / total) * 100) : 0;
+  const isStarterLevel = levelId === 'A0';
+  const activityFormatDescription = isStarterLevel
+    ? 'Modo primeiras palavras: vocabulário base + exercícios simples de fixação.'
+    : 'Formato objetivo: multipla escolha, V/F, completar e certo/errado.';
 
   elements.activitiesTitle.textContent = `Trilha ${levelLabel(levelId)}`;
   if (elements.activitiesProgressText) {
@@ -1290,7 +1570,7 @@ function renderActivities() {
             <span class="pill ${done ? 'ok' : ''}">${done ? 'concluída' : 'pendente'}</span>
           </div>
           <p class="line" style="margin-top: 8px">${escapeHtml(item.objective)}</p>
-          <p class="line" style="margin-top: 6px">Formato objetivo: multipla escolha, V/F, completar e certo/errado.</p>
+          <p class="line" style="margin-top: 6px">${escapeHtml(activityFormatDescription)}</p>
           <div class="row" style="margin-top: 10px">
             <button class="btn" data-open-activity="${escapeHtml(item.id)}">Abrir</button>
           </div>
@@ -2275,7 +2555,7 @@ function setupPwaSupport() {
 async function saveLevel(levelId, source) {
   if (!state.user) {
     setMessage(elements.levelMessage, 'Você precisa estar logado para salvar nível.', 'error');
-    return;
+    return false;
   }
 
   try {
@@ -2293,8 +2573,10 @@ async function saveLevel(levelId, source) {
     renderActivities();
     setMessage(elements.levelMessage, `${source} salvo: ${levelLabel(state.selectedLevel)}.`, 'success');
     setScreen('home');
+    return true;
   } catch (error) {
     setMessage(elements.levelMessage, error.message, 'error');
+    return false;
   }
 }
 
@@ -2573,6 +2855,14 @@ function bindEvents() {
 
   elements.homeStartTrailButton.addEventListener('click', () => setScreen('activities'));
   elements.homeOpenAiButton.addEventListener('click', () => setScreen('ai'));
+  if (elements.homeStarterModeButton) {
+    elements.homeStarterModeButton.addEventListener('click', async () => {
+      const saved = await saveLevel('A0', 'Modo Primeiras Palavras');
+      if (saved) {
+        setScreen('activities');
+      }
+    });
+  }
   if (elements.activitiesOpenAiButton) {
     elements.activitiesOpenAiButton.addEventListener('click', () => setScreen('ai'));
   }

@@ -61,6 +61,7 @@ test('health and meta endpoints expose available features', async () => {
   const { response: metaResponse, json: meta } = await requestJson('/meta/options');
   assert.equal(metaResponse.status, 200);
   assert.ok(Array.isArray(meta.levels));
+  assert.ok(meta.levels.some((level) => level.id === 'A0'));
   assert.ok(meta.levels.some((level) => level.id === 'A1'));
   assert.ok(meta.levels.some((level) => level.id === 'C2'));
   assert.deepEqual(meta.auth, {
