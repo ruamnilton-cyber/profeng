@@ -1,10 +1,10 @@
-const CACHE_NAME = 'profeng-playground-v1';
+const CACHE_NAME = 'profeng-playground-v2';
 const PLAYGROUND_PREFIX = '/playground/';
 const APP_SHELL = [
   '/playground/',
   '/playground/index.html',
-  '/playground/playground.js',
-  '/playground/manifest.webmanifest',
+  '/playground/playground.js?v=20260327-2',
+  '/playground/manifest.webmanifest?v=20260327-2',
   '/playground/icons/icon-192.svg',
   '/playground/icons/icon-512.svg',
 ];
@@ -31,6 +31,14 @@ function isPlaygroundAsset(url) {
   return url.origin === self.location.origin && url.pathname.startsWith(PLAYGROUND_PREFIX);
 }
 
+function isNetworkFirstAsset(url) {
+  return (
+    url.pathname.endsWith('/playground/playground.js') ||
+    url.pathname.endsWith('/playground/manifest.webmanifest') ||
+    url.pathname.endsWith('/playground/index.html')
+  );
+}
+
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET') {
@@ -48,6 +56,27 @@ self.addEventListener('fetch', (event) => {
         .then((response) => {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          return response;
+        })
+        .catch(async () => {
+          const cached = await caches.match(request);
+          if (cached) {
+            return cached;
+          }
+          return caches.match('/playground/');
+        }),
+    );
+    return;
+  }
+
+  if (isNetworkFirstAsset(url)) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
           return response;
         })
         .catch(async () => {
