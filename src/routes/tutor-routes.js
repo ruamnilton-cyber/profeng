@@ -2,7 +2,11 @@ const express = require('express');
 
 const { getPublicLevels, normalizeLevel } = require('../constants/levels');
 const { ENV } = require('../env');
-const { getAuthenticatedSession, updateUserProfile } = require('../lib/auth');
+const {
+  getAuthenticatedSession,
+  requireAuthenticatedSession,
+  updateUserProfile,
+} = require('../lib/auth');
 const { asyncRoute } = require('../lib/http');
 const {
   assessLevel,
@@ -11,9 +15,12 @@ const {
   createTutorReply,
   createVoiceReply,
   generateExercises,
+  synthesizeSpeech,
   transcribeAudio,
 } = require('../lib/openai');
 const {
+  getUserStats,
+  recordActivityCompletion,
   recordExerciseAttempt,
   recordLevelAssessment,
   recordVoiceSession,
@@ -140,6 +147,56 @@ tutorRouter.post(
     }
 
     res.json(result);
+  }),
+);
+
+tutorRouter.post(
+  '/voice/speak',
+  asyncRoute(async (req, res) => {
+    const auth = await getAuthenticatedSession(req);
+    const speech = await synthesizeSpeech({
+      ...(req.body || {}),
+      text: req.body && req.body.text,
+      level:
+        (req.body && req.body.level) || (auth && auth.user ? auth.user.level : normalizeLevel()),
+      learnerName:
+        (req.body && req.body.learnerName) || (auth && auth.user && auth.user.name) || null,
+      nativeLanguage: (req.body && req.body.nativeLanguage) || 'pt-BR',
+    });
+
+    res.json({ speech });
+  }),
+);
+
+tutorRouter.post(
+  '/progress/activity',
+  asyncRoute(async (req, res) => {
+    const auth = await requireAuthenticatedSession(req);
+    const activityId =
+      req.body && typeof req.body.activityId === 'string' ? req.body.activityId.trim() : '';
+
+    if (!activityId) {
+      return res.status(400).json({ error: 'Field "activityId" is required.' });
+    }
+
+    const level = normalizeLevel(
+      (req.body && req.body.level) || (auth.user && auth.user.level) || 'A2',
+      'A2',
+    );
+    const numericScore = Number(req.body && req.body.score);
+    const score = Number.isFinite(numericScore)
+      ? Math.max(0, Math.min(100, Math.round(numericScore)))
+      : null;
+
+    await recordActivityCompletion({
+      userId: auth.user.id,
+      activityId,
+      level,
+      score,
+    });
+
+    const stats = await getUserStats(auth.user.id);
+    res.json({ success: true, stats });
   }),
 );
 

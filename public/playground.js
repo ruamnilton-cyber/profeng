@@ -37,6 +37,18 @@ const LEVEL_FOCUS_PT = {
 const CHAT_MODES_FALLBACK = ['conversation', 'explain', 'correction', 'roleplay'];
 const EXERCISE_SKILLS_FALLBACK = ['mixed', 'grammar', 'vocabulary', 'reading', 'writing'];
 const VOICES_FALLBACK = ['alloy', 'verse', 'sage', 'ash', 'coral'];
+const CHAT_TOPIC_SUGGESTIONS = [
+  { label: 'viagem internacional', prompt: 'Vamos conversar sobre uma viagem internacional que voce quer fazer.' },
+  { label: 'entrevista de emprego', prompt: 'Simule uma entrevista de emprego em ingles comigo.' },
+  { label: 'ingles no trabalho', prompt: 'Pratique uma conversa de trabalho com reuniao e e-mails.' },
+  { label: 'restaurante e pedidos', prompt: 'Pratique ingles para pedir comida em um restaurante.' },
+  { label: 'apresentacao pessoal', prompt: 'Me ajude a fazer uma apresentacao pessoal natural em ingles.' },
+  { label: 'conversa no aeroporto', prompt: 'Treine dialogos comuns de aeroporto e voo internacional.' },
+  { label: 'small talk no dia a dia', prompt: 'Pratique small talk curto para situacoes do dia a dia.' },
+  { label: 'planejamento de estudos', prompt: 'Monte comigo um plano de estudos de ingles para 30 dias.' },
+  { label: 'ingles para viagem de negocios', prompt: 'Simule situacoes de viagem de negocios em ingles.' },
+  { label: 'corrigir frases comuns', prompt: 'Quero praticar frases comuns e voce corrige de forma simples.' },
+];
 
 const ACTIVITY_BY_LEVEL = {
   A1: [
@@ -284,10 +296,14 @@ const state = {
   activityResults: readStoredJson(STORAGE_KEYS.activityResults, {}),
   aiChatHistory: [],
   aiChatLoading: false,
+  aiTopicSuggestions: [],
   aiExerciseBatch: null,
   aiExercises: [],
   mediaRecorder: null,
   recordedChunks: [],
+  activityAutoSaveTimer: null,
+  deferredInstallPrompt: null,
+  isInstallAvailable: false,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -341,11 +357,20 @@ const elements = {
   homeSubtitle: $('homeSubtitle'),
   homeLevelPill: $('homeLevelPill'),
   homeProgressText: $('homeProgressText'),
+  homeStreakValue: $('homeStreakValue'),
+  homeBestStreakValue: $('homeBestStreakValue'),
+  homeDoneValue: $('homeDoneValue'),
+  homeAverageValue: $('homeAverageValue'),
+  homeLastActiveText: $('homeLastActiveText'),
   homeStartTrailButton: $('homeStartTrailButton'),
   homeOpenAiButton: $('homeOpenAiButton'),
+  installAppButton: $('installAppButton'),
   homeChangeLevelButton: $('homeChangeLevelButton'),
 
   activitiesTitle: $('activitiesTitle'),
+  activitiesProgressText: $('activitiesProgressText'),
+  activitiesProgressCount: $('activitiesProgressCount'),
+  activitiesProgressFill: $('activitiesProgressFill'),
   activitiesList: $('activitiesList'),
   activitiesMessage: $('activitiesMessage'),
 
@@ -361,7 +386,11 @@ const elements = {
   aiChatMode: $('aiChatMode'),
   aiChatTopic: $('aiChatTopic'),
   aiChatLog: $('aiChatLog'),
+  aiChatSuggestions: $('aiChatSuggestions'),
   aiChatInput: $('aiChatInput'),
+  aiVoiceLanguage: $('aiVoiceLanguage'),
+  aiChatVoiceButton: $('aiChatVoiceButton'),
+  aiChatVoiceStopButton: $('aiChatVoiceStopButton'),
   aiChatSendButton: $('aiChatSendButton'),
   aiChatClearButton: $('aiChatClearButton'),
 
@@ -393,6 +422,7 @@ const elements = {
   saveDraftButton: $('saveDraftButton'),
   requestFeedbackButton: $('requestFeedbackButton'),
   completeActivityButton: $('completeActivityButton'),
+  activityAutosaveHint: $('activityAutosaveHint'),
   activityMessage: $('activityMessage'),
   activityFeedback: $('activityFeedback'),
 
@@ -529,6 +559,11 @@ function setScreen(screen) {
   const next = !state.user && protectedScreens().has(screen) ? 'welcome' : screen;
   state.screen = next;
 
+  if (next !== 'activity' && state.activityAutoSaveTimer) {
+    clearTimeout(state.activityAutoSaveTimer);
+    state.activityAutoSaveTimer = null;
+  }
+
   elements.screens.forEach((node) => node.classList.toggle('active', node.dataset.screen === next));
 
   if (next === 'home') {
@@ -617,6 +652,28 @@ function syncStatusBanner() {
     state.screen === 'ai'
       ? 'Voce esta no Modo IA: chat, exercicios e voz inteligente.'
       : 'Voce esta no Modo Trilha: atividades por nivel com progresso guiado.';
+}
+
+function formatLastActiveText(isoDate) {
+  if (!isoDate) {
+    return 'Conclua uma atividade para iniciar seu historico de evolucao.';
+  }
+
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) {
+    return 'Seu progresso aparece em tempo real.';
+  }
+
+  const dateText = date.toLocaleDateString('pt-BR');
+  const timeText = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  return `Ultima atividade registrada em ${dateText} as ${timeText}.`;
+}
+
+function syncInstallButton() {
+  if (!elements.installAppButton) {
+    return;
+  }
+  elements.installAppButton.classList.toggle('hidden', !state.isInstallAvailable);
 }
 
 function syncUserBadge() {
@@ -821,6 +878,30 @@ function objectiveTypeLabel(type) {
   return labels[type] || 'Questao';
 }
 
+function expectedAnswerLabel(question) {
+  if (!question) {
+    return '-';
+  }
+
+  if (question.type === 'tf') {
+    return question.answer ? 'Verdadeiro' : 'Falso';
+  }
+  if (question.type === 'check') {
+    return question.answer === 'correct' ? 'Esta correta' : 'Precisa de correcao';
+  }
+  if (Array.isArray(question.answer)) {
+    return question.answer.join(' / ');
+  }
+  return String(question.answer || '-');
+}
+
+function setActivityAutosaveHint(text) {
+  if (!elements.activityAutosaveHint) {
+    return;
+  }
+  elements.activityAutosaveHint.textContent = text || '';
+}
+
 function ensureActivitySet(item, forceNew = false) {
   const key = activitySessionKey(item.id);
   const currentSet = state.activitySets[key];
@@ -893,11 +974,33 @@ function renderHome() {
   const items = activitiesForLevel(levelId);
   const done = completedForLevel(levelId).length;
   const stats = state.stats || {};
+  const streak = Number(stats.currentStreakDays) || 0;
+  const bestStreak = Number(stats.bestStreakDays) || 0;
+  const completedActivities = Math.max(Number(stats.completedActivities) || 0, done);
+  const averageScore =
+    typeof stats.averageScore === 'number' ? `${Math.max(0, Math.min(100, stats.averageScore))}%` : '-';
+  const activeDays = Number(stats.activeDays) || 0;
 
   elements.homeGreeting.textContent = `Ola, ${name}.`;
-  elements.homeSubtitle.textContent = `Tentativas: ${stats.exerciseAttempts || 0} | Voz: ${stats.voiceSessions || 0}`;
+  elements.homeSubtitle.textContent = `Streak atual: ${streak} dia(s) | Dias ativos: ${activeDays}`;
   elements.homeLevelPill.textContent = levelLabel(levelId);
   elements.homeProgressText.textContent = `${done} de ${items.length} atividades concluidas neste nivel.`;
+  if (elements.homeStreakValue) {
+    elements.homeStreakValue.textContent = String(streak);
+  }
+  if (elements.homeBestStreakValue) {
+    elements.homeBestStreakValue.textContent = String(bestStreak);
+  }
+  if (elements.homeDoneValue) {
+    elements.homeDoneValue.textContent = String(completedActivities);
+  }
+  if (elements.homeAverageValue) {
+    elements.homeAverageValue.textContent = averageScore;
+  }
+  if (elements.homeLastActiveText) {
+    elements.homeLastActiveText.textContent = formatLastActiveText(stats.lastActiveAt);
+  }
+  syncInstallButton();
 }
 
 function renderActivities() {
@@ -908,8 +1011,20 @@ function renderActivities() {
   const levelId = currentLevelId();
   const items = activitiesForLevel(levelId);
   const doneList = new Set(completedForLevel(levelId));
+  const total = items.length;
+  const doneCount = doneList.size;
+  const progressPercent = total ? Math.round((doneCount / total) * 100) : 0;
 
   elements.activitiesTitle.textContent = `Trilha ${levelLabel(levelId)}`;
+  if (elements.activitiesProgressText) {
+    elements.activitiesProgressText.textContent = `${progressPercent}% concluido`;
+  }
+  if (elements.activitiesProgressCount) {
+    elements.activitiesProgressCount.textContent = `${doneCount}/${total}`;
+  }
+  if (elements.activitiesProgressFill) {
+    elements.activitiesProgressFill.style.width = `${Math.max(0, Math.min(100, progressPercent))}%`;
+  }
 
   if (!items.length) {
     elements.activitiesList.innerHTML = '<div class="message">Sem atividades para este nivel.</div>';
@@ -948,6 +1063,8 @@ function renderActivity() {
     elements.activityObjective.textContent = 'Escolha uma atividade da trilha.';
     elements.activityTips.innerHTML = '';
     elements.activityTasks.innerHTML = '';
+    elements.completeActivityButton.disabled = true;
+    setActivityAutosaveHint('');
     return;
   }
 
@@ -959,32 +1076,63 @@ function renderActivity() {
   if (!session.questions.length) {
     elements.activityTasks.innerHTML = '<div class="message">Sem questoes disponiveis para este nivel.</div>';
     setMessage(elements.activityMessage, 'Sem questoes para este nivel no momento.', 'error');
+    elements.completeActivityButton.disabled = true;
+    setActivityAutosaveHint('');
     return;
   }
+
   const draft = state.drafts[session.key] || {};
+  const previousResult = state.activityResults[session.key];
+  const detailsById = new Map(
+    (previousResult && Array.isArray(previousResult.details) ? previousResult.details : []).map((entry) => [
+      entry.id,
+      entry,
+    ]),
+  );
+
   elements.activityTasks.innerHTML = session.questions
     .map((question, index) => {
       const questionId = question.id || `q-${index + 1}`;
       const answerValue = draft[questionId] || '';
+      const detail = detailsById.get(questionId);
+      const cardStatus = detail ? (detail.ok ? 'correct' : 'wrong') : '';
+      const feedbackHtml = detail
+        ? detail.ok
+          ? '<div class="question-feedback ok">Boa! Esta questao esta correta.</div>'
+          : `
+              <div class="question-feedback error">
+                Sua resposta: <strong>${escapeHtml(detail.userAnswer || '-')}</strong><br />
+                Esperado: <strong>${escapeHtml(expectedAnswerLabel(question))}</strong>
+                ${detail.correction ? `<br />Dica: ${escapeHtml(detail.correction)}` : ''}
+              </div>
+            `
+        : '';
       return `
-        <article class="question-card">
+        <article class="question-card ${cardStatus}">
           <div class="question-top">
             <strong>${index + 1}. Questao</strong>
             <span class="question-type">${escapeHtml(objectiveTypeLabel(question.type))}</span>
           </div>
           <div class="question-prompt">${escapeHtml(question.prompt)}</div>
           ${renderObjectiveInput(question, questionId, answerValue)}
+          ${feedbackHtml}
         </article>
       `;
     })
     .join('');
 
-  const previousResult = state.activityResults[session.key];
   if (previousResult && typeof previousResult.score === 'number') {
     setMessage(elements.activityMessage, `Ultima tentativa: ${previousResult.score}% (${previousResult.correct}/${previousResult.total}).`, previousResult.score >= 70 ? 'success' : 'error');
   } else {
     setMessage(elements.activityMessage, 'Responda as questoes objetivas e clique em "Corrigir agora".');
   }
+
+  elements.completeActivityButton.disabled = !(
+    previousResult &&
+    typeof previousResult.score === 'number' &&
+    previousResult.score >= 70
+  );
+  setActivityAutosaveHint('As respostas sao salvas automaticamente.');
 }
 
 function collectTaskAnswers() {
@@ -993,29 +1141,56 @@ function collectTaskAnswers() {
     answers[field.dataset.questionId] = field.value;
   });
   elements.activityTasks.querySelectorAll('input[type="text"][data-question-id]').forEach((field) => {
-    answers[field.dataset.questionId] = field.value.trim();
+    const value = field.value.trim();
+    if (value) {
+      answers[field.dataset.questionId] = value;
+    }
   });
   return answers;
 }
 
-function saveDraft() {
+function queueActivityAutoSave() {
+  if (state.activityAutoSaveTimer) {
+    clearTimeout(state.activityAutoSaveTimer);
+  }
+
+  state.activityAutoSaveTimer = setTimeout(() => {
+    saveDraft({ silent: true });
+    state.activityAutoSaveTimer = null;
+  }, 550);
+}
+
+function saveDraft(options = {}) {
+  const silent = Boolean(options.silent);
   const item = selectedActivity();
   if (!item) {
-    setMessage(elements.activityMessage, 'Abra uma atividade para salvar.', 'error');
+    if (!silent) {
+      setMessage(elements.activityMessage, 'Abra uma atividade para salvar.', 'error');
+    }
     return;
   }
   const session = ensureActivitySet(item, false);
   state.drafts[session.key] = collectTaskAnswers();
   writeStoredJson(STORAGE_KEYS.drafts, state.drafts);
+
+  const timeText = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  if (silent) {
+    setActivityAutosaveHint(`Rascunho salvo automaticamente as ${timeText}.`);
+    return;
+  }
+
   setMessage(elements.activityMessage, 'Respostas salvas com sucesso.', 'success');
+  setActivityAutosaveHint(`Rascunho salvo as ${timeText}.`);
 }
 
 function evaluateObjectiveAnswers(questions, answers) {
   let correct = 0;
   const details = [];
 
-  for (const question of questions) {
-    const userAnswer = answers[question.id];
+  for (let index = 0; index < questions.length; index += 1) {
+    const question = questions[index];
+    const questionId = question.id || `q-${index + 1}`;
+    const userAnswer = answers[questionId];
     let ok = false;
 
     if (question.type === 'mc') {
@@ -1034,8 +1209,9 @@ function evaluateObjectiveAnswers(questions, answers) {
     }
 
     details.push({
-      id: question.id,
+      id: questionId,
       ok,
+      userAnswer: userAnswer || '',
       correction: question.correction || question.explanation || '',
     });
   }
@@ -1056,14 +1232,20 @@ function requestFeedback() {
   const answers = collectTaskAnswers();
   const answeredCount = Object.keys(answers).length;
   if (answeredCount < session.questions.length) {
-    setMessage(elements.activityFeedback, `Responda todas as ${session.questions.length} questoes antes de corrigir.`, 'error');
+    const missing = session.questions.length - answeredCount;
+    setMessage(
+      elements.activityFeedback,
+      `Faltam ${missing} questao(oes). Responda tudo antes de corrigir.`,
+      'error',
+    );
     return;
   }
 
   const result = evaluateObjectiveAnswers(session.questions, answers);
   state.activityResults[session.key] = result;
   writeStoredJson(STORAGE_KEYS.activityResults, state.activityResults);
-  saveDraft();
+  saveDraft({ silent: true });
+  renderActivity();
 
   const wrongHints = result.details
     .filter((entry) => !entry.ok && entry.correction)
@@ -1081,7 +1263,7 @@ function requestFeedback() {
   setMessage(elements.activityMessage, `Resultado registrado: ${result.score}%.`, result.score >= 70 ? 'success' : 'error');
 }
 
-function completeActivity() {
+async function completeActivity() {
   const item = selectedActivity();
   if (!item) {
     setMessage(elements.activityMessage, 'Abra uma atividade para concluir.', 'error');
@@ -1107,6 +1289,24 @@ function completeActivity() {
     state.completed[levelId].push(item.id);
   }
   writeStoredJson(STORAGE_KEYS.completed, state.completed);
+
+  if (state.user && state.token) {
+    try {
+      const syncResult = await api('/progress/activity', {
+        method: 'POST',
+        body: JSON.stringify({
+          activityId: item.id,
+          level: levelId,
+          score: result.score,
+        }),
+      });
+      if (syncResult && syncResult.stats) {
+        state.stats = syncResult.stats;
+      }
+    } catch (_error) {
+      // Keep local progress even if sync fails temporarily.
+    }
+  }
 
   setMessage(elements.activityMessage, 'Atividade concluida. Excelente trabalho.', 'success');
   renderHome();
@@ -1159,6 +1359,52 @@ function renderAiChatLog() {
   elements.aiChatLog.scrollTop = elements.aiChatLog.scrollHeight;
 }
 
+function nextAiTopicSuggestions(limit = 4) {
+  const normalizedUsed = new Set(
+    (state.aiChatHistory || [])
+      .filter((message) => message.role === 'user')
+      .map((message) => String(message.content || '').trim().toLowerCase())
+      .filter(Boolean),
+  );
+
+  const filteredPool = CHAT_TOPIC_SUGGESTIONS.filter(
+    (item) => !normalizedUsed.has(String(item.prompt || '').trim().toLowerCase()),
+  );
+  const source = filteredPool.length >= limit ? filteredPool : CHAT_TOPIC_SUGGESTIONS;
+  return shuffleArray(source).slice(0, Math.max(1, limit));
+}
+
+function renderAiChatSuggestions() {
+  if (!elements.aiChatSuggestions) {
+    return;
+  }
+  const suggestions = Array.isArray(state.aiTopicSuggestions) ? state.aiTopicSuggestions : [];
+  if (!suggestions.length) {
+    elements.aiChatSuggestions.innerHTML = '';
+    return;
+  }
+
+  elements.aiChatSuggestions.innerHTML = suggestions
+    .map(
+      (item, index) => `
+        <button type="button" class="suggestion-chip" data-ai-suggestion-index="${index}">
+          ${escapeHtml(item.label || item.prompt || '')}
+        </button>
+      `,
+    )
+    .join('');
+
+  elements.aiChatSuggestions.insertAdjacentHTML(
+    'beforeend',
+    '<button type="button" class="suggestion-chip" data-ai-suggestion-refresh="1">Mais ideias</button>',
+  );
+}
+
+function refreshAiChatSuggestions() {
+  state.aiTopicSuggestions = nextAiTopicSuggestions(4);
+  renderAiChatSuggestions();
+}
+
 function resizeChatInput() {
   elements.aiChatInput.style.height = 'auto';
   const maxHeight = 120;
@@ -1188,8 +1434,8 @@ async function sendAiChat() {
       method: 'POST',
       body: JSON.stringify({
         level: elements.aiChatLevel.value || state.selectedLevel,
-        mode: elements.aiChatMode.value || 'conversation',
-        topic: elements.aiChatTopic.value || '',
+        mode: 'conversation',
+        topic: '',
         correctionMode: 'balanced',
         messages: state.aiChatHistory,
       }),
@@ -1205,6 +1451,7 @@ async function sendAiChat() {
     state.aiChatLoading = false;
     elements.aiChatSendButton.disabled = false;
     renderAiChatLog();
+    refreshAiChatSuggestions();
     elements.aiChatInput.focus();
   }
 }
@@ -1213,6 +1460,7 @@ function clearAiChat() {
   state.aiChatHistory = [];
   state.aiChatLoading = false;
   renderAiChatLog();
+  refreshAiChatSuggestions();
   elements.aiChatInput.focus();
 }
 
@@ -1353,7 +1601,7 @@ function friendlyVoiceErrorMessage(errorMessage) {
     lower.includes('model') ||
     lower.includes('compatible')
   ) {
-    return 'Sua chave OpenAI nao possui um modelo de voz compativel no momento. Ajuste OPENAI_TRANSCRIBE_MODEL e OPENAI_TTS_MODEL no servidor.';
+    return 'A chave OpenAI respondeu sem suporte completo de voz. Vou manter transcricao e resposta em texto, e usar voz do navegador quando possivel.';
   }
 
   return raw || 'Nao foi possivel processar o audio.';
@@ -1374,39 +1622,160 @@ function preferredRecorderMimeType() {
   return candidates.find((mimeType) => window.MediaRecorder.isTypeSupported(mimeType)) || '';
 }
 
+function selectedVoiceLanguage() {
+  if (!elements.aiVoiceLanguage || !elements.aiVoiceLanguage.value) {
+    return 'en-US';
+  }
+  return elements.aiVoiceLanguage.value === 'pt-BR' ? 'pt-BR' : 'en-US';
+}
+
+function transcriptionLanguageHint(locale) {
+  return locale === 'pt-BR' ? 'pt' : 'en';
+}
+
+function chatSystemPromptForVoice(locale) {
+  return locale === 'pt-BR'
+    ? 'For this voice interaction, reply in clear Brazilian Portuguese and keep the answer practical.'
+    : 'For this voice interaction, reply in clear American English and keep the answer practical.';
+}
+
+function speechInstructionsForLocale(locale) {
+  return locale === 'pt-BR'
+    ? 'Speak in natural Brazilian Portuguese with clear intonation and friendly pace.'
+    : 'Speak in natural American English with clear intonation and friendly pace.';
+}
+
+function setVoiceRecordingUi(isRecording) {
+  if (elements.aiVoiceRecordButton) {
+    elements.aiVoiceRecordButton.disabled = Boolean(isRecording);
+  }
+  if (elements.aiVoiceStopButton) {
+    elements.aiVoiceStopButton.disabled = !isRecording;
+  }
+  if (elements.aiChatVoiceButton) {
+    elements.aiChatVoiceButton.classList.toggle('hidden', Boolean(isRecording));
+    elements.aiChatVoiceButton.disabled = false;
+  }
+  if (elements.aiChatVoiceStopButton) {
+    elements.aiChatVoiceStopButton.classList.toggle('hidden', !isRecording);
+    elements.aiChatVoiceStopButton.disabled = !isRecording;
+  }
+}
+
 async function processVoiceBlob(blob, mimeType) {
   try {
-    const result = await api('/voice/respond', {
+    const level = elements.aiVoiceLevel.value || state.selectedLevel;
+    const voice = elements.aiVoiceName.value || 'alloy';
+    const locale = selectedVoiceLanguage();
+    const audioBase64 = await blobToBase64(blob);
+
+    setMessage(elements.aiScreenMessage, 'Transcrevendo audio...');
+    const transcription = await api('/voice/transcribe', {
       method: 'POST',
       body: JSON.stringify({
-        level: elements.aiVoiceLevel.value || state.selectedLevel,
-        voice: elements.aiVoiceName.value || 'alloy',
-        audioBase64: await blobToBase64(blob),
+        level,
+        language: transcriptionLanguageHint(locale),
+        audioBase64,
         mimeType: mimeType || 'audio/webm',
-        speakResponse: true,
       }),
     });
+    const transcript = String(transcription.text || '').trim();
+    if (!transcript) {
+      throw new Error('Nao foi possivel transcrever o audio.');
+    }
+    setMessage(elements.aiVoiceTranscript, transcript, 'success');
 
-    setMessage(elements.aiVoiceTranscript, result.transcript || 'Sem transcricao.', 'success');
-    setMessage(elements.aiVoiceReply, result.reply || 'Sem resposta.', 'success');
+    setMessage(elements.aiScreenMessage, 'Gerando resposta da IA...');
+    const chatResult = await api('/chat', {
+      method: 'POST',
+      body: JSON.stringify({
+        level,
+        mode: 'conversation',
+        topic: '',
+        correctionMode: 'balanced',
+        systemPrompt: chatSystemPromptForVoice(locale),
+        messages: [{ role: 'user', content: transcript }],
+      }),
+    });
+    const reply = String(chatResult.reply || '').trim() || 'Sem resposta.';
+    setMessage(elements.aiVoiceReply, reply, 'success');
 
-    if (result.speech && result.speech.audioBase64) {
-      elements.aiVoicePlayer.src = `data:${result.speech.mimeType};base64,${result.speech.audioBase64}`;
+    state.aiChatHistory.push({ role: 'user', content: transcript });
+    state.aiChatHistory.push({ role: 'assistant', content: reply });
+    if (state.aiChatHistory.length > 20) {
+      state.aiChatHistory = state.aiChatHistory.slice(-20);
+    }
+    renderAiChatLog();
+    refreshAiChatSuggestions();
+
+    let playedAudio = false;
+    setMessage(elements.aiScreenMessage, 'Gerando audio da resposta...');
+    try {
+      const speakResult = await api('/voice/speak', {
+        method: 'POST',
+        body: JSON.stringify({
+          level,
+          voice,
+          language: locale,
+          instructions: speechInstructionsForLocale(locale),
+          text: reply,
+        }),
+      });
+
+      if (speakResult && speakResult.speech && speakResult.speech.audioBase64) {
+        elements.aiVoicePlayer.src = `data:${speakResult.speech.mimeType};base64,${speakResult.speech.audioBase64}`;
+        playedAudio = true;
+      }
+    } catch (_speechError) {
+      // Fallback below.
     }
 
-    setMessage(elements.aiScreenMessage, 'Audio processado com sucesso.', 'success');
+    if (!playedAudio && window.speechSynthesis && typeof window.SpeechSynthesisUtterance === 'function') {
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(reply);
+        utterance.lang = locale;
+        utterance.rate = 1;
+        const allVoices = window.speechSynthesis.getVoices();
+        const preferred = String(voice).toLowerCase();
+        const localeLower = locale.toLowerCase();
+        const localePrefix = localeLower.slice(0, 2);
+        const pickedVoice =
+          allVoices.find((item) => String(item.lang || '').toLowerCase() === localeLower) ||
+          allVoices.find((item) => String(item.lang || '').toLowerCase().startsWith(localePrefix)) ||
+          allVoices.find((item) => String(item.name || '').toLowerCase().includes(preferred)) ||
+          allVoices[0];
+        if (pickedVoice) {
+          utterance.voice = pickedVoice;
+        }
+        window.speechSynthesis.speak(utterance);
+        playedAudio = true;
+      } catch (_browserSpeechError) {
+        // Keep text-only response.
+      }
+    }
+
+    if (playedAudio) {
+      setMessage(elements.aiScreenMessage, 'Audio processado com sucesso.', 'success');
+    } else {
+      setMessage(elements.aiScreenMessage, 'Transcricao e resposta prontas. Audio indisponivel nesta chave.', 'error');
+    }
+
     await refreshSession(true);
   } catch (error) {
     const friendly = friendlyVoiceErrorMessage(error.message);
     setMessage(elements.aiScreenMessage, friendly, 'error');
     setMessage(elements.aiVoiceReply, friendly, 'error');
   } finally {
-    elements.aiVoiceRecordButton.disabled = false;
-    elements.aiVoiceStopButton.disabled = true;
+    setVoiceRecordingUi(false);
   }
 }
 
 async function startVoiceRecording() {
+  if (state.mediaRecorder) {
+    return;
+  }
+
   if (!navigator.mediaDevices || !window.MediaRecorder) {
     setMessage(elements.aiScreenMessage, 'Seu navegador nao suporta gravacao neste dispositivo.', 'error');
     return;
@@ -1431,8 +1800,7 @@ async function startVoiceRecording() {
       const finalMimeType = recorder.mimeType || preferredMimeType || 'audio/webm';
       if (!state.recordedChunks.length) {
         setMessage(elements.aiScreenMessage, 'Nenhum audio capturado. Grave novamente.', 'error');
-        elements.aiVoiceRecordButton.disabled = false;
-        elements.aiVoiceStopButton.disabled = true;
+        setVoiceRecordingUi(false);
         return;
       }
       const blob = new Blob(state.recordedChunks, { type: finalMimeType });
@@ -1440,10 +1808,10 @@ async function startVoiceRecording() {
     };
 
     recorder.start(250);
-    elements.aiVoiceRecordButton.disabled = true;
-    elements.aiVoiceStopButton.disabled = false;
+    setVoiceRecordingUi(true);
     setMessage(elements.aiScreenMessage, 'Gravando audio... fale e depois clique em "Parar e responder".', 'success');
   } catch (error) {
+    setVoiceRecordingUi(false);
     setMessage(elements.aiScreenMessage, error.message, 'error');
   }
 }
@@ -1461,13 +1829,34 @@ function stopVoiceRecording() {
   if (recorder.stream && typeof recorder.stream.getTracks === 'function') {
     recorder.stream.getTracks().forEach((track) => track.stop());
   }
+  if (elements.aiVoiceRecordButton) {
+    elements.aiVoiceRecordButton.disabled = true;
+  }
+  if (elements.aiChatVoiceButton) {
+    elements.aiChatVoiceButton.classList.remove('hidden');
+    elements.aiChatVoiceButton.disabled = true;
+  }
+  if (elements.aiChatVoiceStopButton) {
+    elements.aiChatVoiceStopButton.classList.add('hidden');
+    elements.aiChatVoiceStopButton.disabled = true;
+  }
   setMessage(elements.aiScreenMessage, 'Processando audio...');
 }
 
 function renderAiScreen() {
   renderAiChatLog();
   renderAiExercises();
-  setAiTopic(state.aiTopic, { focus: false });
+  refreshAiChatSuggestions();
+  setVoiceRecordingUi(false);
+  if (elements.aiVoiceLanguage) {
+    const value = elements.aiVoiceLanguage.value;
+    if (!['en-US', 'pt-BR'].includes(value)) {
+      elements.aiVoiceLanguage.value = 'en-US';
+    }
+  }
+  elements.aiChatMode.value = 'conversation';
+  elements.aiChatTopic.value = '';
+  setAiTopic('conversation', { focus: false });
 
   if (!state.openAiConfigured) {
     setMessage(
@@ -1476,8 +1865,48 @@ function renderAiScreen() {
       'error',
     );
   } else {
-    setMessage(elements.aiScreenMessage, 'IA pronta para uso.', 'success');
+    setMessage(elements.aiScreenMessage, 'Converse livremente. Sugestoes de assuntos aparecem abaixo do chat.');
   }
+}
+
+async function promptInstallApp() {
+  if (!state.deferredInstallPrompt) {
+    return;
+  }
+
+  try {
+    await state.deferredInstallPrompt.prompt();
+    await state.deferredInstallPrompt.userChoice;
+  } catch (_error) {
+    // Ignore cancellation errors.
+  } finally {
+    state.deferredInstallPrompt = null;
+    state.isInstallAvailable = false;
+    syncInstallButton();
+  }
+}
+
+function setupPwaSupport() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/playground/sw.js').catch(() => {
+        // Service worker is optional.
+      });
+    });
+  }
+
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    state.deferredInstallPrompt = event;
+    state.isInstallAvailable = true;
+    syncInstallButton();
+  });
+
+  window.addEventListener('appinstalled', () => {
+    state.deferredInstallPrompt = null;
+    state.isInstallAvailable = false;
+    syncInstallButton();
+  });
 }
 
 async function saveLevel(levelId, source) {
@@ -1616,6 +2045,7 @@ async function logout() {
   state.aiTopic = 'conversation';
   state.aiChatHistory = [];
   state.aiChatLoading = false;
+  state.aiTopicSuggestions = [];
   state.aiExerciseBatch = null;
   state.aiExercises = [];
   syncUserBadge();
@@ -1759,6 +2189,9 @@ function bindEvents() {
 
   elements.homeStartTrailButton.addEventListener('click', () => setScreen('activities'));
   elements.homeOpenAiButton.addEventListener('click', () => setScreen('ai'));
+  if (elements.installAppButton) {
+    elements.installAppButton.addEventListener('click', promptInstallApp);
+  }
   elements.homeChangeLevelButton.addEventListener('click', () => setScreen('level'));
 
   elements.activitiesList.addEventListener('click', (event) => {
@@ -1775,8 +2208,28 @@ function bindEvents() {
   elements.saveDraftButton.addEventListener('click', saveDraft);
   elements.requestFeedbackButton.addEventListener('click', requestFeedback);
   elements.completeActivityButton.addEventListener('click', completeActivity);
+  elements.activityTasks.addEventListener('input', (event) => {
+    const target = event.target.closest('[data-question-id]');
+    if (!target) {
+      return;
+    }
+    queueActivityAutoSave();
+  });
+  elements.activityTasks.addEventListener('change', (event) => {
+    const target = event.target.closest('[data-question-id]');
+    if (!target) {
+      return;
+    }
+    queueActivityAutoSave();
+  });
 
   elements.aiChatSendButton.addEventListener('click', sendAiChat);
+  if (elements.aiChatVoiceButton) {
+    elements.aiChatVoiceButton.addEventListener('click', startVoiceRecording);
+  }
+  if (elements.aiChatVoiceStopButton) {
+    elements.aiChatVoiceStopButton.addEventListener('click', stopVoiceRecording);
+  }
   elements.aiChatClearButton.addEventListener('click', clearAiChat);
   elements.aiChatInput.addEventListener('input', resizeChatInput);
   elements.aiChatInput.addEventListener('keydown', (event) => {
@@ -1785,6 +2238,27 @@ function bindEvents() {
       sendAiChat();
     }
   });
+  if (elements.aiChatSuggestions) {
+    elements.aiChatSuggestions.addEventListener('click', (event) => {
+      const refreshButton = event.target.closest('[data-ai-suggestion-refresh]');
+      if (refreshButton) {
+        refreshAiChatSuggestions();
+        return;
+      }
+      const target = event.target.closest('[data-ai-suggestion-index]');
+      if (!target) {
+        return;
+      }
+      const index = Number(target.dataset.aiSuggestionIndex);
+      const item = Number.isInteger(index) ? state.aiTopicSuggestions[index] : null;
+      if (!item || !item.prompt) {
+        return;
+      }
+      elements.aiChatInput.value = item.prompt;
+      resizeChatInput();
+      sendAiChat();
+    });
+  }
   elements.aiChatMode.addEventListener('change', () => {
     setAiTopic(aiTopicFromChatMode(elements.aiChatMode.value), { focus: false });
   });
@@ -1816,11 +2290,13 @@ function bindEvents() {
 
 async function bootstrap() {
   renderQuiz();
+  setupPwaSupport();
   bindEvents();
   await loadOptions();
   await refreshSession();
   resizeChatInput();
   renderAiChatLog();
+  refreshAiChatSuggestions();
   renderAiExercises();
   syncUserBadge();
   syncStatusBanner();

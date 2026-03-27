@@ -3,7 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#15766d" />
     <title>ProfEng App</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -392,6 +395,38 @@
         background: rgba(237, 252, 245, 0.92);
       }
 
+      .trail-progress {
+        border: 1px solid rgba(24, 36, 47, 0.14);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.86);
+        padding: 10px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .trail-progress-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .trail-progress-track {
+        width: 100%;
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(24, 36, 47, 0.12);
+        overflow: hidden;
+      }
+
+      .trail-progress-fill {
+        width: 0%;
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #16806c, #34a892);
+        transition: width 0.26s ease;
+      }
+
       .activity-top {
         display: flex;
         justify-content: space-between;
@@ -434,6 +469,16 @@
         gap: 10px;
       }
 
+      .question-card.correct {
+        border-color: rgba(31, 127, 88, 0.5);
+        background: rgba(237, 252, 245, 0.92);
+      }
+
+      .question-card.wrong {
+        border-color: rgba(178, 65, 51, 0.5);
+        background: rgba(255, 244, 243, 0.95);
+      }
+
       .question-top {
         display: flex;
         justify-content: space-between;
@@ -457,6 +502,26 @@
         color: var(--ink);
         line-height: 1.5;
         font-weight: 600;
+      }
+
+      .question-feedback {
+        border: 1px dashed rgba(24, 36, 47, 0.22);
+        border-radius: 10px;
+        padding: 8px 9px;
+        font-size: 0.85rem;
+        line-height: 1.45;
+      }
+
+      .question-feedback.ok {
+        border-color: rgba(31, 127, 88, 0.4);
+        background: rgba(237, 252, 245, 0.8);
+        color: #1f7f58;
+      }
+
+      .question-feedback.error {
+        border-color: rgba(178, 65, 51, 0.36);
+        background: rgba(255, 244, 243, 0.85);
+        color: #9a3d32;
       }
 
       .answer-input {
@@ -566,6 +631,49 @@
         width: 100%;
       }
 
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .metric-card {
+        border: 1px solid rgba(24, 36, 47, 0.14);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 10px;
+        display: grid;
+        gap: 4px;
+      }
+
+      .metric-value {
+        font-size: 1.22rem;
+        line-height: 1;
+        font-weight: 800;
+        color: var(--ink);
+      }
+
+      .metric-label {
+        font-size: 0.76rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .home-tools {
+        margin-top: 2px;
+      }
+
+      .home-tools .btn {
+        flex: 1 1 140px;
+      }
+
+      .home-tools .home-level-btn {
+        width: auto;
+      }
+
       .chat-head {
         display: flex;
         align-items: center;
@@ -643,6 +751,26 @@
           linear-gradient(180deg, rgba(235, 248, 239, 0.92), rgba(226, 242, 232, 0.92));
       }
 
+      .chat-suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 10px 12px;
+        border-top: 1px solid rgba(24, 36, 47, 0.1);
+        background: rgba(255, 255, 255, 0.84);
+      }
+
+      .suggestion-chip {
+        min-height: 32px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(21, 118, 109, 0.22);
+        background: rgba(21, 118, 109, 0.1);
+        color: #0f5c54;
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
       .chat-empty {
         margin: auto;
         text-align: center;
@@ -717,6 +845,34 @@
         padding: 0;
         flex: 0 0 auto;
         font-weight: 800;
+      }
+
+      .chat-voice-btn {
+        min-width: 60px;
+        height: 44px;
+        min-height: 44px;
+        border-radius: 999px;
+        padding: 0 12px;
+        flex: 0 0 auto;
+        font-size: 0.78rem;
+      }
+
+      .chat-voice-lang {
+        width: auto;
+        min-width: 96px;
+        height: 44px;
+        min-height: 44px;
+        border-radius: 999px;
+        padding: 0 12px;
+        flex: 0 0 auto;
+        background: rgba(255, 255, 255, 0.94);
+      }
+
+      .clean-ai-only .ai-topic-tabs,
+      .clean-ai-only #aiExercisePanel,
+      .clean-ai-only #aiVoicePanel,
+      .clean-ai-only .chat-controls {
+        display: none !important;
       }
 
       .voice-steps {
@@ -797,6 +953,10 @@
         }
 
         .home-mode-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .dashboard-grid {
           grid-template-columns: 1fr;
         }
       }
@@ -923,6 +1083,28 @@
             <div id="homeLevelPill" class="pill" style="margin-top: 8px">A2</div>
             <p id="homeProgressText" class="line" style="margin-top: 10px">0 atividades concluidas.</p>
           </article>
+          <article class="card">
+            <h3>Seu ritmo</h3>
+            <div class="dashboard-grid">
+              <div class="metric-card">
+                <strong id="homeStreakValue" class="metric-value">0</strong>
+                <span class="metric-label">Dias seguidos</span>
+              </div>
+              <div class="metric-card">
+                <strong id="homeBestStreakValue" class="metric-value">0</strong>
+                <span class="metric-label">Melhor streak</span>
+              </div>
+              <div class="metric-card">
+                <strong id="homeDoneValue" class="metric-value">0</strong>
+                <span class="metric-label">Concluidas</span>
+              </div>
+              <div class="metric-card">
+                <strong id="homeAverageValue" class="metric-value">-</strong>
+                <span class="metric-label">Media de acertos</span>
+              </div>
+            </div>
+            <p id="homeLastActiveText" class="line" style="margin-top: 10px">Seu progresso aparece em tempo real.</p>
+          </article>
           <div class="mode-banner trail">Modo Trilha e Modo IA</div>
           <div class="home-mode-grid">
             <button id="homeStartTrailButton" class="btn mode-btn trail">
@@ -934,17 +1116,29 @@
               <span class="mode-sub">Chat, exercicios e voz com tutor inteligente</span>
             </button>
           </div>
-          <button id="homeChangeLevelButton" class="btn ghost home-level-btn">Trocar nivel</button>
+          <div class="row home-tools">
+            <button id="installAppButton" class="btn secondary hidden">Instalar app</button>
+            <button id="homeChangeLevelButton" class="btn ghost home-level-btn">Trocar nivel</button>
+          </div>
         </section>
 
         <section data-screen="activities" class="screen">
           <div class="mode-banner trail">Modo Trilha</div>
           <h2 id="activitiesTitle">Trilha</h2>
+          <article class="trail-progress">
+            <div class="trail-progress-head">
+              <strong id="activitiesProgressText">Progresso da trilha</strong>
+              <span id="activitiesProgressCount" class="line">0/0</span>
+            </div>
+            <div class="trail-progress-track">
+              <div id="activitiesProgressFill" class="trail-progress-fill"></div>
+            </div>
+          </article>
           <div id="activitiesList" class="activity-list"></div>
           <div id="activitiesMessage" class="message">Escolha uma atividade para comecar.</div>
         </section>
 
-        <section data-screen="ai" class="screen">
+        <section data-screen="ai" class="screen clean-ai-only">
           <div class="mode-banner ai">Modo IA</div>
           <h2>Studio IA</h2>
 
@@ -976,9 +1170,16 @@
             </div>
 
             <div id="aiChatLog" class="chat-log"></div>
+            <div id="aiChatSuggestions" class="chat-suggestions"></div>
 
             <div class="chat-compose">
               <textarea id="aiChatInput" placeholder="Digite sua mensagem... (Enter envia)"></textarea>
+              <select id="aiVoiceLanguage" class="chat-voice-lang" aria-label="Idioma de voz">
+                <option value="en-US">EN-US</option>
+                <option value="pt-BR">PT-BR</option>
+              </select>
+              <button id="aiChatVoiceButton" class="btn secondary chat-voice-btn" aria-label="Gravar voz">Mic</button>
+              <button id="aiChatVoiceStopButton" class="btn warn chat-voice-btn hidden" aria-label="Parar gravacao">Stop</button>
               <button id="aiChatSendButton" class="btn chat-send-btn" aria-label="Enviar">></button>
             </div>
           </article>
@@ -1023,7 +1224,7 @@
             <audio id="aiVoicePlayer" controls></audio>
           </article>
 
-          <div id="aiScreenMessage" class="message">Use os blocos acima para praticar com IA.</div>
+          <div id="aiScreenMessage" class="message">Converse livremente. O app vai sugerir assuntos durante o chat.</div>
         </section>
 
         <section data-screen="activity" class="screen">
@@ -1036,8 +1237,9 @@
             <button id="regenerateActivityButton" class="btn secondary">Novo lote</button>
             <button id="saveDraftButton" class="btn ghost">Salvar respostas</button>
             <button id="requestFeedbackButton" class="btn secondary">Corrigir agora</button>
-            <button id="completeActivityButton" class="btn">Concluir</button>
+            <button id="completeActivityButton" class="btn" disabled>Concluir</button>
           </div>
+          <div id="activityAutosaveHint" class="line">As respostas sao salvas automaticamente.</div>
           <div id="activityMessage" class="message">Responda as questoes objetivas e clique em "Corrigir agora".</div>
           <div id="activityFeedback" class="message">Seu resultado vai aparecer aqui.</div>
         </section>

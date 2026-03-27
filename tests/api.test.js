@@ -114,6 +114,50 @@ test('email auth flow creates a user, returns a token and exposes profile stats'
   assert.equal(me.stats.voiceSessions, 0);
 });
 
+test('activity progress endpoint syncs completion stats for the logged user', async () => {
+  const { response: registerResponse, json: register } = await requestJson('/auth/register', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      email: 'trilha@profeng.dev',
+      password: 'Senha1234',
+      name: 'Aluno Trilha',
+      level: 'B1',
+    }),
+  });
+
+  assert.equal(registerResponse.status, 200);
+  assert.ok(register.token);
+
+  const { response: progressResponse, json: progress } = await requestJson('/progress/activity', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${register.token}`,
+    },
+    body: JSON.stringify({
+      activityId: 'b1-opinion',
+      level: 'B1',
+      score: 84,
+    }),
+  });
+
+  assert.equal(progressResponse.status, 200);
+  assert.equal(progress.success, true);
+  assert.equal(progress.stats.completedActivities, 1);
+  assert.equal(progress.stats.currentStreakDays >= 1, true);
+
+  const { response: meResponse, json: me } = await requestJson('/auth/me', {
+    headers: {
+      Authorization: `Bearer ${register.token}`,
+    },
+  });
+
+  assert.equal(meResponse.status, 200);
+  assert.equal(me.stats.completedActivities, 1);
+  assert.equal(me.stats.bestStreakDays >= 1, true);
+});
+
 test('chat route fails gracefully when OpenAI is not configured', async () => {
   const { response, json } = await requestJson('/chat', {
     method: 'POST',
@@ -121,6 +165,20 @@ test('chat route fails gracefully when OpenAI is not configured', async () => {
     body: JSON.stringify({
       level: 'B1',
       messages: [{ role: 'user', content: 'Hello there' }],
+    }),
+  });
+
+  assert.equal(response.status, 503);
+  assert.match(json.error, /OPENAI_API_KEY/i);
+});
+
+test('voice speak route fails gracefully when OpenAI is not configured', async () => {
+  const { response, json } = await requestJson('/voice/speak', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      text: 'Hello from the app',
+      voice: 'alloy',
     }),
   });
 

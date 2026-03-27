@@ -63,6 +63,8 @@ function createApp() {
         'POST /feedback',
         'POST /voice/transcribe',
         'POST /voice/respond',
+        'POST /voice/speak',
+        'POST /progress/activity',
         'POST /exercises/generate',
         'POST /exercises/check',
         'POST /levels/assess',

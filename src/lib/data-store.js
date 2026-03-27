@@ -18,6 +18,7 @@ function createDefaultStore() {
     exerciseAttempts: [],
     levelAssessments: [],
     voiceSessions: [],
+    activityCompletions: [],
   };
 }
 
@@ -35,6 +36,9 @@ function normalizeStore(store) {
       ? store.levelAssessments
       : [],
     voiceSessions: Array.isArray(store && store.voiceSessions) ? store.voiceSessions : [],
+    activityCompletions: Array.isArray(store && store.activityCompletions)
+      ? store.activityCompletions
+      : [],
   };
 }
 
