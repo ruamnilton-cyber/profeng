@@ -431,6 +431,89 @@ const STARTER_WORD_LESSONS = {
   },
 };
 
+const A0_EXTRA_WORDS_BY_ACTIVITY = {
+  'a0-greetings': [
+    { en: 'good afternoon', pt: 'boa tarde', example: 'Good afternoon, everyone.' },
+    { en: 'welcome', pt: 'bem-vindo(a)', example: 'Welcome to class.' },
+    { en: 'excuse me', pt: 'com licença', example: 'Excuse me, teacher.' },
+    { en: 'you are welcome', pt: 'de nada', example: 'You are welcome, friend.' },
+    { en: 'see you later', pt: 'até mais', example: 'See you later, Ana.' },
+    { en: 'take care', pt: 'se cuida', example: 'Bye, take care.' },
+    { en: 'of course', pt: 'claro', example: 'Of course, I can help.' },
+    { en: 'good evening', pt: 'boa noite (ao chegar)', example: 'Good evening, sir.' },
+  ],
+  'a0-numbers-colors': [
+    { en: 'four', pt: 'quatro', example: 'Four books.' },
+    { en: 'five', pt: 'cinco', example: 'Five chairs.' },
+    { en: 'six', pt: 'seis', example: 'Six students.' },
+    { en: 'seven', pt: 'sete', example: 'Seven minutes.' },
+    { en: 'eight', pt: 'oito', example: 'Eight apples.' },
+    { en: 'yellow', pt: 'amarelo', example: 'A yellow pencil.' },
+    { en: 'orange', pt: 'laranja', example: 'An orange bag.' },
+    { en: 'brown', pt: 'marrom', example: 'A brown table.' },
+  ],
+  'a0-family': [
+    { en: 'uncle', pt: 'tio', example: 'My uncle lives nearby.' },
+    { en: 'aunt', pt: 'tia', example: 'My aunt cooks well.' },
+    { en: 'cousin', pt: 'primo(a)', example: 'My cousin is funny.' },
+    { en: 'son', pt: 'filho', example: 'Her son is ten.' },
+    { en: 'daughter', pt: 'filha', example: 'Their daughter studies.' },
+    { en: 'baby', pt: 'bebê', example: 'The baby is sleeping.' },
+    { en: 'neighbor', pt: 'vizinho(a)', example: 'My neighbor is kind.' },
+    { en: 'classmate', pt: 'colega de classe', example: 'My classmate helps me.' },
+  ],
+  'a0-food-daily': [
+    { en: 'egg', pt: 'ovo', example: 'I eat an egg.' },
+    { en: 'cheese', pt: 'queijo', example: 'Cheese is tasty.' },
+    { en: 'chicken', pt: 'frango', example: 'We eat chicken at lunch.' },
+    { en: 'fish', pt: 'peixe', example: 'Fish is healthy.' },
+    { en: 'juice', pt: 'suco', example: 'I drink orange juice.' },
+    { en: 'soup', pt: 'sopa', example: 'Soup is hot.' },
+    { en: 'salt', pt: 'sal', example: 'Add a little salt.' },
+    { en: 'sugar', pt: 'açúcar', example: 'Coffee with sugar.' },
+  ],
+  'a0-home-objects': [
+    { en: 'sofa', pt: 'sofá', example: 'The sofa is new.' },
+    { en: 'lamp', pt: 'lâmpada', example: 'Turn on the lamp.' },
+    { en: 'clock', pt: 'relógio', example: 'The clock is on the wall.' },
+    { en: 'fridge', pt: 'geladeira', example: 'The milk is in the fridge.' },
+    { en: 'stove', pt: 'fogão', example: 'The stove is clean.' },
+    { en: 'mirror', pt: 'espelho', example: 'The mirror is big.' },
+    { en: 'shelf', pt: 'prateleira', example: 'Books are on the shelf.' },
+    { en: 'pillow', pt: 'travesseiro', example: 'My pillow is soft.' },
+  ],
+  'a0-actions-routine': [
+    { en: 'cook', pt: 'cozinhar', example: 'I cook dinner.' },
+    { en: 'clean', pt: 'limpar', example: 'I clean my room.' },
+    { en: 'walk', pt: 'caminhar', example: 'I walk in the park.' },
+    { en: 'run', pt: 'correr', example: 'I run every morning.' },
+    { en: 'open', pt: 'abrir', example: 'I open the window.' },
+    { en: 'close', pt: 'fechar', example: 'I close the door.' },
+    { en: 'watch', pt: 'assistir', example: 'I watch videos at night.' },
+    { en: 'wash', pt: 'lavar', example: 'I wash my hands.' },
+  ],
+  'a0-places-transport': [
+    { en: 'park', pt: 'parque', example: 'The park is near my house.' },
+    { en: 'bank', pt: 'banco', example: 'The bank is on this street.' },
+    { en: 'pharmacy', pt: 'farmácia', example: 'The pharmacy is open.' },
+    { en: 'airport', pt: 'aeroporto', example: 'I go to the airport by car.' },
+    { en: 'train', pt: 'trem', example: 'The train is fast.' },
+    { en: 'bike', pt: 'bicicleta', example: 'I go to work by bike.' },
+    { en: 'taxi', pt: 'táxi', example: 'I take a taxi at night.' },
+    { en: 'avenue', pt: 'avenida', example: 'This avenue is long.' },
+  ],
+  'a0-mini-conversation': [
+    { en: 'what is your name', pt: 'qual é o seu nome', example: 'What is your name?' },
+    { en: 'I am learning English', pt: 'eu estou aprendendo inglês', example: 'I am learning English now.' },
+    { en: 'could you repeat', pt: 'você pode repetir', example: 'Could you repeat, please?' },
+    { en: 'I do not understand', pt: 'eu não entendo', example: 'Sorry, I do not understand.' },
+    { en: 'please speak slowly', pt: 'por favor fale devagar', example: 'Please speak slowly.' },
+    { en: 'how old are you', pt: 'quantos anos você tem', example: 'How old are you?' },
+    { en: 'where do you live', pt: 'onde você mora', example: 'Where do you live?' },
+    { en: 'have a nice day', pt: 'tenha um bom dia', example: 'Bye, have a nice day.' },
+  ],
+};
+
 const QUIZ_QUESTIONS = [
   {
     id: 'q1',
@@ -972,6 +1055,153 @@ const OBJECTIVE_BANK_BY_ACTIVITY = {
     },
   ],
 };
+
+function escapeRegex(value) {
+  return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function starterVocabularyForActivity(activityId) {
+  const lessonWords =
+    STARTER_WORD_LESSONS[activityId] && Array.isArray(STARTER_WORD_LESSONS[activityId].words)
+      ? STARTER_WORD_LESSONS[activityId].words
+      : [];
+  const extraWords = Array.isArray(A0_EXTRA_WORDS_BY_ACTIVITY[activityId]) ? A0_EXTRA_WORDS_BY_ACTIVITY[activityId] : [];
+  const merged = [...lessonWords, ...extraWords];
+  const byKey = new Map();
+
+  merged.forEach((word) => {
+    if (!word || typeof word !== 'object') {
+      return;
+    }
+    const en = String(word.en || '').trim().toLowerCase();
+    const pt = String(word.pt || '').trim().toLowerCase();
+    const example = String(word.example || '').trim();
+    if (!en || !pt) {
+      return;
+    }
+    const key = `${en}|${pt}`;
+    if (!byKey.has(key)) {
+      byKey.set(key, { en, pt, example: example || `I use ${en}.` });
+    }
+  });
+
+  return Array.from(byKey.values());
+}
+
+function starterDistractors(words, currentIndex, total = 2) {
+  if (!Array.isArray(words) || words.length <= 1) {
+    return [];
+  }
+  const output = [];
+  let step = 1;
+
+  while (output.length < total && step < words.length + 3) {
+    const candidate = words[(currentIndex + step * 2) % words.length];
+    if (candidate && !output.includes(candidate.en) && candidate.en !== words[currentIndex].en) {
+      output.push(candidate.en);
+    }
+    step += 1;
+  }
+
+  return output;
+}
+
+function rotateOptionOrder(options, index = 0) {
+  const safe = Array.isArray(options) ? options.filter(Boolean) : [];
+  if (!safe.length) {
+    return [];
+  }
+  const shift = Math.max(0, Number(index) || 0) % safe.length;
+  return safe.slice(shift).concat(safe.slice(0, shift));
+}
+
+function starterExampleWithBlank(example, answer) {
+  const sample = String(example || '').trim();
+  const token = String(answer || '').trim();
+  if (!sample || !token) {
+    return 'I ___ every day.';
+  }
+  const matcher = new RegExp(escapeRegex(token), 'i');
+  if (matcher.test(sample)) {
+    return sample.replace(matcher, '___');
+  }
+  return `${sample} (use: ___)`;
+}
+
+function buildStarterProgressiveQuestions(activityId, words) {
+  const list = Array.isArray(words) ? words.slice(0, 18) : [];
+  if (list.length < 3) {
+    return [];
+  }
+
+  const generated = [];
+
+  list.forEach((word, index) => {
+    const distractors = starterDistractors(list, index, 2);
+    const options = rotateOptionOrder([word.en, ...distractors], index);
+    generated.push({
+      id: `${activityId}-exp-mc-${index + 1}`,
+      type: 'mc',
+      prompt: `Nível 1 • Qual palavra em inglês significa "${word.pt}"?`,
+      options,
+      answer: word.en,
+      explanation: `${word.en} = ${word.pt}.`,
+    });
+  });
+
+  list.slice(0, 14).forEach((word, index) => {
+    generated.push({
+      id: `${activityId}-exp-fill-${index + 1}`,
+      type: 'fill',
+      prompt: `Nível 2 • Escreva em inglês: "${word.pt}".`,
+      answer: [word.en],
+      explanation: `Resposta esperada: ${word.en}.`,
+    });
+  });
+
+  list.slice(0, 12).forEach((word, index) => {
+    const blankSentence = starterExampleWithBlank(word.example, word.en);
+    const distractors = starterDistractors(list, index + 1, 2);
+    const options = rotateOptionOrder([word.en, ...distractors], index + 1);
+    generated.push({
+      id: `${activityId}-exp-context-${index + 1}`,
+      type: 'mc',
+      prompt: `Nível 3 • Complete a frase: "${blankSentence}"`,
+      options,
+      answer: word.en,
+      explanation: `A palavra correta no contexto é "${word.en}".`,
+    });
+  });
+
+  list.slice(0, 12).forEach((word, index) => {
+    const alternate = list[(index + 3) % list.length];
+    const shouldBeTrue = index % 2 === 0;
+    const targetPt = shouldBeTrue ? word.pt : alternate.pt;
+    generated.push({
+      id: `${activityId}-exp-tf-${index + 1}`,
+      type: 'tf',
+      prompt: `Nível 4 • Verdadeiro ou falso: "${word.en}" significa "${targetPt}".`,
+      answer: shouldBeTrue,
+      correction: shouldBeTrue
+        ? `Correto: "${word.en}" significa "${word.pt}".`
+        : `Incorreto: "${word.en}" significa "${word.pt}".`,
+    });
+  });
+
+  return generated;
+}
+
+const A0_ACTIVITY_IDS = (ACTIVITY_BY_LEVEL.A0 || []).map((item) => item.id);
+A0_ACTIVITY_IDS.forEach((activityId) => {
+  const existing = Array.isArray(OBJECTIVE_BANK_BY_ACTIVITY[activityId])
+    ? OBJECTIVE_BANK_BY_ACTIVITY[activityId]
+    : [];
+  const vocab = starterVocabularyForActivity(activityId);
+  const generated = buildStarterProgressiveQuestions(activityId, vocab);
+  const merged = [...existing, ...generated];
+  const byId = new Map(merged.map((question) => [question.id, question]));
+  OBJECTIVE_BANK_BY_ACTIVITY[activityId] = Array.from(byId.values());
+});
 
 const OBJECTIVE_BANK_BY_LEVEL = {
   A0: [

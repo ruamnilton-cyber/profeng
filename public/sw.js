@@ -1,10 +1,10 @@
-const CACHE_NAME = 'profeng-playground-v7';
+const CACHE_NAME = 'profeng-playground-v8';
 const PLAYGROUND_PREFIX = '/playground/';
 const APP_SHELL = [
   '/playground/',
   '/playground/index.html',
-  '/playground/playground.js?v=20260328-1',
-  '/playground/manifest.webmanifest?v=20260328-1',
+  '/playground/playground.js?v=20260328-2',
+  '/playground/manifest.webmanifest?v=20260328-2',
   '/playground/icons/icon-192.svg',
   '/playground/icons/icon-512.svg',
 ];
