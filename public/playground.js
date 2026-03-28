@@ -6,6 +6,7 @@ const STORAGE_KEYS = {
   drafts: 'profeng_drafts',
   activitySets: 'profeng_activity_sets',
   activityResults: 'profeng_activity_results',
+  aiChatSpeechEnabled: 'profeng_ai_chat_speech_enabled',
 };
 
 const LEVELS_FALLBACK = [
@@ -1046,6 +1047,7 @@ const state = {
   drafts: readStoredJson(STORAGE_KEYS.drafts, {}),
   activitySets: readStoredJson(STORAGE_KEYS.activitySets, {}),
   activityResults: readStoredJson(STORAGE_KEYS.activityResults, {}),
+  aiChatSpeechEnabled: localStorage.getItem(STORAGE_KEYS.aiChatSpeechEnabled) !== 'off',
   aiChatHistory: [],
   aiChatLoading: false,
   aiTopicSuggestions: [],
@@ -1057,6 +1059,7 @@ const state = {
   progressSyncTimer: null,
   deferredInstallPrompt: null,
   isInstallAvailable: false,
+  chatPlaybackAudio: null,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -1151,6 +1154,7 @@ const elements = {
   aiChatVoiceStopButton: $('aiChatVoiceStopButton'),
   aiChatSendButton: $('aiChatSendButton'),
   aiChatClearButton: $('aiChatClearButton'),
+  aiChatSpeechToggle: $('aiChatSpeechToggle'),
 
   aiExerciseLevel: $('aiExerciseLevel'),
   aiExerciseSkill: $('aiExerciseSkill'),
@@ -2644,6 +2648,58 @@ function trimAiChatHistory() {
   }
 }
 
+function renderAiChatSpeechToggle() {
+  if (!elements.aiChatSpeechToggle) {
+    return;
+  }
+
+  const enabled = state.aiChatSpeechEnabled !== false;
+  elements.aiChatSpeechToggle.textContent = enabled ? 'Voz: ON' : 'Voz: OFF';
+  elements.aiChatSpeechToggle.classList.toggle('active', enabled);
+  elements.aiChatSpeechToggle.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+}
+
+function stopAiChatSpeechPlayback() {
+  if (window.speechSynthesis && typeof window.speechSynthesis.cancel === 'function') {
+    window.speechSynthesis.cancel();
+  }
+  if (state.chatPlaybackAudio && typeof state.chatPlaybackAudio.pause === 'function') {
+    state.chatPlaybackAudio.pause();
+    try {
+      state.chatPlaybackAudio.currentTime = 0;
+    } catch (_error) {
+      // Ignore seek errors in some browsers.
+    }
+  }
+  state.chatPlaybackAudio = null;
+}
+
+function setAiChatSpeechEnabled(enabled, options = {}) {
+  const silent = Boolean(options.silent);
+  const nextEnabled = Boolean(enabled);
+  state.aiChatSpeechEnabled = nextEnabled;
+  localStorage.setItem(STORAGE_KEYS.aiChatSpeechEnabled, nextEnabled ? 'on' : 'off');
+  renderAiChatSpeechToggle();
+
+  if (!nextEnabled) {
+    stopAiChatSpeechPlayback();
+  }
+
+  if (!silent) {
+    setMessage(
+      elements.aiScreenMessage,
+      nextEnabled
+        ? 'Modo transcrição falada ativado: respostas do tutor serão lidas em voz.'
+        : 'Modo transcrição falada desativado: respostas do tutor ficam em texto.',
+      nextEnabled ? 'success' : '',
+    );
+  }
+}
+
+function toggleAiChatSpeechMode() {
+  setAiChatSpeechEnabled(!(state.aiChatSpeechEnabled !== false));
+}
+
 function speakWithBrowserTts(text, locale, preferredVoiceName) {
   if (!window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== 'function') {
     return false;
@@ -2679,10 +2735,20 @@ async function playAudioDataUrl(dataUrl) {
   }
 
   try {
+    if (state.chatPlaybackAudio && typeof state.chatPlaybackAudio.pause === 'function') {
+      state.chatPlaybackAudio.pause();
+    }
     const audio = new Audio(dataUrl);
+    state.chatPlaybackAudio = audio;
+    audio.addEventListener('ended', () => {
+      if (state.chatPlaybackAudio === audio) {
+        state.chatPlaybackAudio = null;
+      }
+    });
     await audio.play();
     return true;
   } catch (_error) {
+    state.chatPlaybackAudio = null;
     return false;
   }
 }
@@ -2806,6 +2872,7 @@ async function sendAiChat() {
     return;
   }
 
+  stopAiChatSpeechPlayback();
   state.aiChatHistory.push({ role: 'user', content: userText });
   elements.aiChatInput.value = '';
   resizeChatInput();
@@ -2834,7 +2901,7 @@ async function sendAiChat() {
     state.aiChatHistory.push(assistantMessage);
     trimAiChatHistory();
     renderAiChatLog();
-    ensureAssistantMessageAudio(assistantMessage, { autoPlay: true }).catch(() => {});
+    ensureAssistantMessageAudio(assistantMessage, { autoPlay: state.aiChatSpeechEnabled !== false }).catch(() => {});
   } catch (error) {
     state.aiChatHistory.push({ role: 'assistant', content: `Erro: ${error.message}` });
     trimAiChatHistory();
@@ -2848,6 +2915,7 @@ async function sendAiChat() {
 }
 
 function clearAiChat() {
+  stopAiChatSpeechPlayback();
   state.aiChatHistory = [];
   state.aiChatLoading = false;
   renderAiChatLog();
@@ -3124,7 +3192,9 @@ async function processVoiceBlob(blob, mimeType) {
     refreshAiChatSuggestions();
 
     setMessage(elements.aiScreenMessage, 'Gerando audio da resposta...');
-    const playedAudio = await ensureAssistantMessageAudio(assistantMessage, { autoPlay: true });
+    const playedAudio = await ensureAssistantMessageAudio(assistantMessage, {
+      autoPlay: state.aiChatSpeechEnabled !== false,
+    });
 
     if (playedAudio) {
       setMessage(elements.aiScreenMessage, 'Audio processado com sucesso.', 'success');
@@ -3227,6 +3297,7 @@ function stopVoiceRecording() {
 
 function renderAiScreen() {
   renderAiChatLog();
+  renderAiChatSpeechToggle();
   renderAiExercises();
   refreshAiChatSuggestions();
   setVoiceRecordingUi(false);
@@ -3247,7 +3318,14 @@ function renderAiScreen() {
       'error',
     );
   } else {
-    setMessage(elements.aiScreenMessage, 'Converse livremente. Sugestoes de assuntos aparecem abaixo do chat.');
+    const speechStatus =
+      state.aiChatSpeechEnabled !== false
+        ? 'Modo transcrição falada: ligado.'
+        : 'Modo transcrição falada: desligado.';
+    setMessage(
+      elements.aiScreenMessage,
+      `Converse livremente. Sugestoes de assuntos aparecem abaixo do chat. ${speechStatus}`,
+    );
   }
 }
 
@@ -3649,6 +3727,9 @@ function bindEvents() {
   if (elements.aiChatVoiceStopButton) {
     elements.aiChatVoiceStopButton.addEventListener('click', stopVoiceRecording);
   }
+  if (elements.aiChatSpeechToggle) {
+    elements.aiChatSpeechToggle.addEventListener('click', toggleAiChatSpeechMode);
+  }
   elements.aiChatClearButton.addEventListener('click', clearAiChat);
   elements.aiChatInput.addEventListener('input', resizeChatInput);
   elements.aiChatInput.addEventListener('keydown', (event) => {
@@ -3726,6 +3807,7 @@ async function bootstrap() {
   await loadOptions();
   await refreshSession();
   resizeChatInput();
+  renderAiChatSpeechToggle();
   renderAiChatLog();
   refreshAiChatSuggestions();
   renderAiExercises();

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#15766d" />
     <title>ProfEng App</title>
-    <link rel="manifest" href="./manifest.webmanifest?v=20260327-6" />
+    <link rel="manifest" href="./manifest.webmanifest?v=20260328-1" />
     <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -869,6 +869,17 @@
         border-radius: 999px;
       }
 
+      .chat-head-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .chat-speech-toggle.active {
+        border-color: rgba(21, 118, 109, 0.8);
+        background: rgba(21, 118, 109, 0.14);
+      }
+
       .chat-controls {
         display: grid;
         gap: 8px;
@@ -1351,7 +1362,10 @@
                   <div class="chat-presence">online</div>
                 </div>
               </div>
-              <button id="aiChatClearButton" class="btn ghost chat-clear-btn">Limpar</button>
+              <div class="chat-head-actions">
+                <button id="aiChatSpeechToggle" class="btn ghost chat-clear-btn chat-speech-toggle" aria-pressed="true">Voz: ON</button>
+                <button id="aiChatClearButton" class="btn ghost chat-clear-btn">Limpar</button>
+              </div>
             </div>
 
             <div class="chat-controls">
@@ -1448,7 +1462,7 @@
     </div>
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="/playground/playground.js?v=20260327-6"></script>
+    <script src="/playground/playground.js?v=20260328-1"></script>
   </body>
 </html>
 
